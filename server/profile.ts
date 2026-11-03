@@ -1,6 +1,11 @@
 // Shared with the panel: no imports, so the web bundle can use it.
 /** The profile is split in topics so the owner can fix one piece without rewriting the rest. */
 export const PROFILE_TOPICS = [
+	{
+		id: "voce",
+		label: "Você",
+		hint: "nome e sobrenome, como te chamam, onde e quando nasceu, de onde é a família",
+	},
 	{ id: "mora", label: "Onde você mora", hint: "cidade, bairro, com quem mora" },
 	{ id: "trabalho", label: "Trabalho", hint: "empresa, cargo, o que faz, com quem trabalha" },
 	{
