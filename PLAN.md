@@ -1,18 +1,19 @@
-# zap: plano
+# zapzero: plano
 
 Destino: uma **skill** + um **micro web app self-contained** que qualquer pessoa pluga no próprio WhatsApp Desktop pra entender e pilotar o WhatsApp. Sem bot, sem aparelho conectado a mais, sem servidor de terceiros. Hoje roda pro Gui; cada passo abaixo deixa o caminho pra publicar.
 
-## 1. Ler (feito)
+## 0. Central de priorização (feito, nov/2026)
 
-- [x] Snapshot read-only do banco local (`zap.sh snapshot`).
-- [x] Visão geral sem conteúdo: conhecidos × desconhecidos × grupos, não lidas, quem falou por último.
-- [x] Cohorts semanais: % respondido em 24h, sem resposta, onde o volume de grupos explodiu.
-- [x] Triagem de DMs em cascata: regras grátis → Jev (~$0.00004/chat) → Haiku só na faixa incerta.
-- [x] Assuntos dos grupos (1 semana): Haiku resume, Jev pontua relevância e "vale avisar".
-- [x] Radar + tela de limpeza servidos só no tailnet pessoal. Decisões salvas em `decisoes.json`.
-- [ ] Haiku nas ~60 DMs em que o Jev ficou em dúvida.
-- [ ] Assuntos dos ~30 grupos ativos, toda semana; juntar assuntos repetidos entre grupos; "conversa solta" só se citar o dono.
-- [ ] O resumo dos grupos ainda é feito à mão por subagents Haiku: virar um comando (`zap.sh digest`) com o prompt versionado.
+TypeScript num processo Bun só (Hono + React/TanStack). Substituiu os scripts Python, o radar e a tela de limpeza.
+
+- [x] Snapshot read-only a cada 15 min, triagem Jev só do que mudou, rascunho Haiku pra quem espera resposta. Tetos por rodada.
+- [x] Categorias ranqueadas: importante e urgente / essa semana / mais de uma semana / você está esperando / grupos e lazer / limpeza.
+- [x] Painel com atalhos: Y abre a conversa no WhatsApp com o texto (o dono aperta Enter), D resolvida, A arquivar (intenção), S pular, Z desfazer. Decisão vale até chegar mensagem nova.
+- [x] Rascunho deixa decisões [entre colchetes]; Y seleciona o colchete em vez de mandar.
+- [ ] MCP app no deco Studio: Worker público mínimo com 1 tool cujo `ui://` é um iframe pro tailnet (`_meta.ui.csp.frameDomains`). O token vai no casco, que só o Studio autenticado recebe. Nenhum dado do WhatsApp passa pelo Worker.
+- [ ] launchd pra o servidor subir com o Mac.
+- [ ] Contatos @lid sem telefone e grupos: hoje Y copia o texto e abre o app; achar a conversa sozinho.
+- [ ] Radar (cohorts, % respondido em 24h) e assuntos dos grupos voltam como aba, se fizer falta.
 
 ## 2. Agir (direção contrária: as decisões acontecerem)
 
@@ -20,7 +21,7 @@ Princípio: a tela registra a intenção; um executor separado faz no app do Mac
 
 **Executor = o próprio WhatsApp Desktop**, comandado pela acessibilidade do macOS (AppleScript/JXA com System Events, ou um binário Swift pequeno com AXUIElement). Sem Baileys, sem aparelho a mais, sem chamadas diretas ao WhatsApp. Pro servidor, é o app oficial sendo usado.
 
-Fila: `acoes.jsonl` no diretório de dados. Uma linha por ação: `{id, tipo, chat, texto?, aprovado_em}`. O executor consome, registra o resultado e confere no banco.
+Fila: a tabela `decisions` em `zap.sqlite` (kind `archive`, e `reply` quando o envio for automático). O executor consome, registra o resultado e confere no banco.
 
 ### 2a. Arquivar
 

@@ -1,0 +1,616 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { clsx } from "clsx";
+import {
+	Archive,
+	CalendarDays,
+	CheckCheck,
+	Clock3,
+	Flame,
+	Hourglass,
+	Loader2,
+	MessageCircleReply,
+	RefreshCw,
+	SkipForward,
+	Sparkles,
+	Undo2,
+	Users,
+} from "lucide-react";
+import {
+	type ReactNode,
+	type RefObject,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import {
+	ago,
+	api,
+	type CategoryId,
+	type DecisionKind,
+	type Inbox,
+	type Item,
+	TOKEN,
+} from "./api.ts";
+
+const ICONS: Record<CategoryId, typeof Flame> = {
+	urgente: Flame,
+	semana: CalendarDays,
+	antigas: Clock3,
+	acompanhar: Hourglass,
+	grupos: Users,
+	limpeza: Archive,
+};
+
+const useInbox = () =>
+	useQuery({ queryKey: ["inbox"], queryFn: api.inbox, refetchInterval: 30_000, enabled: !!TOKEN });
+
+// ---- shell ---------------------------------------------------------------------------------
+
+export function Shell() {
+	const inbox = useInbox();
+	if (!TOKEN)
+		return (
+			<Blank title="Falta o token">
+				Abra o painel com <code>?t=…</code> (o token está em <code>$ZAP_DATA/token</code>).
+			</Blank>
+		);
+	if (inbox.error)
+		return (
+			<Blank title="Sem acesso ao Mac">
+				{(inbox.error as Error).message === "token"
+					? "Token inválido."
+					: "O Mac está desligado ou fora do tailnet."}
+			</Blank>
+		);
+	return (
+		<div className="flex h-full min-h-0">
+			<Sidebar inbox={inbox.data} />
+			<main className="flex min-w-0 flex-1">
+				<Outlet />
+			</main>
+		</div>
+	);
+}
+
+function Blank({ title, children }: { title: string; children: ReactNode }) {
+	return (
+		<div className="grid h-full place-items-center p-6 text-center">
+			<div>
+				<div className="text-lg font-semibold">{title}</div>
+				<div className="mt-1 text-sm text-muted">{children}</div>
+			</div>
+		</div>
+	);
+}
+
+function Sidebar({ inbox }: { inbox?: Inbox }) {
+	const qc = useQueryClient();
+	const refresh = useMutation({
+		mutationFn: api.refresh,
+		onSuccess: () => setTimeout(() => qc.invalidateQueries({ queryKey: ["inbox"] }), 1500),
+	});
+	const cost = inbox?.spend24h.reduce((s, x) => s + x.cost, 0) ?? 0;
+	return (
+		<nav className="hidden w-60 shrink-0 flex-col border-r border-line bg-sunken md:flex">
+			<div className="flex items-center gap-2 px-5 pt-5 pb-4">
+				<div className="grid size-7 place-items-center rounded-lg bg-accent text-accent-ink">
+					<MessageCircleReply className="size-4" />
+				</div>
+				<div className="font-semibold tracking-tight">zapzero</div>
+			</div>
+			<div className="flex flex-col gap-0.5 px-2">
+				{inbox?.categories.map((c) => {
+					const Icon = ICONS[c.id];
+					return (
+						<Link
+							key={c.id}
+							to="/c/$cat"
+							params={{ cat: c.id }}
+							className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+							activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+						>
+							<Icon
+								className={clsx("size-4", c.id === "urgente" && c.items.length > 0 && "text-hot")}
+							/>
+							<span className="flex-1 truncate">{c.label}</span>
+							<span className="text-xs tabular-nums text-faint">{c.items.length || ""}</span>
+						</Link>
+					);
+				})}
+				<Link
+					to="/feitas"
+					className="mt-3 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<CheckCheck className="size-4" />
+					<span>Feitas</span>
+				</Link>
+			</div>
+			<div className="mt-auto space-y-2 border-t border-line px-5 py-4 text-xs text-faint">
+				<div className="flex items-center justify-between">
+					<span>
+						{inbox?.refreshing
+							? "atualizando…"
+							: inbox?.snapshotAt
+								? `lido há ${ago(inbox.snapshotAt)}`
+								: "sem leitura"}
+					</span>
+					<button
+						type="button"
+						title="Ler o WhatsApp de novo"
+						onClick={() => refresh.mutate()}
+						className="rounded p-1 hover:bg-panel hover:text-ink"
+					>
+						<RefreshCw
+							className={clsx(
+								"size-3.5",
+								(inbox?.refreshing || refresh.isPending) && "animate-spin",
+							)}
+						/>
+					</button>
+				</div>
+				{inbox?.last && !inbox.last.ok && <div className="text-hot">{inbox.last.log.at(-1)}</div>}
+				<div>IA nas últimas 24 h: ${cost.toFixed(3)}</div>
+			</div>
+		</nav>
+	);
+}
+
+// ---- category: ranked list + focus -----------------------------------------------------------
+
+type Toast = { text: string; pk: number; lastPk: number } | null;
+
+export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
+	const qc = useQueryClient();
+	const navigate = useNavigate();
+	const inbox = useInbox();
+	const category = inbox.data?.categories.find((c) => c.id === cat);
+	const items = category?.items ?? [];
+	const idx = Math.max(0, pk ? items.findIndex((i) => i.pk === pk) : 0);
+	const item = items[idx];
+	const [toast, setToast] = useState<Toast>(null);
+
+	const select = useCallback(
+		(p: number | undefined) =>
+			navigate({ to: "/c/$cat", params: { cat }, search: p ? { pk: p } : {}, replace: true }),
+		[cat, navigate],
+	);
+	const move = (d: number) => {
+		const n = items[Math.min(items.length - 1, Math.max(0, idx + d))];
+		if (n) select(n.pk);
+	};
+
+	const decide = useMutation({
+		mutationFn: api.decide,
+		onMutate: (b) => {
+			// optimistic: drop it from the list and move to the next one
+			const next = items[idx + 1] ?? items[idx - 1];
+			qc.setQueryData<Inbox>(
+				["inbox"],
+				(old) =>
+					old && {
+						...old,
+						categories: old.categories.map((c) => ({
+							...c,
+							items: c.items.filter((i) => i.pk !== b.pk),
+						})),
+					},
+			);
+			select(next?.pk);
+		},
+		onSuccess: (r, b) => {
+			const name = items.find((i) => i.pk === b.pk)?.name ?? "";
+			const text =
+				b.kind === "reply"
+					? r.via === "whatsapp"
+						? `Aberto no WhatsApp: aperte Enter lá para enviar a ${name}`
+						: `Texto copiado: cole na conversa com ${name}`
+					: b.kind === "archive"
+						? `${name}: marcada para arquivar`
+						: b.kind === "done"
+							? `${name}: resolvida`
+							: `${name}: pulada até chegar mensagem nova`;
+			setToast({ text, pk: b.pk, lastPk: b.lastPk });
+		},
+		onSettled: () => qc.invalidateQueries({ queryKey: ["inbox"] }),
+	});
+	const undo = useMutation({
+		mutationFn: api.undo,
+		onSuccess: (_r, b) => {
+			setToast(null);
+			qc.invalidateQueries({ queryKey: ["inbox"] }).then(() => select(b.pk));
+		},
+	});
+
+	const act = (kind: DecisionKind, text?: string) => {
+		if (!item?.lastPk) return;
+		decide.mutate({ pk: item.pk, lastPk: item.lastPk, kind, text });
+	};
+
+	useEffect(() => {
+		if (!toast) return;
+		const t = setTimeout(() => setToast(null), 8000);
+		return () => clearTimeout(t);
+	}, [toast]);
+
+	// keyboard: the whole point is YES YES YES
+	const focusRef = useRef<{ reply: () => void; edit: () => void; redraft: () => void }>(null);
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			if (e.metaKey || e.ctrlKey || e.altKey) return;
+			const el = e.target as HTMLElement;
+			if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") return;
+			const k = e.key.toLowerCase();
+			const run: Record<string, () => void> = {
+				j: () => move(1),
+				arrowdown: () => move(1),
+				k: () => move(-1),
+				arrowup: () => move(-1),
+				y: () => focusRef.current?.reply(),
+				enter: () => focusRef.current?.reply(),
+				e: () => focusRef.current?.edit(),
+				r: () => focusRef.current?.redraft(),
+				d: () => act("done"),
+				a: () => act("archive"),
+				s: () => act("skip"),
+				z: () => toast && undo.mutate({ pk: toast.pk, lastPk: toast.lastPk }),
+			};
+			if (run[k]) {
+				e.preventDefault();
+				run[k]();
+			}
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	});
+
+	if (!inbox.data) return <Blank title="Lendo…">Carregando o inbox do Mac.</Blank>;
+	return (
+		<>
+			<section className="hidden w-[360px] shrink-0 flex-col border-r border-line bg-panel lg:flex">
+				<header className="flex items-baseline justify-between px-5 pt-5 pb-3">
+					<h1 className="text-[15px] font-semibold tracking-tight">{category?.label}</h1>
+					<span className="text-xs tabular-nums text-faint">{items.length}</span>
+				</header>
+				<ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
+					{items.map((i) => (
+						<li key={i.pk}>
+							<button
+								type="button"
+								onClick={() => select(i.pk)}
+								className={clsx(
+									"w-full rounded-xl px-3 py-2.5 text-left transition-colors",
+									i.pk === item?.pk ? "bg-accent-soft" : "hover:bg-sunken",
+								)}
+							>
+								<div className="flex items-center gap-2">
+									<span className="flex-1 truncate text-sm font-medium">{i.name}</span>
+									{i.unread > 0 && (
+										<span className="rounded-full bg-accent px-1.5 text-[10px] font-semibold leading-4 text-accent-ink tabular-nums">
+											{i.unread}
+										</span>
+									)}
+									<span className="text-[11px] tabular-nums text-faint">
+										{ago(i.waitingSince ?? i.lastAt)}
+									</span>
+								</div>
+								<div className="mt-0.5 truncate text-[13px] text-muted">{i.preview}</div>
+								<div className="mt-1 flex items-center gap-1.5 text-[11px] text-faint">
+									<span>{i.reason}</span>
+									{i.draft && (
+										<span className="inline-flex items-center gap-0.5 text-accent">
+											<Sparkles className="size-3" /> rascunho
+										</span>
+									)}
+								</div>
+							</button>
+						</li>
+					))}
+					{items.length === 0 && (
+						<li className="px-3 py-10 text-center text-sm text-faint">Zerado. 🎉</li>
+					)}
+				</ul>
+			</section>
+			<section className="relative flex min-w-0 flex-1 flex-col">
+				{item ? (
+					<Focus
+						key={`${item.pk}:${item.lastPk}`}
+						item={item}
+						cat={cat}
+						position={`${idx + 1} de ${items.length}`}
+						act={act}
+						handle={focusRef}
+					/>
+				) : (
+					<Blank title="Nada aqui">Escolha outra categoria.</Blank>
+				)}
+				{toast && (
+					<div className="pointer-events-none absolute inset-x-0 bottom-5 flex justify-center px-4">
+						<div className="pointer-events-auto flex items-center gap-3 rounded-xl bg-ink px-4 py-2.5 text-sm text-bg shadow-lg">
+							<span>{toast.text}</span>
+							<button
+								type="button"
+								onClick={() => undo.mutate({ pk: toast.pk, lastPk: toast.lastPk })}
+								className="inline-flex items-center gap-1 font-medium opacity-80 hover:opacity-100"
+							>
+								<Undo2 className="size-3.5" /> desfazer <kbd>Z</kbd>
+							</button>
+						</div>
+					</div>
+				)}
+			</section>
+		</>
+	);
+}
+
+function Focus({
+	item,
+	cat,
+	position,
+	act,
+	handle,
+}: {
+	item: Item;
+	cat: CategoryId;
+	position: string;
+	act: (kind: DecisionKind, text?: string) => void;
+	handle: RefObject<{ reply: () => void; edit: () => void; redraft: () => void } | null>;
+}) {
+	const chat = useQuery({
+		queryKey: ["chat", item.pk, item.lastPk],
+		queryFn: () => api.chat(item.pk),
+	});
+	const [text, setText] = useState(item.draft ?? "");
+	const box = useRef<HTMLTextAreaElement>(null);
+	const scroller = useRef<HTMLDivElement>(null);
+	const redraft = useMutation({
+		mutationFn: () => api.draft(item.pk),
+		onSuccess: (r) => setText(r.text),
+	});
+	const cleanup = cat === "limpeza";
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: scroll to the bottom when messages arrive
+	useEffect(() => {
+		scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
+	}, [chat.data]);
+
+	const reply = () => {
+		const el = box.current;
+		if (!text.trim()) {
+			el?.focus();
+			return;
+		}
+		// a [bracket] is a decision the draft left to the owner: select it instead of sending it
+		const open = text.match(/\[[^\]]*\]/);
+		if (open?.index != null && el) {
+			el.focus();
+			el.setSelectionRange(open.index, open.index + open[0].length);
+			return;
+		}
+		act("reply", text.trim());
+	};
+	handle.current = {
+		reply,
+		edit: () => {
+			const el = box.current;
+			if (!el) return;
+			el.focus();
+			el.setSelectionRange(el.value.length, el.value.length);
+		},
+		redraft: () => redraft.mutate(),
+	};
+
+	const days = useMemo(() => {
+		let lastDay = "";
+		return (chat.data ?? []).map((m) => {
+			const d = new Date(m.at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+			const show = d !== lastDay;
+			lastDay = d;
+			return { m, day: show ? d : null };
+		});
+	}, [chat.data]);
+
+	return (
+		<>
+			<header className="flex items-center gap-3 border-b border-line px-6 py-4">
+				<div className="min-w-0 flex-1">
+					<div className="truncate text-[15px] font-semibold tracking-tight">{item.name}</div>
+					<div className="truncate text-xs text-muted">
+						{item.reason}
+						{item.waitingSince ? ` · esperando há ${ago(item.waitingSince)}` : ""}
+						{item.phone && !item.name.includes(item.phone) ? ` · +${item.phone}` : ""}
+					</div>
+				</div>
+				<span className="text-xs tabular-nums text-faint">{position}</span>
+			</header>
+
+			<div ref={scroller} className="min-h-0 flex-1 overflow-y-auto bg-sunken px-6 py-4">
+				{chat.isLoading && <Loader2 className="mx-auto size-4 animate-spin text-faint" />}
+				{chat.data?.length === 0 && (
+					<div className="py-10 text-center text-sm text-faint">
+						O Mac não tem o texto desta conversa (só sincroniza ~3 meses).
+					</div>
+				)}
+				<div className="mx-auto flex max-w-2xl flex-col gap-1.5">
+					{days.map(({ m, day }) => (
+						<div key={m.pk} className="contents">
+							{day && <div className="my-2 text-center text-[11px] text-faint">{day}</div>}
+							<div
+								className={clsx(
+									"max-w-[80%] rounded-2xl px-3.5 py-2 text-[14px] leading-snug shadow-[0_1px_0_rgba(0,0,0,.04)]",
+									m.mine
+										? "self-end rounded-br-md bg-bubble-me"
+										: "self-start rounded-bl-md bg-bubble-them",
+								)}
+							>
+								{item.group && !m.mine && (
+									<div className="mb-0.5 text-[11px] font-medium text-accent">{m.who}</div>
+								)}
+								<div className="whitespace-pre-wrap break-words">{m.text}</div>
+								<div className="mt-0.5 text-right text-[10px] text-faint">
+									{new Date(m.at).toLocaleTimeString("pt-BR", {
+										hour: "2-digit",
+										minute: "2-digit",
+									})}
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+
+			<footer className="border-t border-line bg-panel px-6 py-4">
+				{!cleanup && (
+					<div className="mx-auto max-w-3xl">
+						<div className="relative">
+							<textarea
+								ref={box}
+								value={text}
+								onChange={(e) => setText(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === "Escape") e.currentTarget.blur();
+									if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+										e.preventDefault();
+										reply();
+									}
+								}}
+								placeholder={
+									item.draft
+										? ""
+										: item.triaged
+											? "Sem rascunho: escreva, ou R para gerar"
+											: "Escreva a resposta"
+								}
+								className="max-h-72 min-h-24 w-full resize-none rounded-xl [field-sizing:content] border border-line bg-bg px-4 py-3 text-[14px] leading-relaxed outline-none focus:border-accent"
+							/>
+							{redraft.isPending && (
+								<Loader2 className="absolute top-3 right-3 size-4 animate-spin text-faint" />
+							)}
+						</div>
+						{redraft.error && (
+							<div className="mt-1 text-xs text-hot">{(redraft.error as Error).message}</div>
+						)}
+					</div>
+				)}
+				<div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center gap-2">
+					{!cleanup && (
+						<Btn primary onClick={reply} k="Y">
+							<MessageCircleReply className="size-4" /> Responder no WhatsApp
+						</Btn>
+					)}
+					{cleanup && (
+						<Btn primary onClick={() => act("archive")} k="A">
+							<Archive className="size-4" /> Arquivar
+						</Btn>
+					)}
+					{!cleanup && !item.group && (
+						<Btn onClick={() => redraft.mutate()} k="R">
+							<Sparkles className="size-3.5" /> Novo rascunho
+						</Btn>
+					)}
+					<div className="flex-1" />
+					<Btn onClick={() => act("done")} k="D">
+						<CheckCheck className="size-3.5" /> Resolvida
+					</Btn>
+					{!cleanup && (
+						<Btn onClick={() => act("archive")} k="A">
+							<Archive className="size-3.5" /> Arquivar
+						</Btn>
+					)}
+					<Btn onClick={() => act("skip")} k="S">
+						<SkipForward className="size-3.5" /> Pular
+					</Btn>
+				</div>
+				<div className="mx-auto mt-2 max-w-3xl text-[11px] text-faint">
+					{cleanup
+						? "Arquivar fica registrado; o executor que arquiva no app ainda não existe."
+						: "Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá."}{" "}
+					<kbd>E</kbd> edita · [colchetes] o Y seleciona pra você completar · <kbd>J</kbd>/
+					<kbd>K</kbd> navega · <kbd>⌘↵</kbd> responde editando
+				</div>
+			</footer>
+		</>
+	);
+}
+
+function Btn({
+	children,
+	onClick,
+	k,
+	primary,
+}: {
+	children: ReactNode;
+	onClick: () => void;
+	k: string;
+	primary?: boolean;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={clsx(
+				"inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition-colors",
+				primary
+					? "bg-accent px-4 text-accent-ink hover:brightness-110"
+					: "border border-line text-muted hover:bg-sunken hover:text-ink",
+			)}
+		>
+			{children}
+			<kbd className="ml-1">{k}</kbd>
+		</button>
+	);
+}
+
+// ---- done ----------------------------------------------------------------------------------
+
+const KIND_LABEL: Record<DecisionKind, string> = {
+	reply: "respondida",
+	done: "resolvida",
+	skip: "pulada",
+	archive: "arquivar",
+};
+
+export function Done() {
+	const qc = useQueryClient();
+	const list = useQuery({ queryKey: ["decisions"], queryFn: api.decisions });
+	const undo = useMutation({
+		mutationFn: api.undo,
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ["decisions"] });
+			qc.invalidateQueries({ queryKey: ["inbox"] });
+		},
+	});
+	return (
+		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-6">
+			<h1 className="mb-4 text-[15px] font-semibold tracking-tight">Feitas</h1>
+			<ul className="divide-y divide-line rounded-xl border border-line bg-panel">
+				{list.data?.map((d) => (
+					<li key={`${d.pk}:${d.last_pk}`} className="flex items-start gap-3 px-4 py-3">
+						<div className="min-w-0 flex-1">
+							<div className="flex items-baseline gap-2">
+								<span className="truncate text-sm font-medium">{d.name}</span>
+								<span className="text-[11px] text-faint">
+									{KIND_LABEL[d.kind]} · {ago(d.at)}
+								</span>
+							</div>
+							{d.text && <div className="mt-0.5 line-clamp-2 text-[13px] text-muted">{d.text}</div>}
+						</div>
+						<button
+							type="button"
+							onClick={() => undo.mutate({ pk: d.pk, lastPk: d.last_pk })}
+							className="inline-flex items-center gap-1 text-xs text-faint hover:text-ink"
+						>
+							<Undo2 className="size-3.5" /> desfazer
+						</button>
+					</li>
+				))}
+				{list.data?.length === 0 && (
+					<li className="px-4 py-10 text-center text-sm text-faint">Nada ainda.</li>
+				)}
+			</ul>
+		</section>
+	);
+}

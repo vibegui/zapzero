@@ -1,0 +1,39 @@
+{
+	"name": "zapzero",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "concurrently -k \"bun run --hot server/main.ts serve\" \"vite\"",
+		"build": "vite build",
+		"start": "bun run build && bun server/main.ts serve",
+		"zap": "bun server/main.ts",
+		"check": "tsc --noEmit",
+		"test": "bun test",
+		"fmt": "biome format --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.6.4",
+		"@tailwindcss/vite": "^4.3.4",
+		"@types/bun": "^1.4.4",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"@vitejs/plugin-react": "^6.2.1",
+		"concurrently": "^10.0.6",
+		"tailwindcss": "^4.3.4",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.5"
+	},
+	"dependencies": {
+		"@openrouter/ai-sdk-provider": "^2",
+		"@tanstack/react-query": "^5.105.3",
+		"@tanstack/react-router": "^1.170.46",
+		"ai": "^6",
+		"clsx": "^2.1.1",
+		"hono": "^4.13.16",
+		"lucide-react": "^1.66.0",
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1",
+		"tailwind-merge": "^3.7.0",
+		"zod": "^4.6.7"
+	}
+}

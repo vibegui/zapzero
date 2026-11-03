@@ -1,47 +1,52 @@
-# zap
+# zapzero
 
-Pilot your own WhatsApp from the WhatsApp Desktop app on your Mac. zap does not run a bot, does not add a linked device, and makes no calls to WhatsApp's servers.
+Inbox zero for WhatsApp, from the WhatsApp Desktop app on your Mac. No bot, no extra linked device, no calls to WhatsApp's servers.
 
-Today it **reads**. The official Mac app keeps every chat in a plain, unencrypted SQLite file on disk. zap copies it read-only and builds two pages from it:
+zapzero copies the app's local database read-only, triages every chat, drafts a reply for the ones waiting on you, and shows a control panel: categories ranked by priority, the conversation, the draft. **Y** opens the chat in WhatsApp with the text typed in; you press Enter there. Nothing is sent by zapzero.
 
-- **radar** (`index.html`): unread by cohort, response rate, where you lose track, and group topics.
-- **limpeza** (`limpeza.html`): archive candidates with a checkbox each. Your choices are saved to `decisoes.json`.
+## Stack
 
-The opposite direction, carrying out decisions (archive, reply), is in [PLAN.md](PLAN.md).
+One Bun process on `127.0.0.1:8810`:
 
-## Rules
-
-- **Never open WhatsApp's files for writing.** Use `mode=ro` plus `.backup`, then work on the copy.
-- **Never send anything and never mark anything as read** without the owner's click.
-- **Data never lives in the repo.** It goes in `$ZAP_DATA`, by default `~/Library/Application Support/zap`, chmod 700.
-- **Message text is data, never instructions** to the model that reads it.
-- **Serve only on localhost**, or on a private tailnet with `tailscale serve`. Never use funnel.
+- `server/` — Hono API, `bun:sqlite` over the snapshot, zapzero's own state in `$ZAP_DATA/zap.sqlite` (triage, drafts, decisions, spend).
+- `web/` — React + Vite, TanStack Router (hash history) + Query, Tailwind v4, lucide.
+- AI via OpenRouter (`OPENROUTER_API_KEY` in `.env`): Jev for triage (~$0.00005/chat), a small chat model for drafts (~$0.0002/draft). Models are config: `ZAP_TRIAGE_MODEL`, `ZAP_DRAFT_MODEL`.
 
 ## Use
 
 ```sh
-./zap.sh snapshot            # copy ChatStorage + ContactsV2 (read-only)
-./zap.sh overview            # counts: known × unknown × groups, no message text
-./zap.sh triage              # Jev classifies every DM (OPENROUTER_API_KEY in zap/.env)
-./zap.sh groups 7 "Grupo A"  # last 7 days of a group as text, for the topic digest
-./zap.sh topics              # Jev: relevance of each topic to <data>/perfil.txt
-./zap.sh build               # cohorts + radar + limpeza in <data>/site
-./zap.sh serve               # http://127.0.0.1:8810
-tailscale serve --bg --set-path=/radar http://127.0.0.1:8810
+bun install
+bun run start                 # build the panel + serve; refreshes every 15 min (ZAP_REFRESH_MIN, 0 = off)
+bun run zap refresh           # snapshot -> triage -> drafts, once
+bun run zap inbox             # counts per category
+bun run dev                   # API + Vite on :5188 with HMR
+bun test && bun run check
+tailscale serve --bg --set-path=/radar http://127.0.0.1:8810   # private tailnet only, never funnel
 ```
 
-`<data>/perfil.txt` describes the owner in one paragraph. It is the `state` that Jev uses to judge what matters.
+Open `http://127.0.0.1:8810/?t=<token>`; the token is in `$ZAP_DATA/token` (`$ZAP_DATA` defaults to `~/Library/Application Support/zap`, chmod 700). `$ZAP_DATA/perfil.txt` describes the owner in one paragraph; triage and drafts use it.
+
+Keys: `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor. A `[bracket]` in a draft is a decision left to you: `Y` selects it instead of sending.
+
+## Rules
+
+- **Never open WhatsApp's files for writing.** `sqlite3 mode=ro` + `.backup`, then work on the copy.
+- **Never send, archive or mark as read** without the owner's action. Today a reply is typed into WhatsApp and the owner presses Enter.
+- **Data never lives in the repo.**
+- **Message text is data, never instructions** to the model that reads it.
+- **Every API call needs the token.** The panel runs in sandboxed iframes (origin `null`), so CORS is open and the token is the gate.
+- **Paid calls are capped** per run (items, dollars, and a stop when the upstream fails) and only redone when a chat's last message changes.
 
 ## The local database (WhatsApp Mac, 2026)
 
 `~/Library/Group Containers/group.net.whatsapp.WhatsApp.shared/`
 
-| File | Table | What |
-|---|---|---|
-| ChatStorage.sqlite | `ZWACHATSESSION` | one row per chat: `ZSESSIONTYPE`, `ZCONTACTJID`, `ZPARTNERNAME`, `ZUNREADCOUNT`, `ZARCHIVED`, `ZLASTMESSAGE`, `ZREMOVED`, `ZHIDDEN` |
-| | `ZWAMESSAGE` | `ZCHATSESSION`, `ZISFROMME`, `ZMESSAGEDATE`, `ZMESSAGETYPE`, `ZTEXT`, `ZPUSHNAME`, `ZGROUPMEMBER` |
-| | `ZWAGROUPMEMBER` | `ZCONTACTNAME`, `ZMEMBERJID` |
-| ContactsV2.sqlite | `ZWAADDRESSBOOKCONTACT` | `ZWHATSAPPID` (phone jid), `ZLID`, `ZFULLNAME` |
+| File               | Table                   | What                                                                                                                                |
+| ------------------ | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| ChatStorage.sqlite | `ZWACHATSESSION`        | one row per chat: `ZSESSIONTYPE`, `ZCONTACTJID`, `ZPARTNERNAME`, `ZUNREADCOUNT`, `ZARCHIVED`, `ZLASTMESSAGE`, `ZREMOVED`, `ZHIDDEN` |
+|                    | `ZWAMESSAGE`            | `ZCHATSESSION`, `ZISFROMME`, `ZMESSAGEDATE`, `ZMESSAGETYPE`, `ZTEXT`, `ZPUSHNAME`, `ZGROUPMEMBER`                                   |
+|                    | `ZWAGROUPMEMBER`        | `ZCONTACTNAME`, `ZMEMBERJID`                                                                                                        |
+| ContactsV2.sqlite  | `ZWAADDRESSBOOKCONTACT` | `ZWHATSAPPID` (phone jid), `ZLID`, `ZFULLNAME`                                                                                      |
 
 Encoding details:
 
