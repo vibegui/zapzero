@@ -15,6 +15,9 @@
   --bubble-me: #d9f4e4;
   --bubble-them: #ffffff;
   --fill: #fff1c7;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
   --fill-ink: #7a4f00;
   /* The privacy band is the panel's dark mode in both themes. */
   --band: #0b0d0c;
@@ -28,6 +31,9 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
     --bg: #0b0d0c;
     --panel: #121514;
     --sunken: #0f1211;
@@ -1142,4 +1148,56 @@ p {
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent);
   text-underline-offset: 3px;
+}
+
+.perf-kpis {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.perf-kpi {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+}
+.perf-kpi .v {
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.perf-kpi .l {
+  font-size: 13px;
+}
+.perf-kpi .n {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--faint);
+}
+.perf-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.perf-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+.perf-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+}
+.perf-chart svg text {
+  fill: var(--faint);
+  font: 10px var(--mono);
 }

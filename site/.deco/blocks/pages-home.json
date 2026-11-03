@@ -233,6 +233,108 @@
       ]
     },
     {
+      "__resolveType": "site/sections/Performance.tsx",
+      "kicker": "Desempenho",
+      "title": "Quanto tempo você leva pra responder?",
+      "dim": "Agora você sabe.",
+      "screenTitle": "Desempenho",
+      "kpis": [
+        {
+          "value": "86%",
+          "label": "contatos respondidos em 24 h",
+          "note": "+4 pts vs. mês anterior"
+        },
+        {
+          "value": "18 min",
+          "label": "tempo típico de resposta",
+          "note": "mediana, contatos"
+        },
+        {
+          "value": "9",
+          "label": "ficaram sem resposta",
+          "note": "últimas 4 semanas"
+        },
+        {
+          "value": "52",
+          "label": "não lidas em conversas",
+          "note": "1.240 em grupos"
+        }
+      ],
+      "chartTitle": "Respondido em 24 h, por semana",
+      "series": [
+        {
+          "label": "Contatos salvos",
+          "values": [
+            80,
+            84,
+            79,
+            86,
+            83,
+            88,
+            85,
+            81,
+            87,
+            84,
+            89,
+            86,
+            90
+          ]
+        },
+        {
+          "label": "Desconhecidos",
+          "values": [
+            55,
+            62,
+            40,
+            58,
+            66,
+            45,
+            60,
+            52,
+            70,
+            48,
+            63,
+            57,
+            68
+          ]
+        },
+        {
+          "label": "Grupos",
+          "values": [
+            70,
+            74,
+            68,
+            72,
+            77,
+            71,
+            75,
+            73,
+            69,
+            76,
+            74,
+            78,
+            72
+          ]
+        }
+      ],
+      "from": "ago",
+      "to": "nov",
+      "steps": [
+        {
+          "title": "Semana a semana.",
+          "text": "Treze semanas: quanto você respondeu em 24 h e em 7 dias, quanto tempo leva, quem nunca recebeu resposta."
+        },
+        {
+          "title": "Conta do jeito certo.",
+          "text": "Um papo ao vivo conta uma vez só. Só vale como cobrança a mensagem que chega depois da sua e depois de 1 h de silêncio."
+        },
+        {
+          "title": "Sem IA, sem custo.",
+          "text": "Tudo sai da cópia local do WhatsApp, no seu Mac. Contatos salvos, desconhecidos e grupos separados."
+        }
+      ]
+    },
+    {
       "__resolveType": "site/sections/Privacy.tsx",
       "kicker": "Privacidade",
       "title": "Suas conversas ficam no seu Mac.",
@@ -374,6 +476,10 @@
         {
           "label": "Seu jeito",
           "href": "#seu-jeito"
+        },
+        {
+          "label": "Desempenho",
+          "href": "#desempenho"
         },
         {
           "label": "Privacidade",

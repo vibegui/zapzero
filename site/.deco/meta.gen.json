@@ -42,6 +42,10 @@
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
           "namespace": "site"
         },
+        "site/sections/Performance.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+          "namespace": "site"
+        },
         "site/sections/Voice.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
           "namespace": "site"
@@ -1056,6 +1060,10 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
               }
@@ -1370,6 +1378,10 @@
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
                     },
                     {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
+                    },
+                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
                     }
@@ -1445,6 +1457,10 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
               },
@@ -1514,6 +1530,10 @@
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
@@ -1615,6 +1635,10 @@
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
                               },
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
@@ -2553,6 +2577,144 @@
           }
         }
       },
+      "c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "screenTitle": {
+            "type": "string",
+            "nullable": true,
+            "title": "Nome da tela no mock"
+          },
+          "kpis": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "title": "Número"
+                },
+                "label": {
+                  "type": "string",
+                  "title": "Rótulo"
+                },
+                "note": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Nota"
+                }
+              },
+              "required": [
+                "value",
+                "label"
+              ],
+              "titleBy": "label"
+            },
+            "nullable": true,
+            "title": "Números do mock (fictícios)"
+          },
+          "chartTitle": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título do gráfico"
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "title": "Nome da série"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "title": "% respondido em 24 h, uma por semana (fictício)"
+                }
+              },
+              "required": [
+                "label",
+                "values"
+              ],
+              "titleBy": "label"
+            },
+            "nullable": true,
+            "title": "Séries do gráfico (até 3, fictícias)"
+          },
+          "from": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo da primeira semana"
+          },
+          "to": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo da última semana"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "Título"
+                },
+                "text": {
+                  "type": "string",
+                  "title": "Texto"
+                }
+              },
+              "required": [
+                "title",
+                "text"
+              ],
+              "titleBy": "title"
+            },
+            "nullable": true,
+            "title": "Passos"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=": {
+        "title": "site/sections/Performance.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Performance.tsx"
+            ],
+            "default": "site/sections/Performance.tsx"
+          }
+        }
+      },
       "c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props": {
         "type": "object",
         "properties": {
@@ -2703,6 +2865,10 @@
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
           },
           {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
+          },
+          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
           },
@@ -2768,6 +2934,10 @@
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BlcmZvcm1hbmNlLnRzeA==@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",

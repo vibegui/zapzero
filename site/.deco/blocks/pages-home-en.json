@@ -241,6 +241,108 @@
       ]
     },
     {
+      "__resolveType": "site/sections/Performance.tsx",
+      "kicker": "Performance",
+      "title": "How long do you take to answer?",
+      "dim": "Now you know.",
+      "screenTitle": "Performance",
+      "kpis": [
+        {
+          "value": "86%",
+          "label": "contacts answered within 24 h",
+          "note": "+4 pts vs. last month"
+        },
+        {
+          "value": "18 min",
+          "label": "typical reply time",
+          "note": "median, contacts"
+        },
+        {
+          "value": "9",
+          "label": "never got an answer",
+          "note": "last 4 weeks"
+        },
+        {
+          "value": "52",
+          "label": "unread in chats",
+          "note": "1,240 in groups"
+        }
+      ],
+      "chartTitle": "Answered within 24 h, by week",
+      "series": [
+        {
+          "label": "Saved contacts",
+          "values": [
+            80,
+            84,
+            79,
+            86,
+            83,
+            88,
+            85,
+            81,
+            87,
+            84,
+            89,
+            86,
+            90
+          ]
+        },
+        {
+          "label": "Strangers",
+          "values": [
+            55,
+            62,
+            40,
+            58,
+            66,
+            45,
+            60,
+            52,
+            70,
+            48,
+            63,
+            57,
+            68
+          ]
+        },
+        {
+          "label": "Groups",
+          "values": [
+            70,
+            74,
+            68,
+            72,
+            77,
+            71,
+            75,
+            73,
+            69,
+            76,
+            74,
+            78,
+            72
+          ]
+        }
+      ],
+      "from": "Aug",
+      "to": "Nov",
+      "steps": [
+        {
+          "title": "Week by week.",
+          "text": "Thirteen weeks: how often you answered within 24 h and 7 days, how long you take, who never heard back."
+        },
+        {
+          "title": "Counted the right way.",
+          "text": "A live back-and-forth counts once. Only a message that arrives after yours and after an hour of silence counts as someone waiting."
+        },
+        {
+          "title": "No AI, no cost.",
+          "text": "It all comes from the local copy of WhatsApp on your Mac. Saved contacts, strangers and groups apart."
+        }
+      ]
+    },
+    {
       "__resolveType": "site/sections/Privacy.tsx",
       "kicker": "Privacy",
       "title": "Your chats stay on your Mac.",
@@ -386,6 +488,10 @@
         {
           "label": "Your voice",
           "href": "#seu-jeito"
+        },
+        {
+          "label": "Performance",
+          "href": "#desempenho"
         },
         {
           "label": "Privacy",
