@@ -1,6 +1,6 @@
 import type { CategoryId, Item } from "../server/inbox.ts";
 import type { Week, Who } from "../server/stats.ts";
-import type { Decision, DecisionKind, Voice } from "../server/store.ts";
+import type { Decision, DecisionKind, Learned, Voice } from "../server/store.ts";
 import type { Message } from "../server/wa.ts";
 
 export type { CategoryId, DecisionKind, Item, Message, Voice };
@@ -11,6 +11,8 @@ export type Inbox = {
 	spend24h: { what: string; n: number; cost: number }[];
 	categories: { id: CategoryId; label: string; items: Item[] }[];
 	voice: Voice;
+	/** style rules learned from the owner's edits, waiting for them */
+	learned: Learned | null;
 	/** Claude Code found: replies with a time can create a calendar event */
 	calendar: boolean;
 	areas: { id: string; label: string; builtin: boolean }[];
@@ -85,6 +87,7 @@ export const api = {
 	suggest: () => call<{ ok: true; count: number }>("suggest", {}),
 	saveVoice: (b: { perfil: Record<string, string>; voz: string }) => call<{ ok: true }>("voice", b),
 	suggestVoice: () => call<Voice>("voice/suggest", {}),
+	keepLearned: (keep: string[]) => call<Voice>("voice/learned", { keep }),
 };
 
 export function ago(ms: number | null) {

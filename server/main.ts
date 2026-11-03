@@ -35,6 +35,7 @@ function refresh(): Promise<void> {
 			await ai.triage(say);
 			await ai.drafts(say);
 			await ai.suggest(say);
+			await ai.learn(say);
 		} catch (e) {
 			ok = false;
 			say(`erro: ${(e as Error).message}`);
@@ -100,6 +101,7 @@ app.get("/api/inbox", (c) => {
 		last,
 		spend24h: store.spendSince(86_400_000),
 		voice: store.voice(),
+		learned: store.learned(),
 		areas: store.areas().map(({ id, label, builtin }) => ({ id, label, builtin: builtin === 1 })),
 		suggestions: store.suggestions("pending").map((s) => ({
 			...s,
@@ -171,7 +173,8 @@ app.post("/api/decide", async (c) => {
 			via = "clipboard";
 		}
 	}
-	store.decide(pk, lastPk, kind, text ?? null);
+	const draft = kind === "reply" ? (store.drafts().get(pk)?.text ?? null) : null;
+	store.decide(pk, lastPk, kind, text ?? null, draft);
 	let event = false;
 	// a call agreed earlier in the chat, waiting on the invite: independent of what this reply says
 	const inv =
@@ -323,6 +326,32 @@ app.post("/api/voice", async (c) => {
 	);
 	return c.json(store.voice());
 });
+// the owner keeps some of the learned rules: they go to the end of the voice guide, the rest is dropped
+app.post("/api/voice/learned", async (c) => {
+	const p = z
+		.object({ keep: z.array(z.string().max(300)).max(10) })
+		.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	const cur = store.voice();
+	if (p.data.keep.length)
+		store.saveVoice(
+			{
+				perfil: cur.perfil,
+				voz: [cur.voz, ...p.data.keep.map((r) => `- ${r}`)].filter(Boolean).join("\n"),
+			},
+			"accepted",
+		);
+	store.setLearned(null);
+	return c.json(store.voice());
+});
+app.post("/api/voice/learn", async (c) => {
+	try {
+		await ai.learn(console.log, true);
+		return c.json({ learned: store.learned() });
+	} catch (e) {
+		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
+	}
+});
 app.post("/api/voice/suggest", async (c) => {
 	if (suggesting) return c.json({ error: "busy" }, 429);
 	suggesting = true;
@@ -439,6 +468,8 @@ if (cmd === "serve") {
 	await ai.triage();
 } else if (cmd === "voice") {
 	await ai.suggestVoice();
+} else if (cmd === "learn") {
+	await ai.learn(console.log, true);
 } else if (cmd === "suggest") {
 	await ai.suggest(console.log, true);
 } else if (cmd === "drafts") {
@@ -479,7 +510,7 @@ if (cmd === "serve") {
 	}
 } else {
 	console.log(
-		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | refresh | inbox | stats | api <route> [json]",
+		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | learn | refresh | inbox | stats | api <route> [json]",
 	);
 	process.exit(1);
 }

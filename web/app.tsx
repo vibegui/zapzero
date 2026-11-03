@@ -158,7 +158,9 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				>
 					<UserRound className="size-4" />
 					<span className="flex-1">Seu jeito</span>
-					{inbox?.voice.state === "suggested" && <span className="size-2 rounded-full bg-accent" />}
+					{(inbox?.voice.state === "suggested" || inbox?.learned) && (
+						<span className="size-2 rounded-full bg-accent" />
+					)}
 				</Link>
 			</div>
 			<div className="space-y-2 border-t border-line px-5 py-4 text-xs text-faint">
@@ -1138,6 +1140,7 @@ export function VoiceScreen() {
 			<p className="text-xs text-faint">
 				Tamanho, tom, pontuação, emoji, expressões suas. Um tópico por linha.
 			</p>
+			{inbox.data?.learned && <Learned l={inbox.data.learned} onDone={reset} />}
 			<textarea
 				value={z}
 				onChange={(e) => setVoz(e.target.value)}
@@ -1219,4 +1222,54 @@ function linkify(text: string) {
 function tagStyle(areas: { id: string }[] | undefined, id: string | null) {
 	const n = areas?.findIndex((a) => a.id === id) ?? -1;
 	return { "--h": `${(n * 137.5 + 250) % 360}` } as CSSProperties;
+}
+
+/** Rules learned from the owner's edits: each one is kept only if they tick it. */
+function Learned({ l, onDone }: { l: NonNullable<Inbox["learned"]>; onDone: () => void }) {
+	const [keep, setKeep] = useState(() => new Set(l.rules));
+	const save = useMutation({ mutationFn: (k: string[]) => api.keepLearned(k), onSuccess: onDone });
+	return (
+		<div className="mt-3 rounded-xl border border-dashed border-accent/50 bg-accent-soft/40 p-4">
+			<div className="flex items-center gap-1.5 text-[13px] font-medium text-accent">
+				<Sparkles className="size-3.5" /> Aprendido com {l.pairs} respostas que você mudou
+			</div>
+			<div className="mt-2 grid gap-1.5">
+				{l.rules.map((r) => (
+					<label key={r} className="flex items-start gap-2 text-[13px]">
+						<input
+							type="checkbox"
+							className="mt-0.5 accent-[var(--accent)]"
+							checked={keep.has(r)}
+							onChange={() =>
+								setKeep((s) => {
+									const n = new Set(s);
+									n.has(r) ? n.delete(r) : n.add(r);
+									return n;
+								})
+							}
+						/>
+						{r}
+					</label>
+				))}
+			</div>
+			<div className="mt-3 flex gap-2">
+				<button
+					type="button"
+					disabled={save.isPending || keep.size === 0}
+					onClick={() => save.mutate([...keep])}
+					className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent px-3 text-[12px] font-medium text-accent-ink hover:brightness-110 disabled:opacity-50"
+				>
+					<Check className="size-3.5" /> Adicionar ao meu jeito
+				</button>
+				<button
+					type="button"
+					disabled={save.isPending}
+					onClick={() => save.mutate([])}
+					className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-[12px] text-muted hover:text-ink"
+				>
+					<X className="size-3.5" /> Descartar
+				</button>
+			</div>
+		</div>
+	);
 }

@@ -31,6 +31,12 @@ for (const col of ["event_id text", "guests text"]) {
 		db.run(`alter table events add column ${col}`);
 	} catch {} // already there
 }
+try {
+	db.run("alter table decisions add column draft text"); // what zapzero suggested, to learn from the edit
+	// past replies: the draft is still there when no newer message replaced it
+	db.run(`update decisions set draft = (select d.text from drafts d where d.pk = decisions.pk and d.last_pk = decisions.last_pk)
+		where kind = 'reply'`);
+} catch {} // already there
 for (const col of ["area text", "area_ver integer"]) {
 	try {
 		db.run(`alter table triage add column ${col}`);
@@ -98,6 +104,7 @@ export type Decision = {
 	kind: DecisionKind;
 	text: string | null;
 	at: number;
+	draft?: string | null;
 };
 
 const byPk = <T extends { pk: number }>(rows: T[]) => new Map(rows.map((r) => [r.pk, r]));
@@ -141,15 +148,35 @@ export function saveDraft(pk: number, lastPk: number, text: string, model: strin
 	);
 }
 
-export function decide(pk: number, lastPk: number, kind: DecisionKind, text: string | null) {
-	db.query("insert or replace into decisions values (?, ?, ?, ?, ?)").run(
-		pk,
-		lastPk,
-		kind,
-		text,
-		Date.now(),
-	);
+export function decide(
+	pk: number,
+	lastPk: number,
+	kind: DecisionKind,
+	text: string | null,
+	draft: string | null = null,
+) {
+	db.query(
+		"insert or replace into decisions (pk, last_pk, kind, text, at, draft) values (?, ?, ?, ?, ?, ?)",
+	).run(pk, lastPk, kind, text, Date.now(), draft);
 }
+
+const norm = (t: string) => t.replace(/\s+/g, " ").trim();
+
+/** Replies the owner sent after changing zapzero's draft, newest first: what it suggested vs what they sent. */
+export function editedReplies(limit = 10, since = 0) {
+	return db
+		.query<{ draft: string; text: string; at: number }, [number]>(
+			"select draft, text, at from decisions where kind = 'reply' and draft is not null and text is not null and at > ? order by at desc",
+		)
+		.all(since)
+		.filter((r) => norm(r.draft) !== norm(r.text))
+		.slice(0, limit);
+}
+
+/** Style rules learned from the owner's edits, waiting for them to accept or drop. */
+export type Learned = { rules: string[]; pairs: number; at: number };
+export const learned = (): Learned | null => JSON.parse(kvGet("voz_learned") ?? "null");
+export const setLearned = (l: Learned | null) => kvSet("voz_learned", JSON.stringify(l));
 
 export function undecide(pk: number, lastPk: number) {
 	db.query("delete from decisions where pk = ? and last_pk = ?").run(pk, lastPk);
