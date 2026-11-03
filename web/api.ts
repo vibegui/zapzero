@@ -56,8 +56,14 @@ export const api = {
 	chat: (pk: number) => call<Message[]>(`chat/${pk}`),
 	stats: () => call<Stats>("stats"),
 	decisions: () => call<DecisionRow[]>("decisions"),
-	decide: (b: { pk: number; lastPk: number; kind: DecisionKind; text?: string; event?: boolean }) =>
-		call<{ ok: true; via: "whatsapp" | "clipboard" | null; event: boolean }>("decide", b),
+	decide: (b: {
+		pk: number;
+		lastPk: number;
+		kind: DecisionKind;
+		text?: string;
+		event?: boolean;
+		invite?: string[];
+	}) => call<{ ok: true; via: "whatsapp" | "clipboard" | null; event: boolean }>("decide", b),
 	undo: (b: { pk: number; lastPk: number }) => call<{ ok: true }>("undo", b),
 	draft: (pk: number) => call<{ text: string }>(`draft/${pk}`, {}),
 	refresh: () => call<{ ok: true }>("refresh", {}),

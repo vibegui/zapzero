@@ -15,7 +15,7 @@ export const CALENDAR_TOOL =
 	process.env.ZAP_CALENDAR_TOOL ?? "mcp__claude_ai_Google_Calendar__create_event";
 const MODEL = process.env.ZAP_AGENT_MODEL; // unset: the owner's Claude Code default
 
-export function eventPrompt(name: string, reply: string, now = new Date()) {
+export function eventPrompt(name: string, reply: string, invite: string[] = [], now = new Date()) {
 	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	const today = now.toLocaleString("pt-BR", {
 		timeZone: tz,
@@ -32,7 +32,11 @@ Regras:
 - Data e hora vêm só da minha resposta (hoje, amanhã, dia da semana, horário). Sem dia explícito, é hoje se o horário ainda não passou, senão o próximo dia útil.
 - Duração: a que a resposta disser; senão 30 minutos.
 - Título: "Call · <contato>" (ou o assunto, se a resposta disser). Descrição: "Combinado pelo WhatsApp (zapzero)".
-- Sem convidados e sem videochamada: o evento é só no meu calendário.
+${
+	invite.length
+		? `- Convide exatamente estes e-mails, e nenhum outro: ${invite.join(", ")}. Com convidados, inclua um link de videochamada (Google Meet) se a ferramenta permitir.`
+		: "- Sem convidados e sem videochamada: o evento é só no meu calendário."
+}
 - Se a resposta não tiver um horário combinado, não crie nada.
 Termine com uma linha só: "CRIADO: <dia e hora>" ou "NAO_CRIADO: <motivo>".`;
 }
@@ -41,12 +45,13 @@ Termine com uma linha só: "CRIADO: <dia e hora>" ou "NAO_CRIADO: <motivo>".`;
 export async function createEvent(
 	name: string,
 	reply: string,
+	invite: string[] = [],
 ): Promise<{ ok: boolean; result: string }> {
 	if (!CLAUDE) return { ok: false, result: "Claude Code não encontrado (defina ZAP_CLAUDE)" };
 	const args = [
 		CLAUDE,
 		"-p",
-		eventPrompt(name, reply),
+		eventPrompt(name, reply, invite),
 		"--tools",
 		"",
 		"--allowedTools",

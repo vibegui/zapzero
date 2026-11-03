@@ -24,3 +24,12 @@ export const fill = (text: string, s: Slot, value: string) =>
 
 /** "14h30", "16h", "9:15": the reply names a time, so offering a calendar event makes sense. */
 export const hasTime = (t: string) => /\b([01]?\d|2[0-3])(?:h(?:[0-5]\d)?|:[0-5]\d)(?!\d)/i.test(t);
+
+/** E-mail addresses written in messages: the other person sharing where to send the invite. */
+export const emailsIn = (texts: string[]) => [
+	...new Set(
+		texts
+			.flatMap((t) => t.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? [])
+			.map((e) => e.toLowerCase()),
+	),
+];

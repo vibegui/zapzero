@@ -41,7 +41,7 @@ import {
 	type Item,
 	TOKEN,
 } from "./api.ts";
-import { fill, hasTime, slots } from "./slots.ts";
+import { emailsIn, fill, hasTime, slots } from "./slots.ts";
 
 const ICONS: Record<CategoryId, typeof Flame> = {
 	urgente: Flame,
@@ -374,9 +374,9 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 		},
 	});
 
-	const act = (kind: DecisionKind, text?: string, event?: boolean) => {
+	const act = (kind: DecisionKind, text?: string, event?: boolean, invite?: string[]) => {
 		if (!item?.lastPk) return;
-		decide.mutate({ pk: item.pk, lastPk: item.lastPk, kind, text, event });
+		decide.mutate({ pk: item.pk, lastPk: item.lastPk, kind, text, event, invite });
 	};
 
 	useEffect(() => {
@@ -518,7 +518,7 @@ function Focus({
 	item: Item;
 	areaLabel?: string;
 	position: string;
-	act: (kind: DecisionKind, text?: string, event?: boolean) => void;
+	act: (kind: DecisionKind, text?: string, event?: boolean, invite?: string[]) => void;
 	handle: RefObject<FocusHandle | null>;
 }) {
 	const chat = useQuery({
@@ -529,6 +529,18 @@ function Focus({
 	const calendar = useInbox().data?.calendar ?? false;
 	const [eventOn, setEventOn] = useState(true);
 	const offersEvent = calendar && !item.group && hasTime(text);
+	// the other person shared an e-mail for the call: invite it (they see it before Y, and can untick)
+	const emails = useMemo(
+		() =>
+			emailsIn(
+				(chat.data ?? [])
+					.filter((m) => !m.mine)
+					.slice(-15)
+					.map((m) => m.text),
+			),
+		[chat.data],
+	);
+	const [inviteOn, setInviteOn] = useState(true);
 	const box = useRef<HTMLTextAreaElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
 	const redraft = useMutation({
@@ -553,7 +565,12 @@ function Focus({
 			document.querySelector<HTMLInputElement>("[data-slot-input]")?.focus();
 			return;
 		}
-		act("reply", text.trim(), offersEvent && eventOn);
+		act(
+			"reply",
+			text.trim(),
+			offersEvent && eventOn,
+			offersEvent && eventOn && inviteOn ? emails : [],
+		);
 	};
 	const open = slots(text);
 	handle.current = {
@@ -680,7 +697,22 @@ function Focus({
 						/>
 						<CalendarDays className="size-3.5" />
 						Ao responder, criar o evento no meu calendário <kbd>C</kbd>
-						<span className="text-faint">· seu Claude cria, só na sua agenda, sem convidados</span>
+						<span className="text-faint">
+							· seu Claude cria
+							{emails.length && inviteOn ? "" : ", só na sua agenda, sem convidados"}
+						</span>
+					</label>
+				)}
+				{!cleanup && offersEvent && eventOn && emails.length > 0 && (
+					<label className="mx-auto mt-1 flex max-w-3xl cursor-pointer items-center gap-2 pl-6 text-[13px] text-muted">
+						<input
+							type="checkbox"
+							checked={inviteOn}
+							onChange={(e) => setInviteOn(e.target.checked)}
+							className="accent-accent"
+						/>
+						convidar <span className="text-ink">{emails.join(", ")}</span>
+						<span className="text-faint">· recebe o convite do Google por e-mail</span>
 					</label>
 				)}
 				<div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center gap-2">

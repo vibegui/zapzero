@@ -92,6 +92,8 @@ const Decide = z.object({
 	text: z.string().max(4000).optional(),
 	/** reply only: also put the time this reply agrees to in the owner's calendar */
 	event: z.boolean().optional(),
+	/** guests for that event: only addresses that appear in this chat's messages are kept */
+	invite: z.array(z.string().email().max(200)).max(5).optional(),
 });
 
 app.post("/api/decide", async (c) => {
@@ -124,7 +126,15 @@ app.post("/api/decide", async (c) => {
 		// the owner's click is the approval; their Claude creates it in the background (~15 s)
 		event = true;
 		store.eventStart(pk, lastPk, text);
-		void createEvent(chat.name, text).then((r) =>
+		const said = wa
+			.messages(pk, 50)
+			.filter((m) => !m.mine)
+			.map((m) => m.text.toLowerCase())
+			.join("\n");
+		const invite = (p.data.invite ?? [])
+			.map((e) => e.toLowerCase())
+			.filter((e) => said.includes(e));
+		void createEvent(chat.name, text, invite).then((r) =>
 			store.eventDone(
 				pk,
 				lastPk,
