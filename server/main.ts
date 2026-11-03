@@ -4,10 +4,11 @@ import { existsSync } from "node:fs";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { z } from "zod";
+import { hasTime } from "../web/slots.ts";
 import * as ai from "./ai.ts";
-import { addGuest, CLAUDE, createEvent } from "./calendar.ts";
+import { addGuest, CLAUDE, createEvent, scheduleWithGuest } from "./calendar.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
-import { buildInbox, CATEGORIES } from "./inbox.ts";
+import { buildInbox, CATEGORIES, findPendingInvite, type PendingInvite } from "./inbox.ts";
 import { cohorts, type Who, weekOf } from "./stats.ts";
 import * as store from "./store.ts";
 import * as wa from "./wa.ts";
@@ -45,6 +46,25 @@ function refresh(): Promise<void> {
 	return running;
 }
 
+// ---- pending invites -----------------------------------------------------------------------
+
+/** DMs active this week where they sent an e-mail for a call the owner agreed: see findPendingInvite. */
+let invitesCache: { key: string; map: Map<number, PendingInvite> } | null = null;
+function pendingInvites(): Map<number, PendingInvite> {
+	// ~80 small queries: once per snapshot and per change in events, not on every 30 s poll
+	const key = `${wa.snapshotAt()}:${[...store.events().values()].map((e) => `${e.status}${e.guests}`).join()}`;
+	if (invitesCache?.key === key) return invitesCache.map;
+	const out = new Map<number, PendingInvite>();
+	const week = Date.now() - 7 * 86_400_000;
+	for (const c of wa.chats()) {
+		if (c.group || c.archived || !c.lastInAt || c.lastInAt < week) continue;
+		const inv = findPendingInvite(wa.messages(c.pk, 12), store.invitedIn(c.pk), hasTime);
+		if (inv) out.set(c.pk, inv);
+	}
+	invitesCache = { key, map: out };
+	return out;
+}
+
 // ---- api ------------------------------------------------------------------------------------
 
 const app = new Hono();
@@ -66,7 +86,14 @@ app.use("/api/*", async (c, next) => {
 app.get("/api/inbox", (c) => {
 	const all = wa.chats();
 	const names = new Map(all.map((x) => [x.pk, x.name]));
-	const box = buildInbox(all, store.triages(), store.drafts(), store.decisions());
+	const box = buildInbox(
+		all,
+		store.triages(),
+		store.drafts(),
+		store.decisions(),
+		Date.now(),
+		pendingInvites(),
+	);
 	return c.json({
 		snapshotAt: wa.snapshotAt(),
 		refreshing: running != null,
@@ -164,6 +191,25 @@ app.get("/api/event/:pk", (c) => {
 });
 
 let inviting = false;
+// No zapzero event yet (the owner agreed the time in WhatsApp itself): find or create it, with the guest.
+app.post("/api/event/schedule", async (c) => {
+	const p = z.object({ pk: z.number().int() }).safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	const chat = wa.chats().find((x) => x.pk === p.data.pk);
+	const inv =
+		chat && findPendingInvite(wa.messages(chat.pk, 12), store.invitedIn(chat.pk), hasTime);
+	if (!chat?.lastPk || !inv) return c.json({ error: "invite" }, 404);
+	if (inviting) return c.json({ error: "busy" }, 429);
+	inviting = true;
+	try {
+		store.eventStart(chat.pk, chat.lastPk, inv.agreed, [inv.email]);
+		const r = await scheduleWithGuest(chat.name, inv.agreed, inv.agreedAt, inv.email);
+		store.eventDone(chat.pk, chat.lastPk, r.ok ? "ok" : "error", r.result, r.eventId);
+		return c.json(r, r.ok ? 200 : 502);
+	} finally {
+		inviting = false;
+	}
+});
 app.post("/api/event/invite", async (c) => {
 	const p = z
 		.object({ pk: z.number().int(), email: z.email().max(200) })
@@ -390,7 +436,14 @@ if (cmd === "serve") {
 } else if (cmd === "stats") {
 	console.log(JSON.stringify(cachedStats(), null, 1));
 } else if (cmd === "inbox") {
-	const box = buildInbox(wa.chats(), store.triages(), store.drafts(), store.decisions());
+	const box = buildInbox(
+		wa.chats(),
+		store.triages(),
+		store.drafts(),
+		store.decisions(),
+		Date.now(),
+		pendingInvites(),
+	);
 	for (const k of CATEGORIES) {
 		const items = box[k.id];
 		console.log(

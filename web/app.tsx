@@ -113,6 +113,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				<div className="font-semibold tracking-tight">zapzero</div>
 			</div>
 			<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-3">
+				<Search inbox={inbox} />
 				{inbox?.categories.map((c) => {
 					const Icon = ICONS[c.id];
 					return (
@@ -185,6 +186,74 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				<div>IA nas últimas 24 h: ${cost.toFixed(3)}</div>
 			</div>
 		</nav>
+	);
+}
+
+const fold = (s: string) =>
+	s
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toLowerCase();
+
+/** Find a chat in the inbox by name; `/` focuses it. Click opens it in its category. */
+function Search({ inbox }: { inbox?: Inbox }) {
+	const [q, setQ] = useState("");
+	const navigate = useNavigate();
+	const hits = useMemo(() => {
+		const f = fold(q.trim());
+		if (!f || !inbox) return [];
+		const seen = new Set<number>();
+		return inbox.categories
+			.flatMap((c) => c.items.map((i) => ({ ...i, catLabel: c.label })))
+			.filter((i) => fold(i.name).includes(f) && !seen.has(i.pk) && seen.add(i.pk))
+			.slice(0, 20);
+	}, [q, inbox]);
+	return (
+		<div className="mb-2 px-1">
+			<input
+				data-search
+				value={q}
+				onChange={(e) => setQ(e.target.value)}
+				onKeyDown={(e) => {
+					if (e.key === "Escape") {
+						setQ("");
+						e.currentTarget.blur();
+					}
+					if (e.key === "Enter" && hits[0]) {
+						navigate({
+							to: "/c/$cat",
+							params: { cat: hits[0].category },
+							search: { pk: hits[0].pk },
+						});
+						setQ("");
+						e.currentTarget.blur();
+					}
+				}}
+				placeholder="Buscar nome  /"
+				className="w-full rounded-lg border border-line bg-panel px-3 py-1.5 text-sm outline-none placeholder:text-faint focus:border-accent"
+			/>
+			{q.trim() && (
+				<div className="mt-1 space-y-0.5">
+					{hits.map((i) => (
+						<button
+							key={i.pk}
+							type="button"
+							onClick={() => {
+								navigate({ to: "/c/$cat", params: { cat: i.category }, search: { pk: i.pk } });
+								setQ("");
+							}}
+							className="flex w-full items-baseline gap-2 rounded-lg px-3 py-1.5 text-left text-sm hover:bg-panel"
+						>
+							<span className="flex-1 truncate">{i.name}</span>
+							<span className="shrink-0 text-[11px] text-faint">{i.catLabel}</span>
+						</button>
+					))}
+					{hits.length === 0 && (
+						<div className="px-3 py-1.5 text-[12px] text-faint">Nada na caixa com esse nome.</div>
+					)}
+				</div>
+			)}
+		</div>
 	);
 }
 
@@ -402,6 +471,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 				enter: () => focusRef.current?.reply(),
 				e: () => focusRef.current?.edit(),
 				c: () => focusRef.current?.toggleEvent(),
+				"/": () => document.querySelector<HTMLInputElement>("[data-search]")?.focus(),
 				r: () => focusRef.current?.redraft(),
 				d: () => act("done"),
 				a: () => act("archive"),
@@ -554,6 +624,14 @@ function Focus({
 		onSettled: () => qcFocus.invalidateQueries({ queryKey: ["event", item.pk] }),
 	});
 	const asksEmail = /e-?mail/i.test(text);
+	// they sent the e-mail for a call agreed in WhatsApp itself: find or create the event, with them invited
+	const schedule = useMutation({
+		mutationFn: () => api.schedule(item.pk),
+		onSuccess: (r) => {
+			if (r.ok) qcFocus.invalidateQueries({ queryKey: ["inbox"] });
+			qcFocus.invalidateQueries({ queryKey: ["event", item.pk] });
+		},
+	});
 	const box = useRef<HTMLTextAreaElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
 	const redraft = useMutation({
@@ -667,6 +745,49 @@ function Focus({
 			<footer className="border-t border-line bg-panel px-6 py-4">
 				{!cleanup && (
 					<div className="mx-auto max-w-3xl">
+						{item.invite && !ev.data && (
+							<div className="mb-2 rounded-xl border border-accent/40 bg-accent-soft px-3 py-2 text-[13px]">
+								<div className="flex flex-wrap items-center gap-2">
+									<CalendarDays className="size-4 text-accent" />
+									<span className="text-muted">
+										Mandou <span className="text-ink">{item.invite.email}</span> pro convite da call
+										que você combinou:
+									</span>
+									<button
+										type="button"
+										disabled={schedule.isPending || schedule.data?.ok}
+										onClick={() => schedule.mutate()}
+										className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 font-medium text-accent-ink disabled:opacity-60"
+									>
+										{schedule.isPending ? (
+											<Loader2 className="size-3.5 animate-spin" />
+										) : (
+											<Check className="size-3.5" />
+										)}
+										{schedule.data?.ok ? "Convidado" : "Criar o evento e convidar"}
+									</button>
+								</div>
+								<div className="mt-1 line-clamp-2 pl-6 text-[12px] text-faint">
+									você: «{item.invite.agreed}» · seu Claude olha a agenda: se a call já existe, só
+									adiciona o convidado
+								</div>
+								{schedule.data && (
+									<div
+										className={clsx(
+											"mt-1 pl-6 text-[12px]",
+											schedule.data.ok ? "text-accent" : "text-hot",
+										)}
+									>
+										{schedule.data.result.replace(/^CRIADO:\s*/, "no calendário: ")}
+									</div>
+								)}
+								{schedule.error && (
+									<div className="mt-1 pl-6 text-[12px] text-hot">
+										{(schedule.error as Error).message}
+									</div>
+								)}
+							</div>
+						)}
 						{ev.data && newGuests.length > 0 && (
 							<div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-accent/40 bg-accent-soft px-3 py-2 text-[13px]">
 								<CalendarDays className="size-4 text-accent" />

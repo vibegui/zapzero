@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { buildInbox } from "./inbox.ts";
+import { hasTime } from "../web/slots.ts";
+import { buildInbox, findPendingInvite } from "./inbox.ts";
 import type { Decision, Triage } from "./store.ts";
 import type { Chat } from "./wa.ts";
 
@@ -81,4 +82,21 @@ test("categorizes and ranks", () => {
 	).not.toContain(1);
 	const moved = chats.map((c) => (c.pk === 1 ? { ...c, lastPk: 11 } : c));
 	expect(buildInbox(moved, t, new Map(), dec, now).semana.map((i) => i.pk)).toContain(1);
+});
+
+test("pending invite: e-mail after the owner agreed a time", () => {
+	const msgs = [
+		{ mine: false, at: 1, text: "Quinta 18h BRT funciona?" },
+		{ mine: true, at: 2, text: "Quinta às 18h fica ótimo, marco aqui." },
+		{ mine: true, at: 3, text: "qual email?" },
+		{ mine: false, at: 4, text: "tudo otimo! Ana@Exemplo.com" },
+		{ mine: false, at: 5, text: "tks!" },
+	];
+	expect(findPendingInvite(msgs, new Set(), hasTime)).toEqual({
+		email: "ana@exemplo.com",
+		agreed: "Quinta às 18h fica ótimo, marco aqui.",
+		agreedAt: 2,
+	});
+	expect(findPendingInvite(msgs, new Set(["ana@exemplo.com"]), hasTime)).toBeNull();
+	expect(findPendingInvite(msgs.slice(2), new Set(), hasTime)).toBeNull(); // no time agreed
 });

@@ -67,6 +67,8 @@ export const api = {
 	undo: (b: { pk: number; lastPk: number }) => call<{ ok: true }>("undo", b),
 	event: (pk: number) =>
 		call<{ lastPk: number; when: string; guests: string[] } | null>(`event/${pk}`),
+	schedule: (pk: number) =>
+		call<{ ok: boolean; result: string; eventId: string | null }>("event/schedule", { pk }),
 	invite: (b: { pk: number; email: string }) =>
 		call<{ ok: boolean; result: string }>("event/invite", b),
 	draft: (pk: number) => call<{ text: string }>(`draft/${pk}`, {}),

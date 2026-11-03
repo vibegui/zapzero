@@ -32,7 +32,11 @@ export type Item = {
 	triaged: boolean;
 	/** area id (clientes, hiring…) from triage; null for groups and untriaged chats */
 	area: string | null;
+	/** they sent an e-mail for a call the owner agreed to, and no zapzero event invites it yet */
+	invite: PendingInvite | null;
 };
+
+export type PendingInvite = { email: string; agreed: string; agreedAt: number };
 
 const DAY = 86_400_000;
 const REL: Record<Triage["categoria"], number> = {
@@ -58,6 +62,7 @@ export function buildInbox(
 	drafts: Map<number, Draft>,
 	decided: Map<string, Decision>,
 	now = Date.now(),
+	invites: Map<number, PendingInvite> = new Map(),
 ): Record<CategoryId, Item[]> {
 	const out = Object.fromEntries(CATEGORIES.map((c) => [c.id, [] as Item[]])) as Record<
 		CategoryId,
@@ -84,6 +89,7 @@ export function buildInbox(
 			draft: d && d.last_pk === c.lastPk ? d.text : null,
 			triaged: false,
 			area: c.group ? null : (triage.get(c.pk)?.area ?? null),
+			invite: null as PendingInvite | null,
 		};
 		const put = (category: CategoryId, score: number, reason: string, triaged = false) =>
 			out[category].push({ ...base, category, score, reason, triaged });
@@ -104,6 +110,19 @@ export function buildInbox(
 
 		if (c.lastPk == null) {
 			if (!c.pinned && age >= 90) put("limpeza", age, "sem mensagens sincronizadas há 90+ dias");
+			continue;
+		}
+		// a pending invite beats triage: "tks!" after the e-mail reads as closed, but the owner still owes the invite
+		const inv = invites.get(c.pk);
+		if (inv) {
+			out.urgente.push({
+				...base,
+				invite: inv,
+				category: "urgente",
+				score: 100,
+				reason: `convite pendente: mandou ${inv.email}`,
+				triaged: true,
+			});
 			continue;
 		}
 		const t = triage.get(c.pk);
@@ -149,4 +168,28 @@ export function buildInbox(
 	}
 	for (const items of Object.values(out)) items.sort((a, b) => b.score - a.score);
 	return out;
+}
+
+/**
+ * They wrote an e-mail after the owner proposed or agreed a time ("Quinta às 18h fica ótimo" … "iago@x.ai"),
+ * and that e-mail isn't a guest of an event zapzero made. msgs: the chat's last messages, oldest first.
+ */
+export function findPendingInvite(
+	msgs: { mine: boolean; at: number; text: string }[],
+	invited: Set<string>,
+	hasTime: (t: string) => boolean,
+): PendingInvite | null {
+	for (let i = msgs.length - 1; i >= 0; i--) {
+		const m = msgs[i]!;
+		if (m.mine) continue;
+		const email = m.text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/)?.[0]?.toLowerCase();
+		if (!email) continue;
+		if (invited.has(email)) return null;
+		const agreed = msgs
+			.slice(0, i)
+			.reverse()
+			.find((x) => x.mine && hasTime(x.text));
+		return agreed ? { email, agreed: agreed.text, agreedAt: agreed.at } : null;
+	}
+	return null;
 }

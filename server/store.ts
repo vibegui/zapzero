@@ -370,3 +370,15 @@ export const events = () =>
 			.all()
 			.map((e) => [`${e.pk}:${e.last_pk}`, e]),
 	);
+
+/** Every e-mail already invited to an event zapzero made for this chat. */
+export const invitedIn = (pk: number) =>
+	new Set(
+		db
+			.query<{ guests: string | null }, [number]>(
+				"select guests from events where pk = ? and status = 'ok'",
+			)
+			.all(pk)
+			.flatMap((r) => r.guests?.split(",") ?? [])
+			.filter(Boolean),
+	);

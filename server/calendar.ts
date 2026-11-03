@@ -56,7 +56,7 @@ Termine com uma linha só: "ADICIONADO: ${email}" ou "ERRO: <motivo>".`;
 /** Runs the owner's Claude with one calendar tool allowed (nothing built-in). Never throws. */
 async function run(
 	prompt: string,
-	tool: string,
+	tool: string | string[],
 ): Promise<{ code: number; last: string; all: string }> {
 	if (!CLAUDE) return { code: -1, last: "", all: "Claude Code não encontrado (defina ZAP_CLAUDE)" };
 	const args = [
@@ -66,7 +66,7 @@ async function run(
 		"--tools",
 		"",
 		"--allowedTools",
-		tool,
+		...[tool].flat(),
 		"--no-session-persistence",
 	];
 	if (MODEL) args.push("--model", MODEL);
@@ -110,4 +110,44 @@ export async function addGuest(
 		ok: r.last.startsWith("ADICIONADO"),
 		result: r.last.slice(0, 300) || r.all.slice(0, 300),
 	};
+}
+
+/** For "schedule with guest": look first (an event may exist already), then create or add the guest. */
+const SCHEDULE_TOOLS = [
+	process.env.ZAP_CALENDAR_LIST_TOOL ?? "mcp__claude_ai_Google_Calendar__list_events",
+	CALENDAR_TOOL,
+	CALENDAR_UPDATE_TOOL,
+];
+
+export function schedulePrompt(name: string, agreed: string, agreedAt: number, email: string) {
+	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const when = new Date(agreedAt).toLocaleString("pt-BR", {
+		timeZone: tz,
+		dateStyle: "full",
+		timeStyle: "short",
+	});
+	return `Eu (o dono deste WhatsApp) combinei uma call e a pessoa me mandou o e-mail para o convite. Garanta que ela está convidada.
+
+Contato: «${name.replace(/[«»\n]/g, " ").slice(0, 60)}» · e-mail: ${email}
+O que eu escrevi, em ${when} (fuso ${tz}): «${agreed.replace(/[«»]/g, '"').slice(0, 1000)}»
+
+1. Descubra a data e a hora a partir do que eu escrevi, contando a partir do dia em que escrevi (não de hoje). Duração: a que eu disse, senão 30 min.
+2. Liste meus eventos nesse dia. Se já houver um evento nesse horário (± 1 h) que seja essa call (título ou convidados com o contato), adicione ${email} como convidado nele, com link do Meet se não tiver.
+3. Senão, crie o evento: título "Call · <contato>", descrição "Combinado pelo WhatsApp (zapzero)", convidado ${email}, com Meet.
+Convide só ${email}. Não apague nem mude horário de nenhum evento.
+Termine com uma linha só: "CRIADO: <id do evento> | <dia e hora>", "ADICIONADO: <id do evento> | <dia e hora>" ou "ERRO: <motivo>".`;
+}
+
+export async function scheduleWithGuest(
+	name: string,
+	agreed: string,
+	agreedAt: number,
+	email: string,
+): Promise<{ ok: boolean; result: string; eventId: string | null }> {
+	const r = await run(schedulePrompt(name, agreed, agreedAt, email), SCHEDULE_TOOLS);
+	if (r.code !== 0)
+		return { ok: false, result: r.all.slice(0, 300) || `exit ${r.code}`, eventId: null };
+	const m = r.last.match(/^(CRIADO|ADICIONADO):\s*([\w-]+)\s*\|\s*(.+)$/);
+	if (m) return { ok: true, result: `CRIADO: ${m[3]}`, eventId: m[2]! };
+	return { ok: false, result: r.last.slice(0, 300) || r.all.slice(0, 300), eventId: null };
 }
