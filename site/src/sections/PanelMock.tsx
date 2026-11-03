@@ -1,3 +1,4 @@
+import { tagStyle } from "~/components/tagHue";
 import { Draft, Key } from "~/components/ui";
 
 /** @titleBy label */
@@ -22,6 +23,8 @@ export interface Row {
 	unread?: number;
 	/** @title Contexto (quem é, há quanto tempo espera) */
 	context?: string;
+	/** @title Tag (uma das tags da lateral) */
+	tag?: string;
 }
 
 /** @titleBy text */
@@ -90,6 +93,12 @@ export default function PanelMock({
 }: Props) {
 	const l = { ...PT, ...labels };
 	const open = rows[0];
+	const tags = [
+		...new Set([
+			...categories.filter((c) => c.kind === "area").map((c) => c.label),
+			...rows.flatMap((r) => (r.tag ? [r.tag] : [])),
+		]),
+	];
 	const active = categories[0];
 	return (
 		<section className="mock-wrap" aria-label="Exemplo do painel do zapzero">
@@ -108,7 +117,11 @@ export default function PanelMock({
 					<div className="mock-body">
 						<aside className="m-side">
 							{categories.map((c, i) => (
-								<div key={c.label} className={`m-cat ${c.kind ?? "normal"}${i === 0 ? " on" : ""}`}>
+								<div
+									key={c.label}
+									className={`m-cat ${c.kind ?? "normal"}${i === 0 ? " on" : ""}`}
+									style={c.kind === "area" ? tagStyle(tags.indexOf(c.label)) : undefined}
+								>
 									<span className="dot" />
 									<span className="lbl">{c.label}</span>
 									<span className="n">{c.count}</span>
@@ -129,7 +142,14 @@ export default function PanelMock({
 										<span className="t">{r.time}</span>
 									</div>
 									<div className="r2">{r.preview}</div>
-									<div className="r3">{l.draftReady}</div>
+									<div className="r3">
+										{r.tag ? (
+											<span className="tag-chip" style={tagStyle(tags.indexOf(r.tag))}>
+												{r.tag}
+											</span>
+										) : null}{" "}
+										{l.draftReady}
+									</div>
 								</div>
 							))}
 						</div>

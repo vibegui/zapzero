@@ -19,6 +19,9 @@
   --s2: #eb6834;
   --s3: #1baf7a;
   --fill-ink: #7a4f00;
+  /* tags: one subdued hue each (style="--h: deg"), same lightness for all */
+  --tag-bg: 0.94 0.035;
+  --tag-fg: 0.45 0.09;
   /* The privacy band is the panel's dark mode in both themes. */
   --band: #0b0d0c;
   --band-ink: #e8ebe9;
@@ -31,6 +34,8 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
+    --tag-bg: 0.25 0.035;
+    --tag-fg: 0.8 0.08;
     --s1: #3987e5;
     --s2: #d95926;
     --s3: #199e70;
@@ -940,6 +945,7 @@ p {
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
 }
 .area-list svg {
+  color: oklch(var(--tag-fg) var(--h, 160));
   width: 16px;
   height: 16px;
   flex: none;
@@ -1200,4 +1206,16 @@ p {
 .perf-chart svg text {
   fill: var(--faint);
   font: 10px var(--mono);
+}
+
+.tag-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: oklch(var(--tag-bg) var(--h, 160));
+  color: oklch(var(--tag-fg) var(--h, 160));
+}
+.m-cat.area .dot {
+  background: oklch(var(--tag-fg) var(--h, 160)) !important;
 }

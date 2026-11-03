@@ -2142,6 +2142,11 @@
                   "type": "string",
                   "nullable": true,
                   "title": "Contexto (quem é, há quanto tempo espera)"
+                },
+                "tag": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Tag (uma das tags da lateral)"
                 }
               },
               "required": [
@@ -2296,7 +2301,7 @@
               "titleBy": "label"
             },
             "nullable": true,
-            "title": "Áreas"
+            "title": "Tags"
           },
           "suggestionsLabel": {
             "type": "string",
@@ -2310,7 +2315,7 @@
               "properties": {
                 "label": {
                   "type": "string",
-                  "title": "Nome da área sugerida"
+                  "title": "Nome da tag sugerida"
                 },
                 "count": {
                   "type": "number",
@@ -2330,6 +2335,16 @@
             },
             "nullable": true,
             "title": "Sugestões da IA"
+          },
+          "acceptLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Botão aceitar"
+          },
+          "dismissLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Botão recusar"
           },
           "note": {
             "type": "string",

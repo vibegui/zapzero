@@ -82,20 +82,23 @@
           "preview": "Can you send me the revised version by tomorrow?",
           "time": "9:41",
           "unread": 2,
-          "context": "Client · Okada Studio · waiting on you for 2 h"
+          "context": "Client · Okada Studio · waiting on you for 2 h",
+          "tag": "Clients"
         },
         {
           "name": "Arnaldo (building manager)",
           "preview": "The elevator tech comes Thursday. Can someone open the garage?",
           "time": "8:12",
           "unread": 1,
-          "context": "Building · waiting on you for 3 h"
+          "context": "Building · waiting on you for 3 h",
+          "tag": "Home & services"
         },
         {
           "name": "Rafa Teixeira",
           "preview": "Did you lock the interview date with Bruno?",
           "time": "yesterday",
-          "context": "Partner · waiting on you for 1 day"
+          "context": "Partner · waiting on you for 1 day",
+          "tag": "Team"
         }
       ],
       "messages": [
@@ -112,7 +115,7 @@
           "time": "9:41"
         }
       ],
-      "draft": "Hi Marina! Sure, I'll include the photos. I'll send the revised version by [tomorrow 6pm], with the photos as a separate [$ ___], so you can decide on Friday.",
+      "draft": "Hi Marina! Sure, I'll include the photos. I'll send the revised version [tomorrow 6pm | Friday morning], with the photos [in the same quote | as a separate quote].",
       "costNote": "AI in the last 24 h: US$ 0.004",
       "labels": {
         "draftReady": "draft ready",
@@ -139,16 +142,16 @@
         },
         {
           "title": "You clear it.",
-          "text": "Y opens the chat in WhatsApp with the reply typed in. You check it and hit Enter. Commitments (dates, prices, yes or no) come [in brackets] for you to fill."
+          "text": "Y opens the chat in WhatsApp with the reply typed in. You check it and hit Enter. Dates, prices, yes or no come as choices: pick one and the AI rewrites the whole sentence in your voice."
         }
       ]
     },
     {
       "__resolveType": "site/sections/Areas.tsx",
-      "kicker": "Areas",
+      "kicker": "Tags",
       "title": "Categories say when.",
-      "dim": "Areas say who.",
-      "body": "Besides urgent, this week or stale, every chat gets an area: client, hiring, family, someone trying to sell you something. Open Clients and see only the clients waiting on you.",
+      "dim": "Tags say who.",
+      "body": "Besides urgent, this week or stale, every chat gets a tag with its own color: client, hiring, family, someone trying to sell you something. Open Clients and see only the clients waiting on you.",
       "areas": [
         {
           "label": "Clients",
@@ -191,7 +194,7 @@
           "count": 42
         }
       ],
-      "suggestionsLabel": "AI suggests new areas",
+      "suggestionsLabel": "AI suggests new tags",
       "suggestions": [
         {
           "label": "Apartment renovation",
@@ -201,11 +204,11 @@
         {
           "label": "Events & talks",
           "count": 7,
-          "reason": "Plenty of invites and plans for events, livestreams and panels, with no area of their own."
+          "reason": "Plenty of invites and plans for events, livestreams and panels, with no tag of their own."
         }
       ],
-      "note": "Once a day it looks at what's pending and suggests areas yours don't cover. Accept one and it becomes an area and re-sorts the rest.",
-      "acceptLabel": "Create area",
+      "note": "Once a day it looks at what's pending and suggests tags yours don't cover. Accept one and it becomes a tag and re-sorts the rest.",
+      "acceptLabel": "Create tag",
       "dismissLabel": "No"
     },
     {
@@ -239,6 +242,10 @@
         {
           "title": "You accept or tweak.",
           "text": "Triage knows who's who and every draft comes out in your tone. Changed jobs? Edit one line."
+        },
+        {
+          "title": "Learns from what you change.",
+          "text": "Every draft you fix becomes an example for the next one. Once a week your fixes turn into new rules for your voice, and you keep the ones that make sense."
         }
       ]
     },
@@ -391,6 +398,16 @@
           "detail": "Tweak the draft before sending."
         },
         {
+          "key": "1–9",
+          "action": "Choose.",
+          "detail": "Date, amount, yes or no: pick one and the sentence rewrites itself."
+        },
+        {
+          "key": "O",
+          "action": "Go to chat.",
+          "detail": "Opens the chat in WhatsApp for context, nothing typed."
+        },
+        {
           "key": "R",
           "action": "New draft.",
           "detail": "Don't like it? The AI writes another."
@@ -448,7 +465,7 @@
         },
         {
           "q": "Does it send messages by itself?",
-          "a": "<p>Never. It opens the chat with the text typed in and stops there. You hit Enter. And anything that's a commitment (a date, an amount, yes or no) comes in brackets for you to decide.</p>"
+          "a": "<p>Never. It opens the chat with the text typed in and stops there. You hit Enter. And anything that's a commitment (a date, an amount, yes or no) comes as a choice for you to decide.</p>"
         },
         {
           "q": "Does it work on Windows? On iPhone?",
@@ -484,7 +501,7 @@
           "href": "#como-funciona"
         },
         {
-          "label": "Areas",
+          "label": "Tags",
           "href": "#areas"
         },
         {

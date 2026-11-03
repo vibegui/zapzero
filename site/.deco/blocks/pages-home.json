@@ -82,20 +82,23 @@
           "preview": "Consegue me mandar a revisada até amanhã?",
           "time": "9:41",
           "unread": 2,
-          "context": "Cliente · Estúdio Okada · esperando você há 2 h"
+          "context": "Cliente · Estúdio Okada · esperando você há 2 h",
+          "tag": "Clientes"
         },
         {
           "name": "Seu Arnaldo (síndico)",
           "preview": "O técnico do elevador vem quinta. Alguém libera a garagem?",
           "time": "8:12",
           "unread": 1,
-          "context": "Prédio · esperando você há 3 h"
+          "context": "Prédio · esperando você há 3 h",
+          "tag": "Casa e serviços"
         },
         {
           "name": "Rafa Teixeira",
           "preview": "Fechou a data da entrevista com o Bruno?",
           "time": "ontem",
-          "context": "Sócio · esperando você há 1 dia"
+          "context": "Sócio · esperando você há 1 dia",
+          "tag": "Time"
         }
       ],
       "messages": [
@@ -112,7 +115,7 @@
           "time": "9:41"
         }
       ],
-      "draft": "Oi Marina! Dá sim, incluo as fotos. Te mando a revisada até [amanhã às 18h], com as fotos em [R$ ___] separado, pra vocês decidirem na sexta.",
+      "draft": "Oi Marina! Dá sim, incluo as fotos. Te mando a revisada [amanhã às 18h | sexta cedo], com as fotos [no mesmo orçamento | num orçamento à parte].",
       "costNote": "IA nas últimas 24 h: US$ 0,004"
     },
     {
@@ -131,16 +134,16 @@
         },
         {
           "title": "Você zera.",
-          "text": "Y abre a conversa no WhatsApp com a resposta digitada. Você confere e aperta Enter. Compromisso (data, preço, sim ou não) vem [entre colchetes] pra você preencher."
+          "text": "Y abre a conversa no WhatsApp com a resposta digitada. Você confere e aperta Enter. Data, preço, sim ou não: vem como escolha. Você toca na opção e a IA reescreve a frase inteira no seu tom."
         }
       ]
     },
     {
       "__resolveType": "site/sections/Areas.tsx",
-      "kicker": "Áreas",
+      "kicker": "Tags",
       "title": "Categorias dizem quando.",
-      "dim": "Áreas dizem quem.",
-      "body": "Além de urgente, essa semana ou parada, cada conversa ganha uma área: cliente, contratação, família, alguém tentando te vender algo. Abre Clientes e vê só os clientes esperando você.",
+      "dim": "Tags dizem quem.",
+      "body": "Além de urgente, essa semana ou parada, cada conversa ganha uma tag com cor própria: cliente, contratação, família, alguém tentando te vender algo. Abre Clientes e vê só os clientes esperando você.",
       "areas": [
         {
           "label": "Clientes",
@@ -183,7 +186,7 @@
           "count": 42
         }
       ],
-      "suggestionsLabel": "A IA sugere áreas novas",
+      "suggestionsLabel": "A IA sugere tags novas",
       "suggestions": [
         {
           "label": "Reforma do apê",
@@ -193,10 +196,12 @@
         {
           "label": "Eventos e palestras",
           "count": 7,
-          "reason": "Vários convites e combinados de eventos, lives e painéis, sem área própria."
+          "reason": "Vários convites e combinados de eventos, lives e painéis, sem tag própria."
         }
       ],
-      "note": "Uma vez por dia ela olha o que está pendente e propõe áreas que as suas não cobrem. Aceitou, vira área e ela reclassifica o resto."
+      "note": "Uma vez por dia ela olha o que está pendente e propõe tags que as suas não cobrem. Aceitou, vira tag e ela reclassifica o resto.",
+      "acceptLabel": "Criar tag",
+      "dismissLabel": "Não"
     },
     {
       "__resolveType": "site/sections/Voice.tsx",
@@ -229,6 +234,10 @@
         {
           "title": "Você aceita ou ajusta.",
           "text": "A triagem entende quem é quem e todo rascunho sai no seu tom. Mudou de emprego? Edita uma linha."
+        },
+        {
+          "title": "Aprende com o que você muda.",
+          "text": "Cada rascunho que você corrige vira exemplo pro próximo. Uma vez por semana, as correções viram regras novas pro seu jeito, e você aceita as que fazem sentido."
         }
       ]
     },
@@ -381,6 +390,16 @@
           "detail": "Mexe no rascunho antes de mandar."
         },
         {
+          "key": "1–9",
+          "action": "Escolher.",
+          "detail": "Data, valor, sim ou não: toca na opção e a frase se reescreve sozinha."
+        },
+        {
+          "key": "O",
+          "action": "Ir pra conversa.",
+          "detail": "Abre o chat no WhatsApp pra ver o contexto, sem digitar nada."
+        },
+        {
           "key": "R",
           "action": "Novo rascunho.",
           "detail": "Não gostou? A IA escreve outro."
@@ -438,7 +457,7 @@
         },
         {
           "q": "Ele manda mensagem sozinho?",
-          "a": "<p>Nunca. Ele abre a conversa com o texto digitado e para aí. Quem aperta Enter é você. E o que é compromisso (data, valor, sim ou não) vem entre colchetes pra você decidir.</p>"
+          "a": "<p>Nunca. Ele abre a conversa com o texto digitado e para aí. Quem aperta Enter é você. E o que é compromisso (data, valor, sim ou não) vem como escolha pra você decidir.</p>"
         },
         {
           "q": "Funciona no Windows? E no iPhone?",
@@ -470,7 +489,7 @@
           "href": "#como-funciona"
         },
         {
-          "label": "Áreas",
+          "label": "Tags",
           "href": "#areas"
         },
         {

@@ -1,3 +1,4 @@
+import { tagStyle } from "~/components/tagHue";
 import { Head } from "~/components/ui";
 
 /** @titleBy label */
@@ -10,7 +11,7 @@ export interface Area {
 
 /** @titleBy label */
 export interface Suggestion {
-	/** @title Nome da área sugerida */
+	/** @title Nome da tag sugerida */
 	label: string;
 	/** @title Conversas */
 	count: number;
@@ -27,7 +28,7 @@ export interface Props {
 	dim?: string;
 	/** @title Texto */
 	body?: string;
-	/** @title Áreas */
+	/** @title Tags */
 	areas?: Area[];
 	/** @title Rótulo das sugestões */
 	suggestionsLabel?: string;
@@ -42,14 +43,14 @@ export interface Props {
 }
 
 export default function Areas({
-	kicker = "Áreas",
+	kicker = "Tags",
 	title = "Categorias dizem quando.",
-	dim = "Áreas dizem quem.",
+	dim = "Tags dizem quem.",
 	body = "",
 	areas = [],
 	suggestionsLabel = "Sugestões",
 	suggestions = [],
-	acceptLabel = "Criar área",
+	acceptLabel = "Criar tag",
 	dismissLabel = "Não",
 	note = "",
 }: Props) {
@@ -59,8 +60,8 @@ export default function Areas({
 			{body ? <p className="lede areas-lede">{body}</p> : null}
 			<div className="areas">
 				<ul className="area-list">
-					{areas.map((a) => (
-						<li key={a.label}>
+					{areas.map((a, i) => (
+						<li key={a.label} style={tagStyle(i)}>
 							<svg viewBox="0 0 24 24" aria-hidden="true">
 								<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9Z" />
 								<circle cx="7.5" cy="7.5" r="1.2" />
