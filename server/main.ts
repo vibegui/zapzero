@@ -74,14 +74,15 @@ app.get("/api/chat/:pk", (c) => c.json(wa.messages(Number(c.req.param("pk")), 30
 const Decide = z.object({
 	pk: z.number().int(),
 	lastPk: z.number().int(),
-	kind: z.enum(["reply", "done", "skip", "archive"]),
+	kind: z.enum(["reply", "done", "skip", "archive", "ignore"]),
 	text: z.string().max(4000).optional(),
 });
 
 app.post("/api/decide", async (c) => {
 	const p = Decide.safeParse(await c.req.json().catch(() => null));
 	if (!p.success) return c.json({ error: "invalid" }, 400);
-	const { pk, lastPk, kind, text } = p.data;
+	const { pk, kind, text } = p.data;
+	const lastPk = kind === "ignore" ? 0 : p.data.lastPk;
 	const chat = wa.chats().find((x) => x.pk === pk);
 	if (!chat) return c.json({ error: "chat" }, 404);
 	let via: "whatsapp" | "clipboard" | null = null;

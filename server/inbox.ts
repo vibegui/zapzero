@@ -63,6 +63,7 @@ export function buildInbox(
 	>;
 	for (const c of chats) {
 		if (c.archived) continue;
+		if (decided.has(`${c.pk}:0`)) continue; // ignored forever
 		if (c.lastPk != null && decided.has(`${c.pk}:${c.lastPk}`)) continue;
 		const age = c.lastAt ? (now - c.lastAt) / DAY : 9999;
 		const waitAge = c.lastInAt ? (now - c.lastInAt) / DAY : age;

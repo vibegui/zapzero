@@ -24,9 +24,11 @@ bun test && bun run check
 tailscale serve --bg --set-path=/radar http://127.0.0.1:8810   # private tailnet only, never funnel
 ```
 
+Runs at login via launchd: `~/Library/LaunchAgents/com.guilherme.zapzero.plist` (KeepAlive, log in `~/Library/Logs/zapzero.log`). After changing code: `bun run build && launchctl kickstart -k gui/$(id -u)/com.guilherme.zapzero`.
+
 Open `http://127.0.0.1:8810/?t=<token>`; the token is in `$ZAP_DATA/token` (`$ZAP_DATA` defaults to `~/Library/Application Support/zap`, chmod 700). `$ZAP_DATA/perfil.txt` describes the owner in one paragraph; triage and drafts use it.
 
-Keys: `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor. A `[bracket]` in a draft is a decision left to you: `Y` selects it instead of sending.
+Keys: `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor. A `[bracket]` in a draft is a decision left to you: `Y` selects it instead of sending.
 
 ## Rules
 

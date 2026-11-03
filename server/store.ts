@@ -26,7 +26,8 @@ export type Triage = {
 };
 export type Draft = { pk: number; last_pk: number; text: string; model: string; at: number };
 /** reply = opened in WhatsApp with the text; done = nothing to send; archive = intent, for the executor */
-export type DecisionKind = "reply" | "done" | "skip" | "archive";
+/** ignore = forever, stored with last_pk 0 so no new message brings the chat back */
+export type DecisionKind = "reply" | "done" | "skip" | "archive" | "ignore";
 export type Decision = {
 	pk: number;
 	last_pk: number;

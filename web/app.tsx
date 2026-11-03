@@ -6,6 +6,7 @@ import {
 	CalendarDays,
 	CheckCheck,
 	Clock3,
+	EyeOff,
 	Flame,
 	Hourglass,
 	Loader2,
@@ -210,10 +211,12 @@ export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
 						: `Texto copiado: cole na conversa com ${name}`
 					: b.kind === "archive"
 						? `${name}: marcada para arquivar`
-						: b.kind === "done"
-							? `${name}: resolvida`
-							: `${name}: pulada até chegar mensagem nova`;
-			setToast({ text, pk: b.pk, lastPk: b.lastPk });
+						: b.kind === "ignore"
+							? `${name}: ignorada para sempre`
+							: b.kind === "done"
+								? `${name}: resolvida`
+								: `${name}: pulada até chegar mensagem nova`;
+			setToast({ text, pk: b.pk, lastPk: b.kind === "ignore" ? 0 : b.lastPk });
 		},
 		onSettled: () => qc.invalidateQueries({ queryKey: ["inbox"] }),
 	});
@@ -256,6 +259,7 @@ export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
 				d: () => act("done"),
 				a: () => act("archive"),
 				s: () => act("skip"),
+				i: () => act("ignore"),
 				z: () => toast && undo.mutate({ pk: toast.pk, lastPk: toast.lastPk }),
 			};
 			if (run[k]) {
@@ -523,6 +527,9 @@ function Focus({
 					<Btn onClick={() => act("skip")} k="S">
 						<SkipForward className="size-3.5" /> Pular
 					</Btn>
+					<Btn onClick={() => act("ignore")} k="I">
+						<EyeOff className="size-3.5" /> Ignorar sempre
+					</Btn>
 				</div>
 				<div className="mx-auto mt-2 max-w-3xl text-[11px] text-faint">
 					{cleanup
@@ -571,6 +578,7 @@ const KIND_LABEL: Record<DecisionKind, string> = {
 	done: "resolvida",
 	skip: "pulada",
 	archive: "arquivar",
+	ignore: "ignorada sempre",
 };
 
 export function Done() {

@@ -67,6 +67,16 @@ test("categorizes and ranks", () => {
 		["1:10", { pk: 1, last_pk: 10, kind: "reply", text: "ok", at: now }],
 	]);
 	expect(buildInbox(chats, t, new Map(), dec, now).urgente).toHaveLength(0);
+	// ignored forever: gone even after a new message
+	const ign = new Map<string, Decision>([
+		["1:0", { pk: 1, last_pk: 0, kind: "ignore", text: null, at: now }],
+	]);
+	const later = chats.map((c) => (c.pk === 1 ? { ...c, lastPk: 99 } : c));
+	expect(
+		Object.values(buildInbox(later, t, new Map(), ign, now))
+			.flat()
+			.map((i) => i.pk),
+	).not.toContain(1);
 	const moved = chats.map((c) => (c.pk === 1 ? { ...c, lastPk: 11 } : c));
 	expect(buildInbox(moved, t, new Map(), dec, now).semana.map((i) => i.pk)).toContain(1);
 });

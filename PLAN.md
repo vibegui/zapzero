@@ -10,8 +10,10 @@ TypeScript num processo Bun só (Hono + React/TanStack). Substituiu os scripts P
 - [x] Categorias ranqueadas: importante e urgente / essa semana / mais de uma semana / você está esperando / grupos e lazer / limpeza.
 - [x] Painel com atalhos: Y abre a conversa no WhatsApp com o texto (o dono aperta Enter), D resolvida, A arquivar (intenção), S pular, Z desfazer. Decisão vale até chegar mensagem nova.
 - [x] Rascunho deixa decisões [entre colchetes]; Y seleciona o colchete em vez de mandar.
-- [ ] MCP app no deco Studio: Worker público mínimo com 1 tool cujo `ui://` é um iframe pro tailnet (`_meta.ui.csp.frameDomains`). O token vai no casco, que só o Studio autenticado recebe. Nenhum dado do WhatsApp passa pelo Worker.
-- [ ] launchd pra o servidor subir com o Mac.
+- [x] MCP app no deco Studio: Worker público mínimo com 1 tool cujo `ui://` é um iframe pro tailnet (`_meta.ui.csp.frameDomains`). O token vai no casco, que só o Studio autenticado recebe. Nenhum dado do WhatsApp passa pelo Worker.
+- [x] launchd: o servidor sobe com o Mac (`com.guilherme.zapzero`).
+- [x] Ignorar pessoa para sempre (I): some de tudo, sai da triagem e dos rascunhos.
+- [x] No Studio: tela WhatsApp no projeto autogui (vibegui/autogui#14). Requer `chrome://flags/#local-network-access-check` desligado até o Studio delegar `local-network-access` ao iframe.
 - [ ] Contatos @lid sem telefone e grupos: hoje Y copia o texto e abre o app; achar a conversa sozinho.
 - [ ] Radar (cohorts, % respondido em 24h) e assuntos dos grupos voltam como aba, se fizer falta.
 
