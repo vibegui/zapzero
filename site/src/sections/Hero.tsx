@@ -22,6 +22,10 @@ export interface Props {
 	otherLangLabel?: string;
 	/** @title Outro idioma: link (ex.: /en?lang=en) */
 	otherLangHref?: string;
+	/** @title Link da documentação no topo: rótulo */
+	docsLabel?: string;
+	/** @title Link da documentação no topo */
+	docsHref?: string;
 	/** @title Botão secundário */
 	secondaryLabel?: string;
 	/** @title Link do botão secundário */
@@ -40,6 +44,8 @@ export default function Hero({
 	ctaHref = "",
 	otherLangLabel = "",
 	otherLangHref = "",
+	docsLabel = "",
+	docsHref = "",
 	secondaryLabel = "",
 	secondaryHref = "#como-funciona",
 	promises = [],
@@ -51,6 +57,11 @@ export default function Hero({
 					<Logo />
 				</a>
 				<span className="domain">{domain}</span>
+				{docsHref ? (
+					<a className="top-link" href={docsHref}>
+						{docsLabel}
+					</a>
+				) : null}
 				{otherLangHref ? (
 					<a className="lang" href={otherLangHref} hrefLang={otherLangLabel.toLowerCase()}>
 						{otherLangLabel}

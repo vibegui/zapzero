@@ -60,6 +60,9 @@ export default function Docs({
 						{otherLangLabel}
 					</a>
 				) : null}
+				<a className="top-link on" href={backHref.replace(/\/(pt|en)$/, "/$1/docs")}>
+					Docs
+				</a>
 				<a className="lang" href={backHref}>
 					{backLabel}
 				</a>

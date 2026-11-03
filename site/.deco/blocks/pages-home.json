@@ -29,7 +29,9 @@
         "Open source (MIT)"
       ],
       "otherLangLabel": "EN",
-      "otherLangHref": "/en?lang=en"
+      "otherLangHref": "/en?lang=en",
+      "docsLabel": "Docs",
+      "docsHref": "/pt/docs"
     },
     {
       "__resolveType": "site/sections/PanelMock.tsx",

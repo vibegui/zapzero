@@ -1545,3 +1545,48 @@ p {
 .setup-docs:hover {
   text-decoration: underline;
 }
+.top-link {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+.top-link:hover {
+  background: var(--sunken);
+}
+.top-link.on {
+  color: var(--accent);
+}
+@media (max-width: 560px) {
+  .top {
+    gap: 6px;
+  }
+  .top .domain {
+    display: none;
+  }
+  .top > a:first-child {
+    margin-right: auto;
+  }
+  .top-link {
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+  .top .btn.small {
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 860px) {
+  .docs-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.docs-body table {
+  display: block;
+  overflow-x: auto;
+}
+.top .btn.small {
+  white-space: nowrap;
+}
