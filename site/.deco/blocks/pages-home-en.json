@@ -178,7 +178,9 @@
           "linkLabel": "Get a key"
         }
       ],
-      "command": "git clone https://github.com/vibegui/zapzero && cd zapzero\nbun install && bun run setup"
+      "command": "git clone https://github.com/vibegui/zapzero && cd zapzero\nbun install && bun run setup",
+      "docsLabel": "Full guide: install, permissions and shortcuts",
+      "docsHref": "/en/docs"
     },
     {
       "__resolveType": "site/sections/Areas.tsx",
@@ -584,6 +586,10 @@
         {
           "label": "Questions",
           "href": "#perguntas"
+        },
+        {
+          "label": "Docs",
+          "href": "/en/docs"
         },
         {
           "label": "GitHub",

@@ -29,6 +29,10 @@ export interface Props {
 	items?: Item[];
 	/** @title Comando de instalação */
 	command?: string;
+	/** @title Link pra documentação: rótulo */
+	docsLabel?: string;
+	/** @title Link pra documentação */
+	docsHref?: string;
 }
 
 const ICONS: Record<Item["icon"], React.ReactNode> = {
@@ -64,6 +68,8 @@ export default function Setup({
 	dim = "E um opcional.",
 	items = [],
 	command = "",
+	docsLabel = "",
+	docsHref = "",
 }: Props) {
 	return (
 		<section className="block wrap" id="instalar">
@@ -88,6 +94,11 @@ export default function Setup({
 				))}
 			</ul>
 			{command ? <pre className="setup-cmd">{command}</pre> : null}
+			{docsHref ? (
+				<a className="setup-docs" href={docsHref}>
+					{docsLabel} →
+				</a>
+			) : null}
 		</section>
 	);
 }

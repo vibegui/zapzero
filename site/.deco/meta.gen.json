@@ -42,6 +42,10 @@
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
           "namespace": "site"
         },
+        "site/sections/Docs.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+          "namespace": "site"
+        },
         "site/sections/Privacy.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
           "namespace": "site"
@@ -1068,6 +1072,10 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
               },
@@ -1394,6 +1402,10 @@
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
                     },
                     {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
+                    },
+                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
                     },
@@ -1481,6 +1493,10 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
               },
@@ -1562,6 +1578,10 @@
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
@@ -1675,6 +1695,10 @@
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
                               },
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
@@ -2690,6 +2714,16 @@
             "type": "string",
             "nullable": true,
             "title": "Comando de instalação"
+          },
+          "docsLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Link pra documentação: rótulo"
+          },
+          "docsHref": {
+            "type": "string",
+            "nullable": true,
+            "title": "Link pra documentação"
           }
         }
       },
@@ -2711,6 +2745,106 @@
               "site/sections/Setup.tsx"
             ],
             "default": "site/sections/Setup.tsx"
+          }
+        }
+      },
+      "c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "nullable": true,
+            "title": "Domínio no topo"
+          },
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "intro": {
+            "type": "string",
+            "nullable": true,
+            "title": "Introdução"
+          },
+          "tocLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título do índice"
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "title": "Âncora (sem espaço, ex.: instalar)"
+                },
+                "title": {
+                  "type": "string",
+                  "title": "Título"
+                },
+                "body": {
+                  "type": "string",
+                  "title": "Conteúdo",
+                  "format": "rich-text"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "body"
+              ],
+              "titleBy": "title"
+            },
+            "nullable": true,
+            "title": "Capítulos"
+          },
+          "otherLangLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Outro idioma: rótulo"
+          },
+          "otherLangHref": {
+            "type": "string",
+            "nullable": true,
+            "title": "Outro idioma: link"
+          },
+          "backLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Link de volta: rótulo"
+          },
+          "backHref": {
+            "type": "string",
+            "nullable": true,
+            "title": "Link de volta"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==": {
+        "title": "site/sections/Docs.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Docs.tsx"
+            ],
+            "default": "site/sections/Docs.tsx"
           }
         }
       },
@@ -3126,6 +3260,10 @@
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
           },
           {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
+          },
+          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
           },
@@ -3203,6 +3341,10 @@
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Eb2NzLnRzeA==",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0RvY3MudHN4@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",

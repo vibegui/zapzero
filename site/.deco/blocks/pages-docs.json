@@ -1,0 +1,134 @@
+{
+  "name": "Docs (PT)",
+  "__resolveType": "website/pages/Page.tsx",
+  "path": "/pt/docs",
+  "seo": {
+    "__resolveType": "website/sections/Seo/SeoV2.tsx",
+    "title": "Documentação · zapzero",
+    "description": "Como instalar e usar o zapzero: permissões do macOS, atalhos, Seu jeito, tags, agenda com o Claude e configuração.",
+    "type": "website",
+    "noIndexing": false,
+    "image": "https://zapzero.dev/og.png"
+  },
+  "sections": [
+    {
+      "__resolveType": "site/sections/Docs.tsx",
+      "domain": "zapzero.dev",
+      "kicker": "Documentação",
+      "title": "Como usar o zapzero.",
+      "intro": "Instalar, dar a permissão certa no macOS, zerar o WhatsApp pelo teclado e deixar o seu Claude cuidar da agenda.",
+      "tocLabel": "Nesta página",
+      "otherLangLabel": "EN",
+      "otherLangHref": "/en/docs",
+      "backLabel": "← Início",
+      "backHref": "/pt",
+      "chapters": [
+        {
+          "id": "instalar",
+          "title": "Instalar",
+          "body": "<p>Você precisa de três coisas, todas no Mac:</p>\n<ul>\n<li><strong>WhatsApp Desktop</strong>, o app oficial, ligado ao seu celular. Ao ligar, ele sincroniza uns 3 meses de mensagens; conversas mais antigas aparecem na lista, sem texto.</li>\n<li><strong>Claude Code</strong>, logado com a sua assinatura do Claude. É ele que tria as conversas e escreve os rascunhos. <a href=\"https://claude.com/claude-code\">Instalar</a>.</li>\n<li><strong>Bun</strong> 1.3 ou mais novo, pra instalar e rodar. <a href=\"https://bun.com\">bun.com</a>.</li>\n</ul>\n<p>Opcional: uma chave da <a href=\"https://openrouter.ai/keys\">OpenRouter</a>. Ela libera o Jev, um classificador mais rápido e barato pra triar milhares de conversas (US$ 0,09 pra 1.600). Sem ela, o Claude tria tudo.</p>\n<p>No Terminal:</p>\n<pre><code>git clone https://github.com/vibegui/zapzero && cd zapzero\nbun install\ncp .env.example .env    # opcional: cole a chave da OpenRouter\nbun run setup</code></pre>\n<p>O <code>setup</code> confere tudo, tira a primeira cópia das conversas, monta o painel, cria o servidor que sobe sozinho quando você liga o Mac e mostra o link do painel com a sua senha.</p>"
+        },
+        {
+          "id": "permissao",
+          "title": "Permissão do macOS",
+          "body": "<p>O macOS protege a pasta do WhatsApp. Sem permissão, ele mostra um aviso toda vez que o zapzero lê as conversas. Resolve-se uma vez só, em dois passos.</p>\n<h3>1. Durante o setup: o seu Terminal</h3>\n<p>Se o setup disser que não consegue ler o banco do WhatsApp, abra <strong>Ajustes do Sistema → Privacidade e Segurança → Acesso Total ao Disco</strong>, adicione o app de terminal que você usa e rode <code>bun run setup</code> de novo.</p>\n<h3>2. Depois: o servidor do zapzero</h3>\n<p>O servidor que roda em segundo plano é um programa próprio, criado pelo setup:</p>\n<pre><code>~/Library/Application Support/zap/bin/zapzero</code></pre>\n<p>Dê <strong>Acesso Total ao Disco</strong> a esse arquivo. Estes dois comandos abrem a tela certa e mostram o arquivo no Finder; é só arrastar pra lista:</p>\n<pre><code>open \"x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles\"\nopen -R ~/Library/Application\\ Support/zap/bin/zapzero</code></pre>\n<p><strong>Não dê acesso ao <code>bun</code>.</strong> Qualquer script que rode com Bun ganharia acesso ao disco inteiro. Por isso o servidor é um programa separado: só ele ganha a permissão.</p>\n<p>Quando você atualizar o zapzero e rodar o setup de novo, o programa é recriado e o macOS o trata como novo: desligue e ligue o <code>zapzero</code> de novo nessa lista.</p>"
+        },
+        {
+          "id": "painel",
+          "title": "Abrir o painel",
+          "body": "<p>Abra <code>http://127.0.0.1:8810/?t=&lt;senha&gt;</code>. O setup mostra o link completo; a senha também fica em <code>~/Library/Application Support/zap/token</code>.</p>\n<p>A cada 15 minutos o zapzero tira uma cópia nova das conversas, tria o que mudou e escreve rascunhos pra quem está esperando você.</p>\n<h3>No celular ou em outro computador</h3>\n<p>Coloque o painel na sua rede privada do <a href=\"https://tailscale.com\">Tailscale</a> (nunca no Funnel, que é público):</p>\n<pre><code>tailscale serve --bg --set-path=/zap http://127.0.0.1:8810</code></pre>\n<p>Ele também roda como app dentro do deco Studio.</p>"
+        },
+        {
+          "id": "usar",
+          "title": "Zerar o WhatsApp",
+          "body": "<p>Na lateral, as conversas estão em categorias: <strong>Importante e urgente</strong>, <strong>Essa semana</strong>, <strong>Mais de uma semana</strong>, <strong>Você está esperando</strong>, <strong>Grupos e lazer</strong> e <strong>Limpeza</strong>. Embaixo, as <strong>tags</strong> (Clientes, Hiring, Família…), cada uma com a sua cor.</p>\n<p>Comece por Importante e urgente. Cada conversa vem com um rascunho no seu jeito de escrever.</p>\n<ul>\n<li><kbd>Y</kbd> abre a conversa no WhatsApp com o texto digitado. Quem aperta Enter é você.</li>\n<li>Data, valor, sim ou não vêm como <strong>escolha</strong>: aperte <kbd>1</kbd>–<kbd>9</kbd> ou clique na opção. Quando você responde a última, a IA reescreve a frase inteira no seu tom.</li>\n<li>Não gostou do rascunho? <kbd>E</kbd> edita, <kbd>R</kbd> pede outro.</li>\n<li><kbd>O</kbd> abre a conversa no WhatsApp sem digitar nada, pra ver o contexto.</li>\n</ul>\n<h3>Atalhos</h3>\n<table>\n<tr><th>Tecla</th><th>O que faz</th></tr>\n<tr><td><kbd>Y</kbd> ou <kbd>Enter</kbd></td><td>Responder no WhatsApp</td></tr>\n<tr><td><kbd>E</kbd></td><td>Editar o rascunho (<kbd>⌘</kbd> <kbd>Enter</kbd> responde editando)</td></tr>\n<tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>Escolher uma opção do rascunho</td></tr>\n<tr><td><kbd>R</kbd></td><td>Novo rascunho</td></tr>\n<tr><td><kbd>C</kbd></td><td>Ligar ou desligar o evento no calendário</td></tr>\n<tr><td><kbd>D</kbd></td><td>Resolvida, sem responder</td></tr>\n<tr><td><kbd>A</kbd></td><td>Arquivar</td></tr>\n<tr><td><kbd>S</kbd></td><td>Pular por agora</td></tr>\n<tr><td><kbd>I</kbd></td><td>Ignorar essa pessoa pra sempre</td></tr>\n<tr><td><kbd>O</kbd></td><td>Ir pra conversa no WhatsApp</td></tr>\n<tr><td><kbd>J</kbd> / <kbd>K</kbd></td><td>Próxima / anterior</td></tr>\n<tr><td><kbd>/</kbd></td><td>Buscar por nome</td></tr>\n<tr><td><kbd>Z</kbd></td><td>Desfazer</td></tr>\n</table>\n<p>Tudo o que você fez fica em <strong>Feitas</strong>, com um botão de desfazer.</p>"
+        },
+        {
+          "id": "seu-jeito",
+          "title": "Seu jeito",
+          "body": "<p>Depois da primeira leitura, a IA escreve quem você é (onde mora, trabalho, família, quem importa) e como você escreve (tamanho, gírias, emoji). Abra <strong>Seu jeito</strong> na lateral, aceite ou corrija cada parte: a triagem e os rascunhos seguem esse texto.</p>\n<p>Ele também aprende com você. Cada rascunho que você corrige antes de mandar vira exemplo pros próximos. Uma vez por semana, as correções viram regras sugeridas em Seu jeito; você marca as que fazem sentido e elas entram no seu guia.</p>"
+        },
+        {
+          "id": "tags",
+          "title": "Tags",
+          "body": "<p>Cada conversa ganha uma tag: quem é a pessoa ou do que se trata. Clique numa tag pra ver só aquelas conversas. Uma vez por dia a IA sugere tags novas quando vê um assunto que se repete; aceite com <strong>Criar tag</strong> e ela reclassifica o resto.</p>"
+        },
+        {
+          "id": "agenda",
+          "title": "Agenda com o seu Claude",
+          "body": "<p>Quando você responde aceitando um dia e hora, o painel oferece <strong>criar o evento no seu calendário</strong>. Ao apertar <kbd>Y</kbd>, o zapzero chama o seu Claude Code, que cria o evento com link de call usando o conector de calendário que ele já tem.</p>\n<ul>\n<li>Se a pessoa mandou o e-mail na conversa, ele aparece marcado pra ir no convite.</li>\n<li>Se não mandou, peça no rascunho (<strong>+ pedir o e-mail</strong>). Quando ela responder, a conversa volta pra Importante e urgente com <strong>garantir a call no calendário</strong>.</li>\n</ul>\n<p>Precisa: o Claude Code com um conector de calendário (o Google Calendar do claude.ai, por exemplo). Ele só pode criar e atualizar eventos, e só quando você responde. O zapzero nunca vê a sua agenda.</p>"
+        },
+        {
+          "id": "claude",
+          "title": "Usar pelo Claude",
+          "body": "<p>O setup instala uma skill do Claude Code. Em qualquer conversa com o Claude você pode perguntar \"quem está me esperando no WhatsApp?\", \"o que eu respondo pra Marina?\" ou \"quanto tempo eu levo pra responder?\".</p>\n<p>No Terminal, a mesma API:</p>\n<pre><code>bun run zap api inbox          # categorias e conversas\nbun run zap api stats          # desempenho de respostas\nbun run zap refresh            # ler e triar agora</code></pre>\n<p>O Claude só propõe. Nada é enviado, arquivado ou marcado como lido sem você.</p>"
+        },
+        {
+          "id": "config",
+          "title": "Configuração",
+          "body": "<p>Tudo é opcional e fica no <code>.env</code> do repositório. Depois de mudar, reinicie: <code>launchctl kickstart -k gui/$(id -u)/dev.zapzero.server</code>.</p>\n<table>\n<tr><th>Variável</th><th>O que faz</th></tr>\n<tr><td><code>OPENROUTER_API_KEY</code></td><td>Libera o Jev pra triar (mais rápido e barato)</td></tr>\n<tr><td><code>ZAP_LLM</code></td><td><code>claude</code> (padrão) ou <code>openrouter</code></td></tr>\n<tr><td><code>ZAP_CLAUDE_MODEL</code></td><td>Modelo do Claude Code; padrão <code>haiku</code></td></tr>\n<tr><td><code>ZAP_TRIAGE</code></td><td><code>llm</code> tria com o Claude mesmo tendo chave da OpenRouter</td></tr>\n<tr><td><code>ZAP_REFRESH_MIN</code></td><td>De quantos em quantos minutos lê de novo (padrão 15; 0 desliga)</td></tr>\n<tr><td><code>ZAP_PORT</code></td><td>Porta do painel (padrão 8810)</td></tr>\n<tr><td><code>ZAP_DATA</code></td><td>Onde ficam cópias e estado (padrão <code>~/Library/Application Support/zap</code>)</td></tr>\n<tr><td><code>ZAP_CALENDAR_TOOL</code></td><td>Ferramenta de calendário que o Claude pode usar</td></tr>\n</table>"
+        },
+        {
+          "id": "problemas",
+          "title": "Problemas comuns",
+          "body": "<h3>O macOS fica pedindo permissão</h3>\n<p>Falta o Acesso Total ao Disco do <code>zapzero</code> (veja <a href=\"#permissao\">Permissão do macOS</a>). Depois de atualizar, desligue e ligue de novo.</p>\n<h3>\"snapshot: no answer in 120s\" no log</h3>\n<p>O macOS está esperando você responder um aviso de permissão. Veja se há uma janela aberta e confira a permissão acima. O painel continua com a última cópia.</p>\n<h3>Rascunhos não aparecem</h3>\n<p>O Claude Code precisa estar instalado e logado. Rode <code>claude</code> uma vez no Terminal pra conferir. O log fica em <code>~/Library/Logs/zapzero.log</code>.</p>\n<h3>Responder abriu o WhatsApp na conversa errada</h3>\n<p>Algumas conversas com quem não está na sua agenda não têm o número salvo. Nesse caso o texto vai pra área de transferência: cole com <kbd>⌘</kbd> <kbd>V</kbd> na conversa.</p>\n<h3>Desinstalar</h3>\n<pre><code>launchctl bootout gui/$(id -u)/dev.zapzero.server\nrm ~/Library/LaunchAgents/dev.zapzero.server.plist ~/.claude/skills/zapzero\nrm -r ~/Library/Application\\ Support/zap    # cópias, rascunhos e decisões</code></pre>"
+        },
+        {
+          "id": "privacidade",
+          "title": "Privacidade",
+          "body": "<ul>\n<li>Só lê: o zapzero nunca escreve nos arquivos do WhatsApp.</li>\n<li>Nada é enviado sem você: ele digita, você aperta Enter.</li>\n<li>Sem servidor nosso: suas conversas ficam no seu Mac. Só o trecho necessário vai pro seu Claude (e pro Jev, se você ligar a OpenRouter).</li>\n<li>O texto das mensagens é tratado como dado, nunca como instrução pra IA.</li>\n<li>Código aberto (MIT): <a href=\"https://github.com/vibegui/zapzero\">github.com/vibegui/zapzero</a>.</li>\n</ul>"
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Footer.tsx",
+      "closer": "Bora zerar?",
+      "ctaLabel": "★ Star no GitHub",
+      "ctaHref": "https://github.com/vibegui/zapzero",
+      "domain": "zapzero.dev",
+      "links": [
+        {
+          "label": "Como funciona",
+          "href": "/pt#como-funciona"
+        },
+        {
+          "label": "O que precisa",
+          "href": "/pt#instalar"
+        },
+        {
+          "label": "Tags",
+          "href": "/pt#areas"
+        },
+        {
+          "label": "Seu jeito",
+          "href": "/pt#seu-jeito"
+        },
+        {
+          "label": "Agenda",
+          "href": "/pt#agenda"
+        },
+        {
+          "label": "Desempenho",
+          "href": "/pt#desempenho"
+        },
+        {
+          "label": "Privacidade",
+          "href": "/pt#privacidade"
+        },
+        {
+          "label": "Perguntas",
+          "href": "/pt#perguntas"
+        },
+        {
+          "label": "GitHub",
+          "href": "https://github.com/vibegui/zapzero"
+        }
+      ],
+      "fine": "O zapzero não é afiliado ao WhatsApp nem à Meta. Nomes e mensagens nesta página são fictícios.",
+      "creditBefore": "feito com",
+      "creditAfter": "no Rio de Janeiro por",
+      "creditLink": "vibegui.com",
+      "creditHref": "https://vibegui.com"
+    }
+  ]
+}
