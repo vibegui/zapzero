@@ -41,6 +41,7 @@ import {
 	type Item,
 	TOKEN,
 } from "./api.ts";
+import { fill, slots } from "./slots.ts";
 
 const ICONS: Record<CategoryId, typeof Flame> = {
 	urgente: Flame,
@@ -381,7 +382,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 	}, [toast]);
 
 	// keyboard: the whole point is YES YES YES
-	const focusRef = useRef<{ reply: () => void; edit: () => void; redraft: () => void }>(null);
+	const focusRef = useRef<FocusHandle>(null);
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -403,6 +404,11 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 				i: () => act("ignore"),
 				z: () => toast && undo.mutate({ pk: toast.pk, lastPk: toast.lastPk }),
 			};
+			// 1–9: pick that choice in the draft's first open [slot]
+			if (/^[1-9]$/.test(k) && focusRef.current?.pick(Number(k) - 1)) {
+				e.preventDefault();
+				return;
+			}
 			if (run[k]) {
 				e.preventDefault();
 				run[k]();
@@ -467,7 +473,8 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 			<section className="relative flex min-w-0 flex-1 flex-col">
 				{item ? (
 					<Focus
-						key={`${item.pk}:${item.lastPk}`}
+						// a new draft (R, or an agent writing one) resets the editor
+						key={`${item.pk}:${item.lastPk}:${item.draft ?? ""}`}
 						item={item}
 						areaLabel={areaLabel(item.area)}
 						position={`${idx + 1} de ${items.length}`}
@@ -507,7 +514,7 @@ function Focus({
 	areaLabel?: string;
 	position: string;
 	act: (kind: DecisionKind, text?: string) => void;
-	handle: RefObject<{ reply: () => void; edit: () => void; redraft: () => void } | null>;
+	handle: RefObject<FocusHandle | null>;
 }) {
 	const chat = useQuery({
 		queryKey: ["chat", item.pk, item.lastPk],
@@ -533,17 +540,22 @@ function Focus({
 			el?.focus();
 			return;
 		}
-		// a [bracket] is a decision the draft left to the owner: select it instead of sending it
-		const open = text.match(/\[[^\]]*\]/);
-		if (open?.index != null && el) {
-			el.focus();
-			el.setSelectionRange(open.index, open.index + open[0].length);
+		// a [slot] is a decision the draft left to the owner: go fill it instead of sending it
+		if (open.length) {
+			document.querySelector<HTMLInputElement>("[data-slot-input]")?.focus();
 			return;
 		}
 		act("reply", text.trim());
 	};
+	const open = slots(text);
 	handle.current = {
 		reply,
+		pick: (i) => {
+			const s = open[0];
+			if (!s?.options[i]) return false;
+			setText(fill(text, s, s.options[i]));
+			return true;
+		},
 		edit: () => {
 			const el = box.current;
 			if (!el) return;
@@ -616,6 +628,9 @@ function Focus({
 			<footer className="border-t border-line bg-panel px-6 py-4">
 				{!cleanup && (
 					<div className="mx-auto max-w-3xl">
+						{open.length > 0 && (
+							<SlotBar slots={open} onFill={(s, v) => setText(fill(text, s, v))} />
+						)}
 						<div className="relative">
 							<textarea
 								ref={box}
@@ -682,11 +697,65 @@ function Focus({
 					{cleanup
 						? "Arquivar fica registrado; o executor que arquiva no app ainda não existe."
 						: "Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá."}{" "}
-					<kbd>E</kbd> edita · [colchetes] o Y seleciona pra você completar · <kbd>J</kbd>/
+					<kbd>E</kbd> edita · <kbd>1</kbd>–<kbd>9</kbd> escolhe o que falta · <kbd>J</kbd>/
 					<kbd>K</kbd> navega · <kbd>⌘↵</kbd> responde editando
 				</div>
 			</footer>
 		</>
+	);
+}
+
+type FocusHandle = {
+	reply: () => void;
+	edit: () => void;
+	redraft: () => void;
+	/** fill the first open slot with its i-th choice; false when there is none */
+	pick: (i: number) => boolean;
+};
+
+/** What the draft left for the owner to decide, one row per [slot]: click a choice or type one. */
+function SlotBar({
+	slots: list,
+	onFill,
+}: {
+	slots: ReturnType<typeof slots>;
+	onFill: (s: ReturnType<typeof slots>[number], v: string) => void;
+}) {
+	return (
+		<div className="mb-2 space-y-2 rounded-xl border border-warn/40 bg-warn/5 p-3">
+			<div className="text-[11px] font-medium text-warn">
+				Falta você decidir {list.length > 1 ? `${list.length} coisas` : "uma coisa"}
+			</div>
+			{list.map((s, i) => (
+				<div key={s.start} className="flex flex-wrap items-center gap-1.5">
+					{s.hint && <span className="text-[13px] text-muted">{s.hint}</span>}
+					{s.options.map((o, j) => (
+						<button
+							key={o}
+							type="button"
+							onClick={() => onFill(s, o)}
+							className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-panel px-2.5 py-1 text-[13px] hover:border-accent hover:text-ink"
+						>
+							{i === 0 && j < 9 && <kbd>{j + 1}</kbd>}
+							{o}
+						</button>
+					))}
+					<input
+						data-slot-input={i === 0 ? "" : undefined}
+						placeholder={s.options.length ? "outro…" : "escreva e Enter"}
+						onKeyDown={(e) => {
+							const v = e.currentTarget.value.trim();
+							if (e.key === "Enter" && v) {
+								e.preventDefault();
+								onFill(s, v);
+							}
+							if (e.key === "Escape") e.currentTarget.blur();
+						}}
+						className="min-w-28 flex-1 rounded-lg border border-line bg-bg px-2.5 py-1 text-[13px] outline-none focus:border-accent"
+					/>
+				</div>
+			))}
+		</div>
 	);
 }
 

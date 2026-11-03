@@ -131,6 +131,13 @@ let drafting = false;
 app.post("/api/draft/:pk", async (c) => {
 	const chat = wa.chats().find((x) => x.pk === Number(c.req.param("pk")));
 	if (!chat?.lastPk) return c.json({ error: "chat" }, 404);
+	// {text}: save this draft as is (an agent wrote it, e.g. with times from the owner's calendar). No AI call.
+	const body = (await c.req.json().catch(() => ({}))) as { text?: unknown };
+	if (typeof body.text === "string") {
+		if (!body.text.trim() || body.text.length > 4000) return c.json({ error: "text" }, 400);
+		store.saveDraft(chat.pk, chat.lastPk, body.text.trim(), "agent");
+		return c.json({ text: body.text.trim() });
+	}
 	if (drafting) return c.json({ error: "busy" }, 429); // one paid call at a time from the panel
 	drafting = true;
 	try {

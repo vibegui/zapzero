@@ -39,7 +39,16 @@ zap api inbox | jq '.categories[] | {id, n: (.items | length)}'
 | `undo '{"pk":…,"lastPk":…}'`                          | undo a decision (`lastPk: 0` for ignore)                                                                                                                                                                             |
 | `refresh '{}'`                                        | snapshot + triage + drafts now (in the background)                                                                                                                                                                   |
 
-Good default answer to "what do I need to answer?": the `urgente` items, then `semana`, each as name, why (`reason`, `area`), how long they've waited, and the draft. Brackets in a draft (`[amanhã às 18h?]`) are decisions only the owner can make: ask, don't fill them.
+Good default answer to "what do I need to answer?": the `urgente` items, then `semana`, each as name, why (`reason`, `area`), how long they've waited, and the draft. Brackets in a draft are decisions only the owner makes. `[hoje 14h15 | hoje 16h30]` offers choices (the panel shows buttons, keys 1–9), `[valor?]` asks for a free value. Don't pick for the owner: offer better choices.
+
+### Choices from the owner's calendar
+
+When a draft asks for a time and you have a calendar tool (Google Calendar MCP or similar):
+
+1. Read the chat (`chat/<pk>`) for what the other person offered and how long it takes.
+2. Check the owner's calendar in those windows. An event they haven't answered still counts as busy unless they say otherwise.
+3. Rewrite the draft with only the free times as choices and save it: `draft/<pk> '{"text":"Opa, sem problema! Hoje funciona sim. [14h30 | 16h45] fica bom pra você?"}'`.
+4. Tell the owner what you saw ("14h15–15h: oftalmo até 14h30, sobra 14h30"), and that they pick and press Y in the panel. Don't create calendar events or send anything unless they ask.
 
 "How am I doing?": `stats`. The rate is `resp24h / cobrancas` over the last 4 complete weeks (the newest week is still open). A _cobrança_ is an incoming message after the owner spoke and after 1 h of silence.
 
