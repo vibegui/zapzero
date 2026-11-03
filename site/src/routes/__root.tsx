@@ -20,8 +20,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 			{ name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
 			{ title: TITLE },
 			{ name: "description", content: DESCRIPTION },
-			// Not launched yet.
-			{ name: "robots", content: "noindex" },
 			// iOS paints its bars from this and from html/body (see app.css).
 			{ name: "theme-color", content: "#f6f5f1", media: "(prefers-color-scheme: light)" },
 			{ name: "theme-color", content: "#0b0d0c", media: "(prefers-color-scheme: dark)" },

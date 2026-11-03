@@ -7,7 +7,7 @@
     "title": "zapzero · Inbox zero pro WhatsApp",
     "description": "Zere o WhatsApp. A IA tria cada conversa e rascunha a resposta no seu jeito de escrever. Sem bot, sem risco, sem sair do seu Mac.",
     "type": "website",
-    "noIndexing": true,
+    "noIndexing": false,
     "image": "https://zapzero.dev/og.png"
   },
   "sections": [
@@ -18,14 +18,15 @@
       "title": "Zere o WhatsApp.",
       "subtitle": "Inbox zero pro WhatsApp. Sem bot, sem risco, sem sair do seu Mac.",
       "body": "A IA lê suas conversas ali mesmo, no Mac, e te diz quem está esperando você. Pra cada um, deixa a resposta escrita do seu jeito. Você aperta Y, o WhatsApp abre com o texto pronto, você dá Enter. Próxima.",
-      "ctaLabel": "Em breve · open source",
-      "ctaHref": "",
+      "ctaLabel": "★ Star no GitHub",
+      "ctaHref": "https://github.com/vibegui/zapzero",
       "secondaryLabel": "Como funciona",
       "secondaryHref": "#como-funciona",
       "promises": [
         "Somente leitura",
         "Nada sai do seu Mac",
-        "Nada é enviado sem você"
+        "Nada é enviado sem você",
+        "Open source (MIT)"
       ]
     },
     {
@@ -285,7 +286,7 @@
       ],
       "notes": [
         "Roda como app dentro do deco Studio, ou em qualquer navegador da sua rede privada (Tailscale).",
-        "Vai sair como skill aberta + app completo, pra qualquer um plugar no próprio WhatsApp Desktop."
+        "Open source: app + skill pra qualquer agente, pra qualquer um plugar no próprio WhatsApp Desktop."
       ]
     },
     {
@@ -322,8 +323,8 @@
     {
       "__resolveType": "site/sections/Footer.tsx",
       "closer": "Bora zerar?",
-      "ctaLabel": "Em breve · open source",
-      "ctaHref": "",
+      "ctaLabel": "★ Star no GitHub",
+      "ctaHref": "https://github.com/vibegui/zapzero",
       "domain": "zapzero.dev",
       "links": [
         {
@@ -341,6 +342,10 @@
         {
           "label": "Perguntas",
           "href": "#perguntas"
+        },
+        {
+          "label": "GitHub",
+          "href": "https://github.com/vibegui/zapzero"
         }
       ],
       "fine": "O zapzero não é afiliado ao WhatsApp nem à Meta. Nomes e mensagens nesta página são fictícios."
