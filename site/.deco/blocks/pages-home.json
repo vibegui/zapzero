@@ -12,13 +12,13 @@
   "sections": [
     {
       "__resolveType": "site/sections/Hero.tsx",
-      "domain": "zapzero.ai",
+      "domain": "zapzero.dev",
       "eyebrow": "Pro WhatsApp Desktop no Mac",
       "title": "Zere o WhatsApp.",
       "subtitle": "Inbox zero pro WhatsApp. Sem bot, sem risco, sem sair do seu Mac.",
       "body": "A IA lê suas conversas ali mesmo, no Mac, e te diz quem está esperando você. Pra cada um, deixa a resposta escrita do seu jeito. Você aperta Y, o WhatsApp abre com o texto pronto, você dá Enter. Próxima.",
-      "ctaLabel": "Quero testar",
-      "ctaHref": "mailto:oi@zapzero.ai?subject=Quero%20testar%20o%20zapzero",
+      "ctaLabel": "Em breve · open source",
+      "ctaHref": "",
       "secondaryLabel": "Como funciona",
       "secondaryHref": "#como-funciona",
       "promises": [
@@ -258,9 +258,9 @@
     {
       "__resolveType": "site/sections/Footer.tsx",
       "closer": "Bora zerar?",
-      "ctaLabel": "Quero testar",
-      "ctaHref": "mailto:oi@zapzero.ai?subject=Quero%20testar%20o%20zapzero",
-      "domain": "zapzero.ai",
+      "ctaLabel": "Em breve · open source",
+      "ctaHref": "",
+      "domain": "zapzero.dev",
       "links": [
         {
           "label": "Como funciona",

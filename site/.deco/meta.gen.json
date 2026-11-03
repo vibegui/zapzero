@@ -1727,7 +1727,7 @@
             "type": "string",
             "nullable": true,
             "title": "Link do botão principal",
-            "description": "mailto: ou URL do formulário de lista de espera"
+            "description": "link do botão; vazio mostra o texto como selo \"em breve\", sem link"
           },
           "secondaryLabel": {
             "type": "string",

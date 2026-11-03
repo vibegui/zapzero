@@ -155,6 +155,17 @@ p {
   color: var(--ink);
   box-shadow: inset 0 0 0 1.5px var(--line);
 }
+.btn.soon {
+	cursor: default;
+	background: transparent;
+	color: var(--accent);
+	border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+	box-shadow: none;
+}
+.btn.soon:hover {
+	transform: none;
+	filter: none;
+}
 .btn.small {
   height: 38px;
   padding: 0 16px;

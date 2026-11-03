@@ -15,7 +15,7 @@ export interface Props {
 	ctaLabel?: string;
 	/**
 	 * @title Link do botão principal
-	 * @description mailto: ou URL do formulário de lista de espera
+	 * @description link do botão; vazio mostra o texto como selo "em breve", sem link
 	 */
 	ctaHref?: string;
 	/** @title Botão secundário */
@@ -27,13 +27,13 @@ export interface Props {
 }
 
 export default function Hero({
-	domain = "zapzero.ai",
+	domain = "zapzero.dev",
 	eyebrow = "",
 	title = "Zere o WhatsApp.",
 	subtitle = "",
 	body = "",
 	ctaLabel = "Quero testar",
-	ctaHref = "#",
+	ctaHref = "",
 	secondaryLabel = "",
 	secondaryHref = "#como-funciona",
 	promises = [],
@@ -45,9 +45,13 @@ export default function Hero({
 					<Logo />
 				</a>
 				<span className="domain">{domain}</span>
-				<a className="btn small" href={ctaHref}>
-					{ctaLabel}
-				</a>
+				{ctaHref ? (
+					<a className="btn small" href={ctaHref}>
+						{ctaLabel}
+					</a>
+				) : (
+					<span className="btn small soon">{ctaLabel}</span>
+				)}
 			</nav>
 			<div className="wrap hero-copy">
 				{eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
@@ -55,9 +59,13 @@ export default function Hero({
 				{subtitle ? <p className="sub">{subtitle}</p> : null}
 				{body ? <p className="lede">{body}</p> : null}
 				<div className="actions">
-					<a className="btn" href={ctaHref}>
-						{ctaLabel} <span aria-hidden="true">→</span>
-					</a>
+					{ctaHref ? (
+						<a className="btn" href={ctaHref}>
+							{ctaLabel} <span aria-hidden="true">→</span>
+						</a>
+					) : (
+						<span className="btn soon">{ctaLabel}</span>
+					)}
 					{secondaryLabel ? (
 						<a className="btn ghost" href={secondaryHref}>
 							{secondaryLabel}

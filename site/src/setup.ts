@@ -10,7 +10,7 @@ createSiteSetup({
 	sections: sectionGlob,
 	blocks: generatedBlocks,
 	// Placeholder until a domain is picked.
-	productionOrigins: ["https://zapzero.ai"],
+	productionOrigins: ["https://zapzero.dev"],
 	onResolveError: (error, resolveType, context) =>
 		console.error(`[cms] ${context} "${resolveType}" failed:`, error),
 });

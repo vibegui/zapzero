@@ -26,8 +26,8 @@ export interface Props {
 export default function Footer({
 	closer = "",
 	ctaLabel = "Quero testar",
-	ctaHref = "#",
-	domain = "zapzero.ai",
+	ctaHref = "",
+	domain = "zapzero.dev",
 	links = [],
 	fine = "",
 }: Props) {
@@ -37,9 +37,13 @@ export default function Footer({
 				{closer ? (
 					<div className="closer">
 						<p className="display">{closer}</p>
-						<a className="btn" href={ctaHref}>
-							{ctaLabel} <span aria-hidden="true">→</span>
-						</a>
+						{ctaHref ? (
+							<a className="btn" href={ctaHref}>
+								{ctaLabel} <span aria-hidden="true">→</span>
+							</a>
+						) : (
+							<span className="btn soon">{ctaLabel}</span>
+						)}
 					</div>
 				) : null}
 				<div className="foot-row">
