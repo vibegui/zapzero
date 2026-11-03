@@ -1219,3 +1219,171 @@ p {
 .m-cat.area .dot {
   background: oklch(var(--tag-fg) var(--h, 160)) !important;
 }
+
+/* ---- o que você precisa ---- */
+.setup {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.setup li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.setup li.opt {
+  background: transparent;
+  border-style: dashed;
+}
+.setup-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.setup-icon.claude {
+  background: oklch(var(--tag-bg) 45);
+  color: oklch(var(--tag-fg) 45);
+}
+.setup-icon.openrouter {
+  background: oklch(var(--tag-bg) 265);
+  color: oklch(var(--tag-fg) 265);
+}
+.setup-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.setup-badge {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  font: 500 12px/1 var(--mono);
+  color: var(--accent);
+}
+.setup li.opt .setup-badge {
+  color: var(--faint);
+}
+.setup h3 {
+  font-weight: 750;
+  font-stretch: 106%;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+.setup p {
+  color: var(--muted);
+  font-size: 16px;
+  flex: 1;
+}
+.setup a {
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.setup a:hover {
+  text-decoration: underline;
+}
+.setup-cmd {
+  margin: 20px 0 0;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--band);
+  color: var(--band-ink);
+  font: 14px/1.6 var(--mono);
+  overflow-x: auto;
+}
+@media (max-width: 860px) {
+  .setup {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- agenda ---- */
+.cal-mock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--sunken);
+  font-size: 15px;
+}
+.cal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: 14px;
+}
+.cal-toggle .sw {
+  flex: none;
+  width: 30px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--accent);
+  position: relative;
+}
+.cal-toggle .sw::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+}
+.cal-guest {
+  font-size: 13px;
+  color: var(--muted);
+  padding-left: 4px;
+}
+.cal-event {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.cal-event svg {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+.cal-event b {
+  display: block;
+  font-size: 15px;
+}
+.cal-event span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.cal-note {
+  margin-top: 20px;
+}

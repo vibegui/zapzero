@@ -138,13 +138,47 @@
         },
         {
           "title": "AI triages everything.",
-          "text": "Who's waiting on whom, how urgent it is, who this person is to you. Fractions of a cent per chat. And for everyone waiting on you, a draft in your own voice."
+          "text": "Who's waiting on whom, how urgent it is, who this person is to you. And for everyone waiting on you, a draft in your own voice. Your Claude does it, on your subscription."
         },
         {
           "title": "You clear it.",
           "text": "Y opens the chat in WhatsApp with the reply typed in. You check it and hit Enter. Dates, prices, yes or no come as choices: pick one and the AI rewrites the whole sentence in your voice."
         }
       ]
+    },
+    {
+      "__resolveType": "site/sections/Setup.tsx",
+      "kicker": "What you need",
+      "title": "Two apps you already have.",
+      "dim": "And one optional.",
+      "items": [
+        {
+          "icon": "whatsapp",
+          "name": "WhatsApp Desktop",
+          "badge": "required",
+          "text": "The official Mac app, linked to your phone. zapzero reads your chats from it, read-only.",
+          "href": "https://www.whatsapp.com/download",
+          "linkLabel": "Download"
+        },
+        {
+          "icon": "claude",
+          "name": "Claude Code",
+          "badge": "required",
+          "text": "Logged in with your Claude subscription. It triages, drafts replies in your voice and books your calendar. No key, no new account, no extra cost.",
+          "href": "https://claude.com/claude-code",
+          "linkLabel": "Install"
+        },
+        {
+          "icon": "openrouter",
+          "name": "OpenRouter",
+          "badge": "optional",
+          "optional": true,
+          "text": "A key unlocks Jev, a much faster and cheaper classifier for triaging thousands of chats (US$ 0.09 for 1,600). Without it, Claude triages everything.",
+          "href": "https://openrouter.ai/keys",
+          "linkLabel": "Get a key"
+        }
+      ],
+      "command": "git clone https://github.com/vibegui/zapzero && cd zapzero\nbun install && bun run setup"
     },
     {
       "__resolveType": "site/sections/Areas.tsx",
@@ -248,6 +282,33 @@
           "text": "Every draft you fix becomes an example for the next one. Once a week your fixes turn into new rules for your voice, and you keep the ones that make sense."
         }
       ]
+    },
+    {
+      "__resolveType": "site/sections/Calendar.tsx",
+      "kicker": "Calendar",
+      "title": "You confirm the time,",
+      "dim": "your Claude books it.",
+      "incoming": "Call this week? Does Thursday 3pm work? marina@okada.studio",
+      "reply": "Deal, Thursday 3pm!",
+      "toggle": "When I reply, create the event in my calendar",
+      "guest": "invite marina@okada.studio",
+      "event": "Call · Marina Okada",
+      "eventNote": "Thursday, 3:00–3:30pm · Google Meet · invite sent",
+      "steps": [
+        {
+          "title": "You confirm a time.",
+          "text": "zapzero sees your reply agrees to a day and time and offers to create the event. One tap (or C) turns it on or off."
+        },
+        {
+          "title": "Your Claude books it.",
+          "text": "When you press Y, zapzero calls your Claude Code, which already has your calendar connected. It creates the event with a call link. zapzero never sees your calendar."
+        },
+        {
+          "title": "And invites them.",
+          "text": "If their e-mail is in the chat, it goes on the invite. If not, the draft asks for it. When they answer, \"add to invite\" shows up."
+        }
+      ],
+      "note": "Works with the calendar connector your Claude already uses (Google Calendar on claude.ai, for example). It may only create and update events, and only when you reply."
     },
     {
       "__resolveType": "site/sections/Performance.tsx",
@@ -367,11 +428,7 @@
         },
         {
           "title": "No server of ours",
-          "text": "There's no zapzero cloud with your chats. Only the excerpt needed goes to the model you chose, with your own key."
-        },
-        {
-          "title": "Or nothing leaves at all",
-          "text": "Run a local model and not even the AI touches the internet."
+          "text": "There's no zapzero cloud with your chats. Only the excerpt needed goes to your Claude, on your account."
         },
         {
           "title": "Nothing sent without you",
@@ -432,21 +489,21 @@
     {
       "__resolveType": "site/sections/Pricing.tsx",
       "kicker": "What it costs",
-      "title": "Cents a month.",
-      "dim": "Your key.",
-      "body": "Bring your own OpenRouter key and pay the AI provider directly, no middleman. Or run a local model and pay nothing.",
+      "title": "Already paid for.",
+      "dim": "It's your Claude subscription.",
+      "body": "zapzero runs on the Claude Code on your machine, so your Claude subscription covers triage and drafts. Want to triage thousands of chats faster? An OpenRouter key unlocks Jev for fractions of a cent.",
       "figures": [
         {
+          "value": "$0",
+          "label": "extra: runs on your Claude subscription"
+        },
+        {
           "value": "US$ 0.09",
-          "label": "to triage 1,600 chats and draft 110 replies"
+          "label": "optional: triage 1,600 chats with Jev, via OpenRouter"
         },
         {
           "value": "0%",
-          "label": "markup: you pay the AI directly, with your own OpenRouter key"
-        },
-        {
-          "value": "$0",
-          "label": "with a local model"
+          "label": "markup: no zapzero plan, account or card"
         }
       ],
       "notes": [
@@ -473,11 +530,11 @@
         },
         {
           "q": "Who sees my chats?",
-          "a": "<p>No one at zapzero: we have no server with your chats. Each chat's excerpt goes only to the AI model you pick, with your own key. With a local model, not even that leaves the Mac.</p>"
+          "a": "<p>No one at zapzero: we have no server with your chats. Each chat's excerpt goes only to your Claude (and to Jev, if you turn on OpenRouter).</p>"
         },
         {
           "q": "How much does it cost?",
-          "a": "<p>You only pay for the AI, directly to the provider. In practice: US$ 0.09 to triage 1,600 chats and draft 110 replies. With a local model, nothing.</p>"
+          "a": "<p>Nothing extra: zapzero uses the Claude Code on your machine and your Claude subscription. Optional: an OpenRouter key unlocks Jev for faster triage, US$ 0.09 per 1,600 chats.</p>"
         },
         {
           "q": "Do I need deco Studio?",
@@ -501,12 +558,20 @@
           "href": "#como-funciona"
         },
         {
+          "label": "What you need",
+          "href": "#instalar"
+        },
+        {
           "label": "Tags",
           "href": "#areas"
         },
         {
           "label": "Your voice",
           "href": "#seu-jeito"
+        },
+        {
+          "label": "Calendar",
+          "href": "#agenda"
         },
         {
           "label": "Performance",

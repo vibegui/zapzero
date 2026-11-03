@@ -34,6 +34,14 @@
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
           "namespace": "site"
         },
+        "site/sections/Calendar.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+          "namespace": "site"
+        },
+        "site/sections/Setup.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+          "namespace": "site"
+        },
         "site/sections/Privacy.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
           "namespace": "site"
@@ -1052,6 +1060,14 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
               },
@@ -1370,6 +1386,14 @@
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
                     },
                     {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+                    },
+                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
                     },
@@ -1449,6 +1473,14 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
               },
@@ -1522,6 +1554,14 @@
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
@@ -1627,6 +1667,14 @@
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
                               },
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
@@ -2468,6 +2516,204 @@
           }
         }
       },
+      "c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "incoming": {
+            "type": "string",
+            "nullable": true,
+            "title": "Mensagem que chegou (fictícia)"
+          },
+          "reply": {
+            "type": "string",
+            "nullable": true,
+            "title": "Sua resposta (fictícia)"
+          },
+          "toggle": {
+            "type": "string",
+            "nullable": true,
+            "title": "Interruptor do evento"
+          },
+          "guest": {
+            "type": "string",
+            "nullable": true,
+            "title": "Convidado"
+          },
+          "event": {
+            "type": "string",
+            "nullable": true,
+            "title": "Evento criado"
+          },
+          "eventNote": {
+            "type": "string",
+            "nullable": true,
+            "title": "Detalhe do evento"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "Título"
+                },
+                "text": {
+                  "type": "string",
+                  "title": "Texto"
+                }
+              },
+              "required": [
+                "title",
+                "text"
+              ],
+              "titleBy": "title"
+            },
+            "nullable": true,
+            "title": "Passos"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "title": "Nota (o que precisa)"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=": {
+        "title": "site/sections/Calendar.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Calendar.tsx"
+            ],
+            "default": "site/sections/Calendar.tsx"
+          }
+        }
+      },
+      "c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "icon": {
+                  "type": "string",
+                  "enum": [
+                    "whatsapp",
+                    "claude",
+                    "openrouter"
+                  ],
+                  "title": "Ícone"
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Nome"
+                },
+                "badge": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Selo (obrigatório, opcional…)"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "nullable": true,
+                  "title": "Opcional (selo mais claro)"
+                },
+                "text": {
+                  "type": "string",
+                  "title": "Texto"
+                },
+                "href": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Link"
+                },
+                "linkLabel": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Texto do link"
+                }
+              },
+              "required": [
+                "icon",
+                "name",
+                "text"
+              ],
+              "titleBy": "name"
+            },
+            "nullable": true,
+            "title": "O que instalar"
+          },
+          "command": {
+            "type": "string",
+            "nullable": true,
+            "title": "Comando de instalação"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=": {
+        "title": "site/sections/Setup.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Setup.tsx"
+            ],
+            "default": "site/sections/Setup.tsx"
+          }
+        }
+      },
       "c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props": {
         "type": "object",
         "properties": {
@@ -2872,6 +3118,14 @@
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
           },
           {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
+          },
+          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
           },
@@ -2941,6 +3195,14 @@
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9DYWxlbmRhci50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0NhbGVuZGFyLnRzeA==@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9TZXR1cC50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1NldHVwLnRzeA==@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",

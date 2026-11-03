@@ -130,13 +130,47 @@
         },
         {
           "title": "A IA tria tudo.",
-          "text": "Quem espera quem, quão urgente é, quem é essa pessoa pra você. Por frações de centavo por conversa. E pra cada pessoa esperando você, um rascunho no seu jeito de escrever."
+          "text": "Quem espera quem, quão urgente é, quem é essa pessoa pra você. E pra cada pessoa esperando você, um rascunho no seu jeito de escrever. Quem faz é o seu Claude, na sua assinatura."
         },
         {
           "title": "Você zera.",
           "text": "Y abre a conversa no WhatsApp com a resposta digitada. Você confere e aperta Enter. Data, preço, sim ou não: vem como escolha. Você toca na opção e a IA reescreve a frase inteira no seu tom."
         }
       ]
+    },
+    {
+      "__resolveType": "site/sections/Setup.tsx",
+      "kicker": "O que você precisa",
+      "title": "Dois apps que você já tem.",
+      "dim": "E um opcional.",
+      "items": [
+        {
+          "icon": "whatsapp",
+          "name": "WhatsApp Desktop",
+          "badge": "obrigatório",
+          "text": "O app oficial no Mac, ligado ao seu celular. É dele que o zapzero lê as conversas, só leitura.",
+          "href": "https://www.whatsapp.com/download",
+          "linkLabel": "Baixar"
+        },
+        {
+          "icon": "claude",
+          "name": "Claude Code",
+          "badge": "obrigatório",
+          "text": "Logado com a sua assinatura do Claude. Ele tria, escreve os rascunhos no seu tom e marca na agenda. Sem chave, sem conta nova, sem custo a mais.",
+          "href": "https://claude.com/claude-code",
+          "linkLabel": "Instalar"
+        },
+        {
+          "icon": "openrouter",
+          "name": "OpenRouter",
+          "badge": "opcional",
+          "optional": true,
+          "text": "Uma chave libera o Jev, um classificador muito mais rápido e barato pra triar milhares de conversas (US$ 0,09 pra 1.600). Sem ela, o Claude tria tudo.",
+          "href": "https://openrouter.ai/keys",
+          "linkLabel": "Criar chave"
+        }
+      ],
+      "command": "git clone https://github.com/vibegui/zapzero && cd zapzero\nbun install && bun run setup"
     },
     {
       "__resolveType": "site/sections/Areas.tsx",
@@ -240,6 +274,33 @@
           "text": "Cada rascunho que você corrige vira exemplo pro próximo. Uma vez por semana, as correções viram regras novas pro seu jeito, e você aceita as que fazem sentido."
         }
       ]
+    },
+    {
+      "__resolveType": "site/sections/Calendar.tsx",
+      "kicker": "Agenda",
+      "title": "Respondeu o horário,",
+      "dim": "o seu Claude marca.",
+      "incoming": "Bora fazer uma call essa semana? Quinta 15h funciona? marina@okada.studio",
+      "reply": "Fechado, quinta 15h então!",
+      "toggle": "Ao responder, criar o evento no meu calendário",
+      "guest": "convidar marina@okada.studio",
+      "event": "Call · Marina Okada",
+      "eventNote": "quinta, 15:00–15:30 · Google Meet · convite enviado",
+      "steps": [
+        {
+          "title": "Você confirma um horário.",
+          "text": "O zapzero vê que a sua resposta aceita um dia e hora e oferece criar o evento. Um toque (ou C) liga e desliga."
+        },
+        {
+          "title": "O seu Claude marca.",
+          "text": "Quando você aperta Y, o zapzero chama o seu Claude Code, que já tem o seu calendário conectado. Ele cria o evento com o link da call. O zapzero nunca vê a sua agenda."
+        },
+        {
+          "title": "E convida a pessoa.",
+          "text": "Se o e-mail dela está na conversa, vai junto no convite. Se não está, o rascunho pede. Quando ela responder, aparece \"adicionar ao convite\"."
+        }
+      ],
+      "note": "Funciona com o conector de calendário que o seu Claude já usa (Google Calendar no claude.ai, por exemplo). Ele só pode criar e atualizar eventos, e só quando você responde."
     },
     {
       "__resolveType": "site/sections/Performance.tsx",
@@ -359,11 +420,7 @@
         },
         {
           "title": "Sem servidor nosso",
-          "text": "Não existe nuvem do zapzero com os seus chats. Só o trecho necessário vai pro modelo que você escolheu, com a sua chave."
-        },
-        {
-          "title": "Ou nada sai mesmo",
-          "text": "Rode um modelo local e nem a IA passa pela internet."
+          "text": "Não existe nuvem do zapzero com os seus chats. Só o trecho necessário vai pro seu Claude, na sua conta."
         },
         {
           "title": "Nada é enviado sem você",
@@ -424,21 +481,21 @@
     {
       "__resolveType": "site/sections/Pricing.tsx",
       "kicker": "Quanto custa",
-      "title": "Centavos por mês.",
-      "dim": "Chave sua.",
-      "body": "Traga sua chave da OpenRouter e pague direto ao provedor de IA, sem intermediário. Ou rode um modelo local e pague zero.",
+      "title": "Já está pago.",
+      "dim": "É a sua assinatura do Claude.",
+      "body": "O zapzero usa o Claude Code da sua máquina, então a sua assinatura do Claude cobre a triagem e os rascunhos. Quer triar milhares de conversas mais rápido? Uma chave da OpenRouter libera o Jev por frações de centavo.",
       "figures": [
         {
+          "value": "R$ 0",
+          "label": "a mais: roda na sua assinatura do Claude"
+        },
+        {
           "value": "US$ 0,09",
-          "label": "pra triar 1.600 conversas e rascunhar 110 respostas"
+          "label": "opcional: triar 1.600 conversas com o Jev, pela OpenRouter"
         },
         {
           "value": "0%",
-          "label": "de margem: você paga a IA direto, com a sua chave da OpenRouter"
-        },
-        {
-          "value": "R$ 0",
-          "label": "com modelo local"
+          "label": "de margem: não tem plano zapzero, nem conta, nem cartão"
         }
       ],
       "notes": [
@@ -465,11 +522,11 @@
         },
         {
           "q": "Quem vê minhas conversas?",
-          "a": "<p>Ninguém do zapzero: não temos servidor com os seus chats. O trecho de cada conversa vai só pro modelo de IA que você escolher, com a sua chave. Com um modelo local, nem isso sai do Mac.</p>"
+          "a": "<p>Ninguém do zapzero: não temos servidor com os seus chats. O trecho de cada conversa vai só pro seu Claude (e pro Jev, se você ligar a OpenRouter).</p>"
         },
         {
           "q": "Quanto custa?",
-          "a": "<p>Você paga só a IA, direto ao provedor. Na prática: US$ 0,09 pra triar 1.600 conversas e rascunhar 110 respostas. Com modelo local, nada.</p>"
+          "a": "<p>Nada a mais: o zapzero usa o Claude Code da sua máquina e a sua assinatura do Claude. Opcional: uma chave da OpenRouter libera o Jev pra triar mais rápido, por US$ 0,09 a cada 1.600 conversas.</p>"
         },
         {
           "q": "Preciso do deco Studio?",
@@ -489,12 +546,20 @@
           "href": "#como-funciona"
         },
         {
+          "label": "O que precisa",
+          "href": "#instalar"
+        },
+        {
           "label": "Tags",
           "href": "#areas"
         },
         {
           "label": "Seu jeito",
           "href": "#seu-jeito"
+        },
+        {
+          "label": "Agenda",
+          "href": "#agenda"
         },
         {
           "label": "Desempenho",
