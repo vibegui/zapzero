@@ -14,5 +14,5 @@
 		"noEmit": true,
 		"paths": { "@/*": ["./web/*"] }
 	},
-	"include": ["server/**/*", "web/**/*", "vite.config.ts"]
+	"include": ["server/**/*", "web/**/*", "scripts/**/*", "vite.config.ts"]
 }

@@ -130,11 +130,11 @@ export function buildInbox(
 		if (needsReply && rel > 0) {
 			const urgent = t.urgencia >= 2 && waitAge <= 7;
 			put(urgent ? "urgente" : waitAge <= 7 ? "semana" : "antigas", score, label, true);
-		} else if (t.espera === "gui_espera" || t.acao === "revisar") {
+		} else if (t.espera === "dono_espera" || t.acao === "revisar") {
 			put(
 				"acompanhar",
 				score,
-				t.espera === "gui_espera" ? `${label} · você perguntou` : `${label} · revisar`,
+				t.espera === "dono_espera" ? `${label} · você perguntou` : `${label} · revisar`,
 				true,
 			);
 		} else if (t.acao === "arquivar" && !c.pinned && t.espera !== "eles_esperam") {

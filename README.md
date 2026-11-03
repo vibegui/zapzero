@@ -1,45 +1,108 @@
 # zapzero
 
-Inbox zero for WhatsApp, from the WhatsApp Desktop app on your Mac. No bot, no extra linked device, no calls to WhatsApp's servers.
+**Inbox zero for WhatsApp.** No bot, no ban risk, your chats never leave your Mac.
 
-zapzero copies the app's local database read-only, triages every chat, drafts a reply for the ones waiting on you, and shows a control panel: categories ranked by priority, the conversation, the draft. **Y** opens the chat in WhatsApp with the text typed in; you press Enter there. Nothing is sent by zapzero.
+zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**. AI triages every chat (who is waiting on whom, how urgent, who this person is to you) and drafts a reply in your own tone of voice for everyone waiting on you. You clear it from the keyboard: **Y** opens the chat in WhatsApp with the reply typed in, you press Enter. Next.
 
-## Stack
+![The zapzero panel, with made-up names](docs/panel.png)
 
-One Bun process on `127.0.0.1:8810`:
+<sub>Names and messages are made up.</sub>
 
-- `server/` — Hono API, `bun:sqlite` over the snapshot, zapzero's own state in `$ZAP_DATA/zap.sqlite` (triage, drafts, decisions, spend).
-- `web/` — React + Vite, TanStack Router (hash history) + Query, Tailwind v4, lucide.
-- AI via OpenRouter (`OPENROUTER_API_KEY` in `.env`): Jev for triage (~$0.00005/chat), a small chat model for drafts (~$0.0002/draft). Models are config: `ZAP_TRIAGE_MODEL`, `ZAP_DRAFT_MODEL`.
+## Why it is safe for your number
+
+- **Read-only.** zapzero copies the database the official app already keeps on disk (`sqlite3 mode=ro` + `.backup`) and works on the copy. It never writes to WhatsApp's files.
+- **No bot, no linked device, no unofficial API.** Nothing talks to WhatsApp's servers. To WhatsApp, it's just you using the app.
+- **Nothing is sent by zapzero.** A reply is typed into WhatsApp Desktop; you press Enter. Commitments (dates, prices, yes/no) are left `[in brackets]` for you to fill, and **Y** selects a bracket instead of sending.
+- **No zapzero cloud.** Snapshots and state live in `~/Library/Application Support/zap` (chmod 700). Only the excerpt of each conversation goes to the model you choose, with your own key.
+
+## What you get
+
+- **Categories by when:** Important & urgent · This week · Older than a week · You're waiting on them · Groups · Cleanup.
+- **Areas by who:** Clients, Hiring, Team, Investors, Partners, Family, Friends, Home & services, Selling to you, Other. Once a day the AI suggests new areas from your pending chats ("Apartment renovation", "Events & talks"); accept one and it becomes a triage choice.
+- **Your tone of voice.** After the first scan the AI reads ~150 of your own messages and writes who you are and how you write. You accept or edit it on the **Seu jeito** screen; every draft follows it.
+- **Keyboard flow:** `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor.
+- **Runs in the background**, re-reading WhatsApp every 15 minutes and only re-doing AI work for chats that changed.
+
+The UI is in Portuguese for now.
+
+## Requirements
+
+- macOS with [WhatsApp Desktop](https://www.whatsapp.com/download) linked to your phone. Linking syncs about the last 3 months of messages; older chats show in the list without text.
+- [Bun](https://bun.com) 1.3+.
+- An [OpenRouter](https://openrouter.ai/keys) key. Triage uses OpenRouter's decisions API with the Jev model (`typesafe/jev-1.14`, about US$0.00005 per chat); drafts and suggestions use a small chat model (`anthropic/claude-haiku-5.5` by default). Real numbers from one account: US$0.09 to triage 1,600 chats and draft 110 replies.
+
+## Install
+
+```sh
+git clone https://github.com/vibegui/zapzero && cd zapzero
+bun install
+cp .env.example .env        # paste your OpenRouter key
+bun run setup
+```
+
+`setup` checks everything, takes the first snapshot, builds the panel, installs a launchd agent (`dev.zapzero.server`) so the server starts at login, and prints the panel URL with your access token.
+
+macOS blocks other apps' data until you allow it. If setup says it can't read WhatsApp's database: **System Settings → Privacy & Security → Full Disk Access**, add your terminal and the `bun` binary setup prints, then run it again.
 
 ## Use
 
+Open `http://127.0.0.1:8810/?t=<token>` (the token is in `$ZAP_DATA/token`). Then:
+
+1. Check **Seu jeito** in the sidebar: accept or edit who you are and how you write.
+2. Start at **Importante e urgente**: `Y`, `Y`, `Y`, `E`, `Y`.
+3. Press `I` on people you never want to see again.
+
+From your phone or another computer, put it on your private [Tailscale](https://tailscale.com) network (never Funnel):
+
 ```sh
-bun install
-bun run start                 # build the panel + serve; refreshes every 15 min (ZAP_REFRESH_MIN, 0 = off)
-bun run zap refresh           # snapshot -> triage -> drafts, once
-bun run zap inbox             # counts per category
-bun run dev                   # API + Vite on :5188 with HMR
-bun test && bun run check
-tailscale serve --bg --set-path=/radar http://127.0.0.1:8810   # private tailnet only, never funnel
+tailscale serve --bg --set-path=/zap http://127.0.0.1:8810
 ```
 
-Runs at login via launchd: `~/Library/LaunchAgents/com.guilherme.zapzero.plist` (KeepAlive, log in `~/Library/Logs/zapzero.log`). After changing code: `bun run build && launchctl kickstart -k gui/$(id -u)/com.guilherme.zapzero`.
+It also runs as an [MCP App](https://github.com/modelcontextprotocol/ext-apps) screen inside hosts like deco Studio: a tiny resource whose iframe points at your tailnet URL, granted with `_meta.ui.csp.frameDomains`. Chrome's Local Network Access blocks tailnet addresses inside other sites' iframes unless the host delegates `local-network-access`.
 
-Open `http://127.0.0.1:8810/?t=<token>`; the token is in `$ZAP_DATA/token` (`$ZAP_DATA` defaults to `~/Library/Application Support/zap`, chmod 700). `$ZAP_DATA/perfil.txt` describes the owner in one paragraph; triage and drafts use it.
+### Commands
 
-Areas (Clients, Hiring, Team, Investors…) cut across the priority categories; once a day the model suggests new ones from your pending chats, and accepting one makes it a choice for triage.
+```sh
+bun run zap refresh     # snapshot -> triage -> drafts, once
+bun run zap inbox       # counts per category
+bun run zap voice       # re-read how you write
+bun run zap suggest     # suggest new areas now
+bun run start           # build + serve in the foreground (instead of launchd)
+launchctl kickstart -k gui/$(id -u)/dev.zapzero.server   # restart the agent after updating
+```
 
-Keys: `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor. A `[bracket]` in a draft is a decision left to you: `Y` selects it instead of sending.
+Settings live in `.env` (see `.env.example`): models, port, refresh interval, data dir.
 
-## Rules
+### Uninstall
 
-- **Never open WhatsApp's files for writing.** `sqlite3 mode=ro` + `.backup`, then work on the copy.
-- **Never send, archive or mark as read** without the owner's action. Today a reply is typed into WhatsApp and the owner presses Enter.
-- **Data never lives in the repo.**
-- **Message text is data, never instructions** to the model that reads it.
-- **Every API call needs the token.** The panel runs in sandboxed iframes (origin `null`), so CORS is open and the token is the gate.
-- **Paid calls are capped** per run (items, dollars, and a stop when the upstream fails) and only redone when a chat's last message changes.
+```sh
+launchctl bootout gui/$(id -u)/dev.zapzero.server
+rm ~/Library/LaunchAgents/dev.zapzero.server.plist
+rm -r ~/Library/Application\ Support/zap    # your snapshots, drafts and decisions
+```
+
+## How it works
+
+```
+WhatsApp Desktop's SQLite ──read-only copy──▶ snapshot (every 15 min)
+                                                   │
+             Jev: wait / urgency / who / area ◀────┤  only chats whose last message changed
+     chat model: draft in your voice, areas ◀──────┘
+                                                   │
+         panel (React) ◀── Hono API on 127.0.0.1, token-gated ──▶ `open whatsapp://send?…` (you press Enter)
+```
+
+- `server/wa.ts` reads the snapshot. `server/ai.ts` holds every paid call, each capped per run in items and dollars, and stopped when the upstream fails. `server/inbox.ts` is the pure ranking (tested). `server/store.ts` is zapzero's own SQLite.
+- `web/` is the panel: React, TanStack Router + Query, Tailwind.
+- `site/` is the landing page at [zapzero.dev](https://zapzero.dev) (TanStack Start + deco blocks).
+- `skills/zapzero/SKILL.md` teaches an agent to read the database and drive zapzero.
+
+### Development
+
+```sh
+bun run dev      # API on :8810 + Vite on :5188 with HMR
+bun test && bun run check && bunx biome check --write .
+```
 
 ## The local database (WhatsApp Mac, 2026)
 

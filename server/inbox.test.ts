@@ -51,7 +51,7 @@ test("categorizes and ranks", () => {
 	const t = new Map([
 		[1, tri(1)],
 		[2, tri(2, { urgencia: 1 })],
-		[3, tri(3, { espera: "gui_espera", resposta: "nao", acao: "revisar" })],
+		[3, tri(3, { espera: "dono_espera", resposta: "nao", acao: "revisar" })],
 		[7, tri(7, { last_pk: 1 })],
 		[8, tri(8, { categoria: "empresa", espera: "ninguem", resposta: "nao", acao: "arquivar" })],
 	]);

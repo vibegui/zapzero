@@ -1,14 +1,15 @@
 import type { CategoryId, Item } from "../server/inbox.ts";
-import type { Decision, DecisionKind } from "../server/store.ts";
+import type { Decision, DecisionKind, Voice } from "../server/store.ts";
 import type { Message } from "../server/wa.ts";
 
-export type { CategoryId, DecisionKind, Item, Message };
+export type { CategoryId, DecisionKind, Item, Message, Voice };
 export type Inbox = {
 	snapshotAt: number | null;
 	refreshing: boolean;
 	last: { at: number; ok: boolean; log: string[] } | null;
 	spend24h: { what: string; n: number; cost: number }[];
 	categories: { id: CategoryId; label: string; items: Item[] }[];
+	voice: Voice;
 	areas: { id: string; label: string; builtin: boolean }[];
 	suggestions: {
 		id: string;
@@ -51,6 +52,8 @@ export const api = {
 	area: (action: "accept" | "dismiss" | "remove", id: string) =>
 		call<{ ok: true }>(`areas/${action}`, { id }),
 	suggest: () => call<{ ok: true; count: number }>("suggest", {}),
+	saveVoice: (b: { perfil: string; voz: string }) => call<{ ok: true }>("voice", b),
+	suggestVoice: () => call<Voice>("voice/suggest", {}),
 };
 
 export function ago(ms: number | null) {

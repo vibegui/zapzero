@@ -9,7 +9,8 @@
 		"zap": "bun server/main.ts",
 		"check": "tsc --noEmit",
 		"test": "bun test",
-		"fmt": "biome format --write ."
+		"fmt": "biome format --write .",
+		"setup": "bun scripts/setup.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.4",

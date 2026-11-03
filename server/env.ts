@@ -27,11 +27,3 @@ export const TOKEN = (() => {
 	}
 	return readFileSync(f, "utf8").trim();
 })();
-
-export function perfil(): string {
-	try {
-		return readFileSync(`${DATA}/perfil.txt`, "utf8").trim();
-	} catch {
-		return "O dono deste WhatsApp.";
-	}
-}

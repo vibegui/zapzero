@@ -27,6 +27,8 @@ function refresh(): Promise<void> {
 		try {
 			wa.snapshot();
 			say(`snapshot: ${wa.chats().length} chats`);
+			// first scan: propose who the owner is and how they write, before triage and drafts use it
+			if (store.voice().state === "empty") await ai.suggestVoice(say);
 			await ai.triage(say);
 			await ai.drafts(say);
 			await ai.suggest(say);
@@ -68,6 +70,7 @@ app.get("/api/inbox", (c) => {
 		refreshing: running != null,
 		last,
 		spend24h: store.spendSince(86_400_000),
+		voice: store.voice(),
 		areas: store.areas().map(({ id, label, builtin }) => ({ id, label, builtin: builtin === 1 })),
 		suggestions: store.suggestions("pending").map((s) => ({
 			...s,
@@ -154,6 +157,26 @@ app.post("/api/areas/:action", async (c) => {
 	return c.json({ ok: true });
 });
 
+const VoiceBody = z.object({ perfil: z.string().max(4000), voz: z.string().max(8000) });
+app.post("/api/voice", async (c) => {
+	const p = VoiceBody.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	store.saveVoice(p.data, "accepted");
+	return c.json({ ok: true });
+});
+app.post("/api/voice/suggest", async (c) => {
+	if (suggesting) return c.json({ error: "busy" }, 429);
+	suggesting = true;
+	try {
+		await ai.suggestVoice();
+		return c.json(store.voice());
+	} catch (e) {
+		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
+	} finally {
+		suggesting = false;
+	}
+});
+
 let suggesting = false;
 app.post("/api/suggest", async (c) => {
 	if (suggesting) return c.json({ error: "busy" }, 429);
@@ -206,6 +229,8 @@ if (cmd === "serve") {
 	console.log(`${wa.chats().length} chats`);
 } else if (cmd === "triage") {
 	await ai.triage();
+} else if (cmd === "voice") {
+	await ai.suggestVoice();
 } else if (cmd === "suggest") {
 	await ai.suggest(console.log, true);
 } else if (cmd === "drafts") {
@@ -222,7 +247,7 @@ if (cmd === "serve") {
 	}
 } else {
 	console.log(
-		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | refresh | inbox",
+		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | refresh | inbox",
 	);
 	process.exit(1);
 }

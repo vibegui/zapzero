@@ -10,7 +10,7 @@ import {
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import type { CategoryId } from "./api.ts";
-import { Category, Done, Shell } from "./app.tsx";
+import { Category, Done, Shell, VoiceScreen } from "./app.tsx";
 import "./styles.css";
 
 const root = createRootRoute({ component: Shell });
@@ -41,11 +41,12 @@ const area = createRoute({
 		return <Category view={{ kind: "area", id }} pk={pk} />;
 	},
 });
+const voz = createRoute({ getParentRoute: () => root, path: "/voz", component: VoiceScreen });
 const done = createRoute({ getParentRoute: () => root, path: "/feitas", component: Done });
 
 // hash history: the panel lives inside iframes and under a mount path, the server never sees routes
 const router = createRouter({
-	routeTree: root.addChildren([index, category, area, done]),
+	routeTree: root.addChildren([index, category, area, voz, done]),
 	history: createHashHistory(),
 });
 declare module "@tanstack/react-router" {

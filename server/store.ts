@@ -1,5 +1,6 @@
 // zapzero's own state, next to the snapshot: triage, drafts, decisions, spend. WhatsApp's files are never written.
 import { Database } from "bun:sqlite";
+import { readFileSync } from "node:fs";
 import { DATA } from "./env.ts";
 
 export const db = new Database(`${DATA}/zap.sqlite`, { create: true });
@@ -14,6 +15,7 @@ db.run(`create table if not exists decisions (
 	pk integer, last_pk integer, kind text, text text, at integer, primary key (pk, last_pk))`);
 db.run(`create table if not exists spend (at integer, what text, n integer, cost real)`);
 db.run(`create table if not exists kv (k text primary key, v text)`);
+db.run("update triage set espera = 'dono_espera' where espera = 'gui_espera'"); // renamed key
 // areas: who/what a chat is about (Clientes, Hiring…). Built-ins plus the ones the owner accepted from suggestions.
 db.run(
 	`create table if not exists areas (id text primary key, label text, criteria text, builtin integer, at integer)`,
@@ -68,7 +70,7 @@ for (const [id, label, criteria] of BUILTIN_AREAS)
 export type Triage = {
 	pk: number;
 	last_pk: number;
-	espera: "eles_esperam" | "gui_espera" | "ninguem";
+	espera: "eles_esperam" | "dono_espera" | "ninguem";
 	resposta: "sim" | "talvez" | "nao";
 	p_sim: number;
 	categoria: "pessoal" | "trabalho" | "servico" | "empresa" | "golpe" | "desconhecido";
@@ -246,3 +248,42 @@ export function removeArea(id: string) {
 		kvSet("areas_ver", String(areasVer() + 1));
 	})();
 }
+
+// ---- the owner: who they are and how they write ---------------------------------------------
+
+export type Voice = {
+	perfil: string;
+	voz: string;
+	/** suggested = written by the model after the first scan, waiting for the owner; accepted = owner's */
+	state: "empty" | "suggested" | "accepted";
+	samples: number;
+};
+
+export function voice(): Voice {
+	let perfil = kvGet("perfil") ?? "";
+	if (!perfil) {
+		try {
+			perfil = readFileSync(`${DATA}/perfil.txt`, "utf8").trim(); // older installs
+		} catch {}
+	}
+	return {
+		perfil,
+		voz: kvGet("voz") ?? "",
+		state: (kvGet("voice_state") as Voice["state"]) ?? (perfil ? "accepted" : "empty"),
+		samples: Number(kvGet("voice_samples") ?? 0),
+	};
+}
+
+export function saveVoice(
+	v: { perfil: string; voz: string },
+	state: "suggested" | "accepted",
+	samples?: number,
+) {
+	kvSet("perfil", v.perfil.trim());
+	kvSet("voz", v.voz.trim());
+	kvSet("voice_state", state);
+	if (samples != null) kvSet("voice_samples", String(samples));
+}
+
+/** Who the owner is, for every prompt. */
+export const perfil = () => voice().perfil || "O dono deste WhatsApp.";

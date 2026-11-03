@@ -17,6 +17,7 @@ import {
 	Sparkles,
 	Tag,
 	Undo2,
+	UserRound,
 	Users,
 	X,
 } from "lucide-react";
@@ -72,8 +73,11 @@ export function Shell() {
 	return (
 		<div className="flex h-full min-h-0">
 			<Sidebar inbox={inbox.data} />
-			<main className="flex min-w-0 flex-1">
-				<Outlet />
+			<main className="flex min-w-0 flex-1 flex-col">
+				{inbox.data?.voice.state === "suggested" && <VoiceBanner />}
+				<div className="flex min-h-0 min-w-0 flex-1">
+					<Outlet />
+				</div>
 			</main>
 		</div>
 	);
@@ -132,6 +136,15 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				>
 					<CheckCheck className="size-4" />
 					<span>Feitas</span>
+				</Link>
+				<Link
+					to="/voz"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<UserRound className="size-4" />
+					<span className="flex-1">Seu jeito</span>
+					{inbox?.voice.state === "suggested" && <span className="size-2 rounded-full bg-accent" />}
 				</Link>
 			</div>
 			<div className="space-y-2 border-t border-line px-5 py-4 text-xs text-faint">
@@ -743,6 +756,121 @@ export function Done() {
 					<li className="px-4 py-10 text-center text-sm text-faint">Nada ainda.</li>
 				)}
 			</ul>
+		</section>
+	);
+}
+
+// ---- seu jeito: who the owner is and how they write ---------------------------------------
+
+function VoiceBanner() {
+	const navigate = useNavigate();
+	return (
+		<button
+			type="button"
+			onClick={() => navigate({ to: "/voz" })}
+			className="flex items-center gap-2 border-b border-line bg-accent-soft px-5 py-2 text-left text-[13px] text-ink"
+		>
+			<Sparkles className="size-3.5 text-accent" />
+			<span className="flex-1">
+				Li suas mensagens e escrevi como você escreve. Confere antes dos rascunhos seguirem isso?
+			</span>
+			<span className="font-medium text-accent">Conferir →</span>
+		</button>
+	);
+}
+
+export function VoiceScreen() {
+	const qc = useQueryClient();
+	const inbox = useInbox();
+	const v = inbox.data?.voice;
+	const [perfil, setPerfil] = useState<string | null>(null);
+	const [voz, setVoz] = useState<string | null>(null);
+	const p = perfil ?? v?.perfil ?? "";
+	const z = voz ?? v?.voz ?? "";
+	const refresh = () => qc.invalidateQueries({ queryKey: ["inbox"] });
+	const save = useMutation({
+		mutationFn: () => api.saveVoice({ perfil: p, voz: z }),
+		onSuccess: () => {
+			setPerfil(null);
+			setVoz(null);
+			refresh();
+		},
+	});
+	const regen = useMutation({
+		mutationFn: api.suggestVoice,
+		onSuccess: () => {
+			setPerfil(null);
+			setVoz(null);
+			refresh();
+		},
+	});
+	const dirty = perfil != null || voz != null;
+	if (!v) return <Blank title="Lendo…">Carregando.</Blank>;
+	return (
+		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-8">
+			<h1 className="text-[22px] font-semibold tracking-tight">Seu jeito</h1>
+			<p className="mt-1 text-sm text-muted">
+				{v.state === "suggested"
+					? `A IA leu ${v.samples} mensagens suas e escreveu isto. Os rascunhos seguem esse texto: aceite ou ajuste.`
+					: v.state === "accepted"
+						? "Os rascunhos seguem este texto. Mude quando quiser."
+						: "Depois do primeiro scan a IA preenche isto a partir das suas mensagens."}
+			</p>
+			<label className="mt-6 block text-[13px] font-medium" htmlFor="perfil">
+				Quem é você
+			</label>
+			<p className="text-xs text-faint">
+				O que a triagem e os rascunhos precisam saber: o que você faz, quem importa.
+			</p>
+			<textarea
+				id="perfil"
+				value={p}
+				onChange={(e) => setPerfil(e.target.value)}
+				className="mt-2 min-h-28 w-full resize-y rounded-xl border border-line bg-panel px-4 py-3 text-[14px] leading-relaxed outline-none [field-sizing:content] focus:border-accent"
+			/>
+			<label className="mt-6 block text-[13px] font-medium" htmlFor="voz">
+				Como você escreve
+			</label>
+			<p className="text-xs text-faint">
+				Tamanho, tom, pontuação, emoji, expressões suas. Um tópico por linha.
+			</p>
+			<textarea
+				id="voz"
+				value={z}
+				onChange={(e) => setVoz(e.target.value)}
+				className="mt-2 min-h-56 w-full resize-y rounded-xl border border-line bg-panel px-4 py-3 font-mono text-[13px] leading-relaxed outline-none [field-sizing:content] focus:border-accent"
+			/>
+			<div className="mt-4 flex flex-wrap items-center gap-2">
+				<button
+					type="button"
+					disabled={!p.trim() || save.isPending}
+					onClick={() => save.mutate()}
+					className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-4 text-[13px] font-medium text-accent-ink hover:brightness-110 disabled:opacity-50"
+				>
+					<Check className="size-4" />
+					{v.state === "suggested" && !dirty ? "Aceitar" : "Salvar"}
+				</button>
+				<button
+					type="button"
+					disabled={regen.isPending}
+					onClick={() => regen.mutate()}
+					className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] text-muted hover:bg-sunken hover:text-ink"
+				>
+					{regen.isPending ? (
+						<Loader2 className="size-3.5 animate-spin" />
+					) : (
+						<Sparkles className="size-3.5" />
+					)}
+					Ler minhas mensagens de novo
+				</button>
+				{save.isSuccess && !dirty && <span className="text-xs text-accent">Salvo.</span>}
+				{(save.error || regen.error) && (
+					<span className="text-xs text-hot">{((save.error || regen.error) as Error).message}</span>
+				)}
+			</div>
+			<p className="mt-3 text-xs text-faint">
+				Ler de novo substitui os dois textos pelo que a IA sugerir agora.
+			</p>
 		</section>
 	);
 }
