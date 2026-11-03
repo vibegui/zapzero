@@ -23,7 +23,7 @@ When zapzero isn't set up yet (no `~/.claude/skills/zapzero` link, or `zap api i
 2. **Install:** `git clone https://github.com/vibegui/zapzero && cd zapzero && bun install && cp .env.example .env && bun run setup`.
 3. **If setup can't read WhatsApp's database:** the owner adds their terminal app in System Settings → Privacy & Security → Full Disk Access, then runs setup again.
 4. **Give the server its permission (once):** setup builds the background server as its own binary, `~/Library/Application Support/zap/bin/zapzero`. Without access, macOS shows a dialog every time it reads WhatsApp's folder. The owner adds **that binary** in Full Disk Access (`open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"` and `open -R ~/Library/Application\ Support/zap/bin/zapzero` put both on screen; they drag it in). Never suggest giving Full Disk Access to `bun`: every Bun script would get it.
-5. **After an update** (setup again rebuilds the binary): the owner turns `zapzero` off and on in Full Disk Access, then `launchctl kickstart -k gui/$(id -u)/dev.zapzero.server`.
+5. **Updates keep it:** setup builds that program once and never again (it runs the current code from the repo), so the permission survives `git pull`. After pulling: `launchctl kickstart -k gui/$(id -u)/dev.zapzero.server`.
 6. **Check:** `zap api refresh '{}'`, then `tail ~/Library/Logs/zapzero.log` shows `snapshot: N chats`. `snapshot … no answer in 120s` means macOS is still waiting on a permission dialog.
 
 Full guide for people: https://zapzero.dev/pt/docs (English: /en/docs).
