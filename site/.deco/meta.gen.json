@@ -10,36 +10,28 @@
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9IZXJvLnRzeA==",
           "namespace": "site"
         },
-        "site/sections/Keyboard.tsx": {
-          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-          "namespace": "site"
-        },
-        "site/sections/Pricing.tsx": {
-          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-          "namespace": "site"
-        },
-        "site/sections/HowItWorks.tsx": {
-          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-          "namespace": "site"
-        },
-        "site/sections/PanelMock.tsx": {
-          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+        "site/sections/Footer.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
           "namespace": "site"
         },
         "site/sections/Areas.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
           "namespace": "site"
         },
-        "site/sections/Footer.tsx": {
-          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-          "namespace": "site"
-        },
         "site/sections/Privacy.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
           "namespace": "site"
         },
+        "site/sections/Pricing.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+          "namespace": "site"
+        },
         "site/sections/Faq.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
+          "namespace": "site"
+        },
+        "site/sections/Keyboard.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
           "namespace": "site"
         },
         "site/sections/Performance.tsx": {
@@ -48,6 +40,14 @@
         },
         "site/sections/Voice.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
+          "namespace": "site"
+        },
+        "site/sections/HowItWorks.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+          "namespace": "site"
+        },
+        "site/sections/PanelMock.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
           "namespace": "site"
         },
         "website/sections/Rendering/Lazy.tsx": {
@@ -1028,36 +1028,28 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
               },
               {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-              },
-              {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-              },
-              {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-              },
-              {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
               },
               {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
               },
               {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-              },
-              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
               },
               {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -1066,6 +1058,14 @@
               {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
               }
             ]
           }
@@ -1346,36 +1346,28 @@
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
                     },
                     {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-                    },
-                    {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-                    },
-                    {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-                    },
-                    {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
                     },
                     {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-                    },
-                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
                     },
                     {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+                    },
+                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -1384,6 +1376,14 @@
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
                     }
                   ]
                 }
@@ -1425,36 +1425,28 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
               },
               {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-              },
-              {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-              },
-              {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-              },
-              {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
               },
               {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
               },
               {
-                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-              },
-              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
               },
               {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -1463,6 +1455,14 @@
               {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+              },
+              {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
               },
               {
                 "$ref": "#/definitions/d2Vic2l0ZS9zZWN0aW9ucy9SZW5kZXJpbmcvTGF6eS50c3g="
@@ -1500,36 +1500,28 @@
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
                     },
                     {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-                    },
-                    {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-                    },
-                    {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-                    },
-                    {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
                     },
                     {
-                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-                    },
-                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
                     },
                     {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+                    },
+                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -1538,6 +1530,14 @@
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
                     },
                     {
                       "$ref": "#/definitions/d2Vic2l0ZS9zZWN0aW9ucy9SZW5kZXJpbmcvTGF6eS50c3g="
@@ -1605,36 +1605,28 @@
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
                               },
                               {
-                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-                              },
-                              {
-                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-                              },
-                              {
-                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-                              },
-                              {
-                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
                               },
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
                               },
                               {
-                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-                              },
-                              {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
                               },
                               {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+                              },
+                              {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
                               },
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -1643,6 +1635,14 @@
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
                               },
                               {
                                 "$ref": "#/definitions/d2Vic2l0ZS9zZWN0aW9ucy9SZW5kZXJpbmcvTGF6eS50c3g="
@@ -1852,391 +1852,85 @@
           }
         }
       },
-      "c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props": {
+      "c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props": {
         "type": "object",
         "properties": {
-          "kicker": {
+          "creditBefore": {
             "type": "string",
             "nullable": true,
-            "title": "Rótulo"
+            "title": "Crédito: antes do coração (ex.: \"feito com\")"
           },
-          "title": {
+          "creditAfter": {
             "type": "string",
             "nullable": true,
-            "title": "Título"
+            "title": "Crédito: depois do coração (ex.: \"no Rio de Janeiro por\")"
           },
-          "dim": {
+          "creditLink": {
             "type": "string",
             "nullable": true,
-            "title": "Segunda linha (mais clara)"
+            "title": "Crédito: link (texto)"
           },
-          "sequence": {
+          "creditHref": {
             "type": "string",
             "nullable": true,
-            "title": "Sequência em destaque",
-            "description": "Teclas separadas por espaço, ex.: Y Y Y E Y"
+            "title": "Crédito: link (URL)"
           },
-          "sequenceNote": {
+          "closer": {
             "type": "string",
             "nullable": true,
-            "title": "Legenda da sequência"
+            "title": "Chamada final"
           },
-          "shortcuts": {
+          "ctaLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Botão"
+          },
+          "ctaHref": {
+            "type": "string",
+            "nullable": true,
+            "title": "Link do botão"
+          },
+          "domain": {
+            "type": "string",
+            "nullable": true,
+            "title": "Domínio"
+          },
+          "links": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "key": {
-                  "type": "string",
-                  "title": "Tecla"
-                },
-                "action": {
-                  "type": "string",
-                  "title": "Ação"
-                },
-                "detail": {
-                  "type": "string",
-                  "nullable": true,
-                  "title": "Detalhe"
-                }
-              },
-              "required": [
-                "key",
-                "action"
-              ],
-              "titleBy": "action"
-            },
-            "nullable": true,
-            "title": "Atalhos"
-          }
-        }
-      },
-      "c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=": {
-        "title": "site/sections/Keyboard.tsx",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-          }
-        ],
-        "required": [
-          "__resolveType"
-        ],
-        "properties": {
-          "__resolveType": {
-            "type": "string",
-            "enum": [
-              "site/sections/Keyboard.tsx"
-            ],
-            "default": "site/sections/Keyboard.tsx"
-          }
-        }
-      },
-      "c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props": {
-        "type": "object",
-        "properties": {
-          "kicker": {
-            "type": "string",
-            "nullable": true,
-            "title": "Rótulo"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true,
-            "title": "Título"
-          },
-          "dim": {
-            "type": "string",
-            "nullable": true,
-            "title": "Segunda linha (mais clara)"
-          },
-          "body": {
-            "type": "string",
-            "nullable": true,
-            "title": "Texto"
-          },
-          "figures": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "value": {
-                  "type": "string",
-                  "title": "Valor"
-                },
                 "label": {
-                  "type": "string",
-                  "title": "Legenda"
-                }
-              },
-              "required": [
-                "value",
-                "label"
-              ],
-              "titleBy": "label"
-            },
-            "nullable": true,
-            "title": "Números"
-          },
-          "notes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "title": "Notas (onde roda, código aberto…)"
-          }
-        }
-      },
-      "c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==": {
-        "title": "site/sections/Pricing.tsx",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-          }
-        ],
-        "required": [
-          "__resolveType"
-        ],
-        "properties": {
-          "__resolveType": {
-            "type": "string",
-            "enum": [
-              "site/sections/Pricing.tsx"
-            ],
-            "default": "site/sections/Pricing.tsx"
-          }
-        }
-      },
-      "c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props": {
-        "type": "object",
-        "properties": {
-          "kicker": {
-            "type": "string",
-            "nullable": true,
-            "title": "Rótulo"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true,
-            "title": "Título"
-          },
-          "dim": {
-            "type": "string",
-            "nullable": true,
-            "title": "Segunda linha (mais clara)"
-          },
-          "steps": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "title": {
-                  "type": "string",
-                  "title": "Título"
-                },
-                "text": {
                   "type": "string",
                   "title": "Texto"
-                }
-              },
-              "required": [
-                "title",
-                "text"
-              ],
-              "titleBy": "title"
-            },
-            "nullable": true,
-            "title": "Passos"
-          }
-        }
-      },
-      "c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==": {
-        "title": "site/sections/HowItWorks.tsx",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-          }
-        ],
-        "required": [
-          "__resolveType"
-        ],
-        "properties": {
-          "__resolveType": {
-            "type": "string",
-            "enum": [
-              "site/sections/HowItWorks.tsx"
-            ],
-            "default": "site/sections/HowItWorks.tsx"
-          }
-        }
-      },
-      "c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props": {
-        "type": "object",
-        "properties": {
-          "caption": {
-            "type": "string",
-            "nullable": true,
-            "title": "Legenda acima do painel"
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string",
-                  "title": "Nome"
                 },
-                "count": {
-                  "type": "number",
-                  "title": "Quantidade"
-                },
-                "kind": {
+                "href": {
                   "type": "string",
-                  "enum": [
-                    "urgent",
-                    "normal",
-                    "area",
-                    "suggested"
-                  ],
-                  "nullable": true,
-                  "title": "Tipo"
+                  "title": "Link"
                 }
               },
               "required": [
                 "label",
-                "count"
+                "href"
               ],
               "titleBy": "label"
             },
             "nullable": true,
-            "title": "Categorias"
+            "title": "Links"
           },
-          "rows": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "title": "Nome (fictício)"
-                },
-                "preview": {
-                  "type": "string",
-                  "title": "Última mensagem"
-                },
-                "time": {
-                  "type": "string",
-                  "nullable": true,
-                  "title": "Hora"
-                },
-                "unread": {
-                  "type": "number",
-                  "nullable": true,
-                  "title": "Não lidas"
-                },
-                "context": {
-                  "type": "string",
-                  "nullable": true,
-                  "title": "Contexto (quem é, há quanto tempo espera)"
-                }
-              },
-              "required": [
-                "name",
-                "preview"
-              ],
-              "titleBy": "name"
-            },
-            "nullable": true,
-            "title": "Conversas na lista"
-          },
-          "messages": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "text": {
-                  "type": "string",
-                  "title": "Texto"
-                },
-                "time": {
-                  "type": "string",
-                  "nullable": true,
-                  "title": "Hora"
-                },
-                "me": {
-                  "type": "boolean",
-                  "nullable": true,
-                  "title": "Enviada por mim"
-                }
-              },
-              "required": [
-                "text"
-              ],
-              "titleBy": "text"
-            },
-            "nullable": true,
-            "title": "Mensagens da conversa aberta"
-          },
-          "draft": {
+          "fine": {
             "type": "string",
             "nullable": true,
-            "title": "Rascunho da IA",
-            "description": "Use [colchetes] para o que a pessoa deve preencher"
-          },
-          "costNote": {
-            "type": "string",
-            "nullable": true,
-            "title": "Nota de custo (rodapé da barra lateral)"
-          },
-          "labels": {
-            "type": "object",
-            "properties": {
-              "draftReady": {
-                "type": "string",
-                "nullable": true,
-                "title": "\"rascunho pronto\""
-              },
-              "draftTitle": {
-                "type": "string",
-                "nullable": true,
-                "title": "Título do rascunho"
-              },
-              "reply": {
-                "type": "string",
-                "nullable": true,
-                "title": "Botão responder"
-              },
-              "edit": {
-                "type": "string",
-                "nullable": true,
-                "title": "Botão editar"
-              },
-              "archive": {
-                "type": "string",
-                "nullable": true,
-                "title": "Botão arquivar"
-              },
-              "ignore": {
-                "type": "string",
-                "nullable": true,
-                "title": "Botão ignorar"
-              }
-            },
-            "nullable": true,
-            "title": "Rótulos da interface"
+            "title": "Nota de rodapé"
           }
         }
       },
-      "c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4": {
-        "title": "site/sections/PanelMock.tsx",
+      "c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4": {
+        "title": "site/sections/Footer.tsx",
         "type": "object",
         "allOf": [
           {
-            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
           }
         ],
         "required": [
@@ -2246,9 +1940,9 @@
           "__resolveType": {
             "type": "string",
             "enum": [
-              "site/sections/PanelMock.tsx"
+              "site/sections/Footer.tsx"
             ],
-            "default": "site/sections/PanelMock.tsx"
+            "default": "site/sections/Footer.tsx"
           }
         }
       },
@@ -2359,100 +2053,6 @@
           }
         }
       },
-      "c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props": {
-        "type": "object",
-        "properties": {
-          "creditBefore": {
-            "type": "string",
-            "nullable": true,
-            "title": "Crédito: antes do coração (ex.: \"feito com\")"
-          },
-          "creditAfter": {
-            "type": "string",
-            "nullable": true,
-            "title": "Crédito: depois do coração (ex.: \"no Rio de Janeiro por\")"
-          },
-          "creditLink": {
-            "type": "string",
-            "nullable": true,
-            "title": "Crédito: link (texto)"
-          },
-          "creditHref": {
-            "type": "string",
-            "nullable": true,
-            "title": "Crédito: link (URL)"
-          },
-          "closer": {
-            "type": "string",
-            "nullable": true,
-            "title": "Chamada final"
-          },
-          "ctaLabel": {
-            "type": "string",
-            "nullable": true,
-            "title": "Botão"
-          },
-          "ctaHref": {
-            "type": "string",
-            "nullable": true,
-            "title": "Link do botão"
-          },
-          "domain": {
-            "type": "string",
-            "nullable": true,
-            "title": "Domínio"
-          },
-          "links": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string",
-                  "title": "Texto"
-                },
-                "href": {
-                  "type": "string",
-                  "title": "Link"
-                }
-              },
-              "required": [
-                "label",
-                "href"
-              ],
-              "titleBy": "label"
-            },
-            "nullable": true,
-            "title": "Links"
-          },
-          "fine": {
-            "type": "string",
-            "nullable": true,
-            "title": "Nota de rodapé"
-          }
-        }
-      },
-      "c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4": {
-        "title": "site/sections/Footer.tsx",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-          }
-        ],
-        "required": [
-          "__resolveType"
-        ],
-        "properties": {
-          "__resolveType": {
-            "type": "string",
-            "enum": [
-              "site/sections/Footer.tsx"
-            ],
-            "default": "site/sections/Footer.tsx"
-          }
-        }
-      },
       "c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props": {
         "type": "object",
         "properties": {
@@ -2517,6 +2117,83 @@
           }
         }
       },
+      "c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "body": {
+            "type": "string",
+            "nullable": true,
+            "title": "Texto"
+          },
+          "figures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "title": "Valor"
+                },
+                "label": {
+                  "type": "string",
+                  "title": "Legenda"
+                }
+              },
+              "required": [
+                "value",
+                "label"
+              ],
+              "titleBy": "label"
+            },
+            "nullable": true,
+            "title": "Números"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "title": "Notas (onde roda, código aberto…)"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==": {
+        "title": "site/sections/Pricing.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Pricing.tsx"
+            ],
+            "default": "site/sections/Pricing.tsx"
+          }
+        }
+      },
       "c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props": {
         "type": "object",
         "properties": {
@@ -2574,6 +2251,86 @@
               "site/sections/Faq.tsx"
             ],
             "default": "site/sections/Faq.tsx"
+          }
+        }
+      },
+      "c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "sequence": {
+            "type": "string",
+            "nullable": true,
+            "title": "Sequência em destaque",
+            "description": "Teclas separadas por espaço, ex.: Y Y Y E Y"
+          },
+          "sequenceNote": {
+            "type": "string",
+            "nullable": true,
+            "title": "Legenda da sequência"
+          },
+          "shortcuts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "title": "Tecla"
+                },
+                "action": {
+                  "type": "string",
+                  "title": "Ação"
+                },
+                "detail": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Detalhe"
+                }
+              },
+              "required": [
+                "key",
+                "action"
+              ],
+              "titleBy": "action"
+            },
+            "nullable": true,
+            "title": "Atalhos"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=": {
+        "title": "site/sections/Keyboard.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Keyboard.tsx"
+            ],
+            "default": "site/sections/Keyboard.tsx"
           }
         }
       },
@@ -2822,6 +2579,249 @@
           }
         }
       },
+      "c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "Título"
+                },
+                "text": {
+                  "type": "string",
+                  "title": "Texto"
+                }
+              },
+              "required": [
+                "title",
+                "text"
+              ],
+              "titleBy": "title"
+            },
+            "nullable": true,
+            "title": "Passos"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==": {
+        "title": "site/sections/HowItWorks.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/HowItWorks.tsx"
+            ],
+            "default": "site/sections/HowItWorks.tsx"
+          }
+        }
+      },
+      "c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props": {
+        "type": "object",
+        "properties": {
+          "caption": {
+            "type": "string",
+            "nullable": true,
+            "title": "Legenda acima do painel"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "title": "Nome"
+                },
+                "count": {
+                  "type": "number",
+                  "title": "Quantidade"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "urgent",
+                    "normal",
+                    "area",
+                    "suggested"
+                  ],
+                  "nullable": true,
+                  "title": "Tipo"
+                }
+              },
+              "required": [
+                "label",
+                "count"
+              ],
+              "titleBy": "label"
+            },
+            "nullable": true,
+            "title": "Categorias"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Nome (fictício)"
+                },
+                "preview": {
+                  "type": "string",
+                  "title": "Última mensagem"
+                },
+                "time": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Hora"
+                },
+                "unread": {
+                  "type": "number",
+                  "nullable": true,
+                  "title": "Não lidas"
+                },
+                "context": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Contexto (quem é, há quanto tempo espera)"
+                }
+              },
+              "required": [
+                "name",
+                "preview"
+              ],
+              "titleBy": "name"
+            },
+            "nullable": true,
+            "title": "Conversas na lista"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "title": "Texto"
+                },
+                "time": {
+                  "type": "string",
+                  "nullable": true,
+                  "title": "Hora"
+                },
+                "me": {
+                  "type": "boolean",
+                  "nullable": true,
+                  "title": "Enviada por mim"
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "titleBy": "text"
+            },
+            "nullable": true,
+            "title": "Mensagens da conversa aberta"
+          },
+          "draft": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rascunho da IA",
+            "description": "Use [colchetes] para o que a pessoa deve preencher"
+          },
+          "costNote": {
+            "type": "string",
+            "nullable": true,
+            "title": "Nota de custo (rodapé da barra lateral)"
+          },
+          "labels": {
+            "type": "object",
+            "properties": {
+              "draftReady": {
+                "type": "string",
+                "nullable": true,
+                "title": "\"rascunho pronto\""
+              },
+              "draftTitle": {
+                "type": "string",
+                "nullable": true,
+                "title": "Título do rascunho"
+              },
+              "reply": {
+                "type": "string",
+                "nullable": true,
+                "title": "Botão responder"
+              },
+              "edit": {
+                "type": "string",
+                "nullable": true,
+                "title": "Botão editar"
+              },
+              "archive": {
+                "type": "string",
+                "nullable": true,
+                "title": "Botão arquivar"
+              },
+              "ignore": {
+                "type": "string",
+                "nullable": true,
+                "title": "Botão ignorar"
+              }
+            },
+            "nullable": true,
+            "title": "Rótulos da interface"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4": {
+        "title": "site/sections/PanelMock.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/PanelMock.tsx"
+            ],
+            "default": "site/sections/PanelMock.tsx"
+          }
+        }
+      },
       "__SECTION_REF__": {
         "title": "Section",
         "anyOf": [
@@ -2833,36 +2833,28 @@
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
           },
           {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-          },
-          {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-          },
-          {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-          },
-          {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
           },
           {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-          },
-          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
           },
           {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+          },
+          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -2871,6 +2863,14 @@
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
           },
           {
             "$ref": "#/definitions/d2Vic2l0ZS9zZWN0aW9ucy9SZW5kZXJpbmcvTGF6eS50c3g="
@@ -2904,36 +2904,28 @@
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hlcm8udHN4@Props"
           },
           {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
-          },
-          {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
-          },
-          {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
-          },
-          {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
           },
           {
-            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
-            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
-          },
-          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Qcml2YWN5LnRzeA==",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaXZhY3kudHN4@Props"
           },
           {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QcmljaW5nLnRzeA==",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ByaWNpbmcudHN4@Props"
+          },
+          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9GYXEudHN4",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0ZhcS50c3g=@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9LZXlib2FyZC50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0tleWJvYXJkLnRzeA==@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QZXJmb3JtYW5jZS50c3g=",
@@ -2942,6 +2934,14 @@
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Wb2ljZS50c3g=",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1ZvaWNlLnRzeA==@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Ib3dJdFdvcmtzLnRzeA==",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0hvd0l0V29ya3MudHN4@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
           },
           {
             "$ref": "#/definitions/d2Vic2l0ZS9zZWN0aW9ucy9SZW5kZXJpbmcvTGF6eS50c3g="
