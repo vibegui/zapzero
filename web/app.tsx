@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import {
 	Archive,
 	CalendarDays,
+	Check,
 	CheckCheck,
 	Clock3,
 	EyeOff,
@@ -14,8 +15,10 @@ import {
 	RefreshCw,
 	SkipForward,
 	Sparkles,
+	Tag,
 	Undo2,
 	Users,
+	X,
 } from "lucide-react";
 import {
 	type ReactNode,
@@ -102,7 +105,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				</div>
 				<div className="font-semibold tracking-tight">zapzero</div>
 			</div>
-			<div className="flex flex-col gap-0.5 px-2">
+			<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-3">
 				{inbox?.categories.map((c) => {
 					const Icon = ICONS[c.id];
 					return (
@@ -121,6 +124,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 						</Link>
 					);
 				})}
+				<Areas inbox={inbox} />
 				<Link
 					to="/feitas"
 					className="mt-3 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
@@ -130,7 +134,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					<span>Feitas</span>
 				</Link>
 			</div>
-			<div className="mt-auto space-y-2 border-t border-line px-5 py-4 text-xs text-faint">
+			<div className="space-y-2 border-t border-line px-5 py-4 text-xs text-faint">
 				<div className="flex items-center justify-between">
 					<span>
 						{inbox?.refreshing
@@ -160,24 +164,138 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 	);
 }
 
+function Areas({ inbox }: { inbox?: Inbox }) {
+	const qc = useQueryClient();
+	const after = { onSuccess: () => qc.invalidateQueries({ queryKey: ["inbox"] }) };
+	const act = useMutation({
+		mutationFn: (b: { action: "accept" | "dismiss"; id: string }) => api.area(b.action, b.id),
+		...after,
+	});
+	const suggest = useMutation({ mutationFn: api.suggest, ...after });
+	if (!inbox) return null;
+	const counts = new Map<string, number>();
+	for (const c of inbox.categories)
+		if (AREA_SOURCES.includes(c.id))
+			for (const i of c.items) if (i.area) counts.set(i.area, (counts.get(i.area) ?? 0) + 1);
+	const areas = inbox.areas.filter((a) => counts.get(a.id));
+	return (
+		<>
+			<div className="mt-4 mb-1 px-3 text-[11px] font-medium tracking-wide text-faint uppercase">
+				Áreas
+			</div>
+			{areas.map((a) => (
+				<Link
+					key={a.id}
+					to="/a/$area"
+					params={{ area: a.id }}
+					className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<Tag className="size-3.5" />
+					<span className="flex-1 truncate">{a.label}</span>
+					<span className="text-xs tabular-nums text-faint">{counts.get(a.id)}</span>
+				</Link>
+			))}
+			<div className="mt-3 mb-1 flex items-center justify-between px-3 text-[11px] font-medium tracking-wide text-faint uppercase">
+				<span>Sugestões</span>
+				<button
+					type="button"
+					title="Sugerir áreas novas agora"
+					onClick={() => suggest.mutate()}
+					className="rounded p-0.5 hover:bg-panel hover:text-ink"
+				>
+					{suggest.isPending ? (
+						<Loader2 className="size-3.5 animate-spin" />
+					) : (
+						<Sparkles className="size-3.5" />
+					)}
+				</button>
+			</div>
+			{inbox.suggestions.map((sg) => (
+				<div
+					key={sg.id}
+					className="mx-1 mb-1.5 rounded-lg border border-dashed border-line px-3 py-2"
+				>
+					<div className="flex items-center gap-1.5 text-sm text-ink">
+						<Sparkles className="size-3.5 shrink-0 text-accent" />
+						<span className="flex-1 truncate">{sg.label}</span>
+						<span className="text-xs tabular-nums text-faint">{sg.pks.length}</span>
+					</div>
+					<div className="mt-1 text-[11px] leading-snug text-muted" title={sg.names.join(", ")}>
+						{sg.reason}
+					</div>
+					<div className="mt-1.5 flex gap-1.5">
+						<button
+							type="button"
+							onClick={() => act.mutate({ action: "accept", id: sg.id })}
+							className="inline-flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-[11px] font-medium text-accent-ink"
+						>
+							<Check className="size-3" /> Criar área
+						</button>
+						<button
+							type="button"
+							onClick={() => act.mutate({ action: "dismiss", id: sg.id })}
+							className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-faint hover:text-ink"
+						>
+							<X className="size-3" /> Não
+						</button>
+					</div>
+				</div>
+			))}
+			{inbox.suggestions.length === 0 && (
+				<div className="px-3 text-[11px] text-faint">Nenhuma agora. ✨ para pedir.</div>
+			)}
+		</>
+	);
+}
+
 // ---- category: ranked list + focus -----------------------------------------------------------
 
 type Toast = { text: string; pk: number; lastPk: number } | null;
 
-export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
+type View = { kind: "cat"; id: CategoryId } | { kind: "area"; id: string };
+/** where an area's items come from: everything that still needs the owner */
+const AREA_SOURCES: CategoryId[] = ["urgente", "semana", "antigas", "acompanhar"];
+
+function viewItems(inbox: Inbox | undefined, view: View): { label: string; items: Item[] } {
+	if (!inbox) return { label: "", items: [] };
+	if (view.kind === "cat") {
+		const c = inbox.categories.find((x) => x.id === view.id);
+		return { label: c?.label ?? "", items: c?.items ?? [] };
+	}
+	// urgent first, then the rest by score
+	const items = AREA_SOURCES.flatMap((k) =>
+		(inbox.categories.find((c) => c.id === k)?.items ?? []).filter((i) => i.area === view.id),
+	);
+	return { label: inbox.areas.find((a) => a.id === view.id)?.label ?? view.id, items };
+}
+
+export function Category({ view, pk }: { view: View; pk?: number }) {
 	const qc = useQueryClient();
 	const navigate = useNavigate();
 	const inbox = useInbox();
-	const category = inbox.data?.categories.find((c) => c.id === cat);
-	const items = category?.items ?? [];
+	const { label, items } = viewItems(inbox.data, view);
+	const areaLabel = (id: string | null) => inbox.data?.areas.find((a) => a.id === id)?.label;
 	const idx = Math.max(0, pk ? items.findIndex((i) => i.pk === pk) : 0);
 	const item = items[idx];
 	const [toast, setToast] = useState<Toast>(null);
 
 	const select = useCallback(
 		(p: number | undefined) =>
-			navigate({ to: "/c/$cat", params: { cat }, search: p ? { pk: p } : {}, replace: true }),
-		[cat, navigate],
+			view.kind === "cat"
+				? navigate({
+						to: "/c/$cat",
+						params: { cat: view.id },
+						search: p ? { pk: p } : {},
+						replace: true,
+					})
+				: navigate({
+						to: "/a/$area",
+						params: { area: view.id },
+						search: p ? { pk: p } : {},
+						replace: true,
+					}),
+		[view.kind, view.id, navigate],
 	);
 	const move = (d: number) => {
 		const n = items[Math.min(items.length - 1, Math.max(0, idx + d))];
@@ -276,7 +394,7 @@ export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
 		<>
 			<section className="hidden w-[360px] shrink-0 flex-col border-r border-line bg-panel lg:flex">
 				<header className="flex items-baseline justify-between px-5 pt-5 pb-3">
-					<h1 className="text-[15px] font-semibold tracking-tight">{category?.label}</h1>
+					<h1 className="text-[15px] font-semibold tracking-tight">{label}</h1>
 					<span className="text-xs tabular-nums text-faint">{items.length}</span>
 				</header>
 				<ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
@@ -303,7 +421,12 @@ export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
 								</div>
 								<div className="mt-0.5 truncate text-[13px] text-muted">{i.preview}</div>
 								<div className="mt-1 flex items-center gap-1.5 text-[11px] text-faint">
-									<span>{i.reason}</span>
+									{areaLabel(i.area) && (
+										<span className="rounded bg-sunken px-1.5 py-px text-muted">
+											{areaLabel(i.area)}
+										</span>
+									)}
+									<span className="truncate">{i.reason}</span>
 									{i.draft && (
 										<span className="inline-flex items-center gap-0.5 text-accent">
 											<Sparkles className="size-3" /> rascunho
@@ -323,7 +446,7 @@ export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
 					<Focus
 						key={`${item.pk}:${item.lastPk}`}
 						item={item}
-						cat={cat}
+						areaLabel={areaLabel(item.area)}
 						position={`${idx + 1} de ${items.length}`}
 						act={act}
 						handle={focusRef}
@@ -352,13 +475,13 @@ export function Category({ cat, pk }: { cat: CategoryId; pk?: number }) {
 
 function Focus({
 	item,
-	cat,
+	areaLabel,
 	position,
 	act,
 	handle,
 }: {
 	item: Item;
-	cat: CategoryId;
+	areaLabel?: string;
 	position: string;
 	act: (kind: DecisionKind, text?: string) => void;
 	handle: RefObject<{ reply: () => void; edit: () => void; redraft: () => void } | null>;
@@ -374,7 +497,7 @@ function Focus({
 		mutationFn: () => api.draft(item.pk),
 		onSuccess: (r) => setText(r.text),
 	});
-	const cleanup = cat === "limpeza";
+	const cleanup = item.category === "limpeza";
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: scroll to the bottom when messages arrive
 	useEffect(() => {
@@ -423,6 +546,7 @@ function Focus({
 				<div className="min-w-0 flex-1">
 					<div className="truncate text-[15px] font-semibold tracking-tight">{item.name}</div>
 					<div className="truncate text-xs text-muted">
+						{areaLabel ? `${areaLabel} · ` : ""}
 						{item.reason}
 						{item.waitingSince ? ` · esperando há ${ago(item.waitingSince)}` : ""}
 						{item.phone && !item.name.includes(item.phone) ? ` · +${item.phone}` : ""}

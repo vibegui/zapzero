@@ -14,6 +14,8 @@ TypeScript num processo Bun só (Hono + React/TanStack). Substituiu os scripts P
 - [x] launchd: o servidor sobe com o Mac (`com.guilherme.zapzero`).
 - [x] Ignorar pessoa para sempre (I): some de tudo, sai da triagem e dos rascunhos.
 - [x] No Studio: tela WhatsApp no projeto autogui (vibegui/autogui#14). Requer `chrome://flags/#local-network-access-check` desligado até o Studio delegar `local-network-access` ao iframe.
+- [x] Áreas (quem é a pessoa / do que se trata): Clientes, Hiring, Time, Investidores, Parceiros, Família, Amigos, Casa e serviços, Te vendendo algo, Outros. Jev classifica junto com a triagem.
+- [x] Sugestões de áreas novas: 1x por dia o modelo olha as conversas pendentes e propõe até 4 (projeto, evento, tipo de pessoa). Aceitar vira área e o Jev reclassifica o resto.
 - [ ] Contatos @lid sem telefone e grupos: hoje Y copia o texto e abre o app; achar a conversa sozinho.
 - [ ] Radar (cohorts, % respondido em 24h) e assuntos dos grupos voltam como aba, se fizer falta.
 

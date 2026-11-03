@@ -28,6 +28,8 @@ Runs at login via launchd: `~/Library/LaunchAgents/com.guilherme.zapzero.plist` 
 
 Open `http://127.0.0.1:8810/?t=<token>`; the token is in `$ZAP_DATA/token` (`$ZAP_DATA` defaults to `~/Library/Application Support/zap`, chmod 700). `$ZAP_DATA/perfil.txt` describes the owner in one paragraph; triage and drafts use it.
 
+Areas (Clients, Hiring, Team, Investors…) cut across the priority categories; once a day the model suggests new ones from your pending chats, and accepting one makes it a choice for triage.
+
 Keys: `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor. A `[bracket]` in a draft is a decision left to you: `Y` selects it instead of sending.
 
 ## Rules

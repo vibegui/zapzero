@@ -30,6 +30,8 @@ export type Item = {
 	preview: string;
 	draft: string | null;
 	triaged: boolean;
+	/** area id (clientes, hiring…) from triage; null for groups and untriaged chats */
+	area: string | null;
 };
 
 const DAY = 86_400_000;
@@ -81,6 +83,7 @@ export function buildInbox(
 			preview: c.preview || "(o Mac só sincronizou os últimos ~3 meses: sem texto desta conversa)",
 			draft: d && d.last_pk === c.lastPk ? d.text : null,
 			triaged: false,
+			area: c.group ? null : (triage.get(c.pk)?.area ?? null),
 		};
 		const put = (category: CategoryId, score: number, reason: string, triaged = false) =>
 			out[category].push({ ...base, category, score, reason, triaged });

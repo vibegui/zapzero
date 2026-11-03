@@ -29,6 +29,7 @@ function refresh(): Promise<void> {
 			say(`snapshot: ${wa.chats().length} chats`);
 			await ai.triage(say);
 			await ai.drafts(say);
+			await ai.suggest(say);
 		} catch (e) {
 			ok = false;
 			say(`erro: ${(e as Error).message}`);
@@ -59,12 +60,19 @@ app.use("/api/*", async (c, next) => {
 });
 
 app.get("/api/inbox", (c) => {
-	const box = buildInbox(wa.chats(), store.triages(), store.drafts(), store.decisions());
+	const all = wa.chats();
+	const names = new Map(all.map((x) => [x.pk, x.name]));
+	const box = buildInbox(all, store.triages(), store.drafts(), store.decisions());
 	return c.json({
 		snapshotAt: wa.snapshotAt(),
 		refreshing: running != null,
 		last,
 		spend24h: store.spendSince(86_400_000),
+		areas: store.areas().map(({ id, label, builtin }) => ({ id, label, builtin: builtin === 1 })),
+		suggestions: store.suggestions("pending").map((s) => ({
+			...s,
+			names: s.pks.map((pk) => names.get(pk) ?? String(pk)),
+		})),
 		categories: CATEGORIES.map((k) => ({ ...k, items: box[k.id] })),
 	});
 });
@@ -132,6 +140,34 @@ app.post("/api/draft/:pk", async (c) => {
 	}
 });
 
+const Id = z.object({ id: z.string().min(1).max(80) });
+app.post("/api/areas/:action", async (c) => {
+	const p = Id.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	const action = c.req.param("action");
+	if (action === "accept") {
+		if (!store.acceptSuggestion(p.data.id)) return c.json({ error: "suggestion" }, 404);
+		void refresh(); // re-classify the rest with the new area in the background
+	} else if (action === "dismiss") store.dismissSuggestion(p.data.id);
+	else if (action === "remove") store.removeArea(p.data.id);
+	else return c.json({ error: "action" }, 404);
+	return c.json({ ok: true });
+});
+
+let suggesting = false;
+app.post("/api/suggest", async (c) => {
+	if (suggesting) return c.json({ error: "busy" }, 429);
+	suggesting = true;
+	try {
+		await ai.suggest(console.log, true);
+		return c.json({ ok: true, count: store.suggestions("pending").length });
+	} catch (e) {
+		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
+	} finally {
+		suggesting = false;
+	}
+});
+
 app.post("/api/refresh", (c) => {
 	void refresh();
 	return c.json({ ok: true });
@@ -170,6 +206,8 @@ if (cmd === "serve") {
 	console.log(`${wa.chats().length} chats`);
 } else if (cmd === "triage") {
 	await ai.triage();
+} else if (cmd === "suggest") {
+	await ai.suggest(console.log, true);
 } else if (cmd === "drafts") {
 	await ai.drafts();
 } else if (cmd === "refresh") {
@@ -183,6 +221,8 @@ if (cmd === "serve") {
 		);
 	}
 } else {
-	console.log("uso: bun server/main.ts serve | snapshot | triage | drafts | refresh | inbox");
+	console.log(
+		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | refresh | inbox",
+	);
 	process.exit(1);
 }

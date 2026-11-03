@@ -32,6 +32,8 @@ const tri = (pk: number, o: Partial<Triage> = {}): Triage => ({
 	categoria: "trabalho",
 	urgencia: 3,
 	acao: "responder",
+	area: "clientes",
+	area_ver: 1,
 	...o,
 });
 

@@ -9,6 +9,15 @@ export type Inbox = {
 	last: { at: number; ok: boolean; log: string[] } | null;
 	spend24h: { what: string; n: number; cost: number }[];
 	categories: { id: CategoryId; label: string; items: Item[] }[];
+	areas: { id: string; label: string; builtin: boolean }[];
+	suggestions: {
+		id: string;
+		label: string;
+		criteria: string;
+		reason: string;
+		pks: number[];
+		names: string[];
+	}[];
 };
 export type DecisionRow = Decision & { name: string };
 
@@ -39,6 +48,9 @@ export const api = {
 	undo: (b: { pk: number; lastPk: number }) => call<{ ok: true }>("undo", b),
 	draft: (pk: number) => call<{ text: string }>(`draft/${pk}`, {}),
 	refresh: () => call<{ ok: true }>("refresh", {}),
+	area: (action: "accept" | "dismiss" | "remove", id: string) =>
+		call<{ ok: true }>(`areas/${action}`, { id }),
+	suggest: () => call<{ ok: true; count: number }>("suggest", {}),
 };
 
 export function ago(ms: number | null) {

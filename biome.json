@@ -6,7 +6,11 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"includes": ["**", "!**/*.css"]
+		"includes": [
+			"**",
+			"!**/*.css",
+			"!site"
+		]
 	},
 	"formatter": {
 		"enabled": true,

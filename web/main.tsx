@@ -27,14 +27,25 @@ const category = createRoute({
 	component: function CategoryRoute() {
 		const { cat } = category.useParams();
 		const { pk } = category.useSearch();
-		return <Category cat={cat as CategoryId} pk={pk} />;
+		return <Category view={{ kind: "cat", id: cat as CategoryId }} pk={pk} />;
+	},
+});
+const area = createRoute({
+	getParentRoute: () => root,
+	path: "/a/$area",
+	validateSearch: (s: Record<string, unknown>): { pk?: number } =>
+		s.pk ? { pk: Number(s.pk) } : {},
+	component: function AreaRoute() {
+		const { area: id } = area.useParams();
+		const { pk } = area.useSearch();
+		return <Category view={{ kind: "area", id }} pk={pk} />;
 	},
 });
 const done = createRoute({ getParentRoute: () => root, path: "/feitas", component: Done });
 
 // hash history: the panel lives inside iframes and under a mount path, the server never sees routes
 const router = createRouter({
-	routeTree: root.addChildren([index, category, done]),
+	routeTree: root.addChildren([index, category, area, done]),
 	history: createHashHistory(),
 });
 declare module "@tanstack/react-router" {
