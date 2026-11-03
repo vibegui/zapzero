@@ -143,6 +143,11 @@ app.get("/api/decisions", (c) => {
 	);
 });
 
+// The panel's own files carry no data; inside Studio they load from origin "null" in CORS mode.
+app.use("/*", async (c, next) => {
+	await next();
+	c.header("access-control-allow-origin", "*");
+});
 app.use("/*", serveStatic({ root: "./dist" }));
 app.get("/*", serveStatic({ path: "./dist/index.html" }));
 
