@@ -18,6 +18,10 @@ export interface Props {
 	 * @description link do botão; vazio mostra o texto como selo "em breve", sem link
 	 */
 	ctaHref?: string;
+	/** @title Outro idioma: rótulo (ex.: EN) */
+	otherLangLabel?: string;
+	/** @title Outro idioma: link (ex.: /en?lang=en) */
+	otherLangHref?: string;
 	/** @title Botão secundário */
 	secondaryLabel?: string;
 	/** @title Link do botão secundário */
@@ -34,6 +38,8 @@ export default function Hero({
 	body = "",
 	ctaLabel = "Quero testar",
 	ctaHref = "",
+	otherLangLabel = "",
+	otherLangHref = "",
 	secondaryLabel = "",
 	secondaryHref = "#como-funciona",
 	promises = [],
@@ -45,6 +51,11 @@ export default function Hero({
 					<Logo />
 				</a>
 				<span className="domain">{domain}</span>
+				{otherLangHref ? (
+					<a className="lang" href={otherLangHref} hrefLang={otherLangLabel.toLowerCase()}>
+						{otherLangLabel}
+					</a>
+				) : null}
 				{ctaHref ? (
 					<a className="btn small" href={ctaHref}>
 						{ctaLabel}

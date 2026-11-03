@@ -1,7 +1,7 @@
 {
-  "name": "Home",
+  "name": "Home (PT)",
   "__resolveType": "website/pages/Page.tsx",
-  "path": "/",
+  "path": "/pt",
   "seo": {
     "__resolveType": "website/sections/Seo/SeoV2.tsx",
     "title": "zapzero · Inbox zero pro WhatsApp",
@@ -27,7 +27,9 @@
         "Nada sai do seu Mac",
         "Nada é enviado sem você",
         "Open source (MIT)"
-      ]
+      ],
+      "otherLangLabel": "EN",
+      "otherLangHref": "/en?lang=en"
     },
     {
       "__resolveType": "site/sections/PanelMock.tsx",
@@ -197,6 +199,40 @@
       "note": "Uma vez por dia ela olha o que está pendente e propõe áreas que as suas não cobrem. Aceitou, vira área e ela reclassifica o resto."
     },
     {
+      "__resolveType": "site/sections/Voice.tsx",
+      "kicker": "Seu jeito",
+      "title": "Escreve como você.",
+      "dim": "Porque leu como você escreve.",
+      "screenTitle": "Seu jeito",
+      "screenNote": "A IA leu suas conversas e escreveu isto. Aceite ou ajuste cada parte.",
+      "profileLabel": "Quem é você · Trabalho",
+      "profile": "- Você é sócia de um estúdio de arquitetura em Pinheiros.\n- Os clientes chegam por indicação; a Marina Okada é a maior conta do ano.",
+      "voiceLabel": "Como você escreve",
+      "voice": [
+        "Mensagens curtas, às vezes em rajada",
+        "Quase sem ponto final; \"vc\", \"tb\", \"pq\"",
+        "Risada é \"kkkk\", emoji raro",
+        "Diz sim com \"fechado\" e \"bora\"; não com \"essa semana não rola\"",
+        "Na família, se despede com \"bjs\""
+      ],
+      "accept": "Aceitar",
+      "reread": "Ler minhas conversas de novo",
+      "steps": [
+        {
+          "title": "Lê como você escreve.",
+          "text": "Depois do primeiro scan, a IA lê suas mensagens, as conversas mais ativas e os grupos onde você mais escreve."
+        },
+        {
+          "title": "Escreve quem você é.",
+          "text": "Onde mora, trabalho, família, quem importa, o que está rolando. Um tópico por campo, cada um editável."
+        },
+        {
+          "title": "Você aceita ou ajusta.",
+          "text": "A triagem entende quem é quem e todo rascunho sai no seu tom. Mudou de emprego? Edita uma linha."
+        }
+      ]
+    },
+    {
       "__resolveType": "site/sections/Privacy.tsx",
       "kicker": "Privacidade",
       "title": "Suas conversas ficam no seu Mac.",
@@ -334,6 +370,10 @@
         {
           "label": "Áreas",
           "href": "#areas"
+        },
+        {
+          "label": "Seu jeito",
+          "href": "#seu-jeito"
         },
         {
           "label": "Privacidade",

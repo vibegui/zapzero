@@ -34,6 +34,30 @@ export interface Message {
 	me?: boolean;
 }
 
+export interface Labels {
+	/** @title "rascunho pronto" */
+	draftReady?: string;
+	/** @title Título do rascunho */
+	draftTitle?: string;
+	/** @title Botão responder */
+	reply?: string;
+	/** @title Botão editar */
+	edit?: string;
+	/** @title Botão arquivar */
+	archive?: string;
+	/** @title Botão ignorar */
+	ignore?: string;
+}
+
+const PT: Required<Labels> = {
+	draftReady: "rascunho pronto",
+	draftTitle: "Rascunho no seu jeito de escrever",
+	reply: "Responder no WhatsApp",
+	edit: "Editar",
+	archive: "Arquivar",
+	ignore: "Ignorar sempre",
+};
+
 export interface Props {
 	/** @title Legenda acima do painel */
 	caption?: string;
@@ -50,6 +74,8 @@ export interface Props {
 	draft?: string;
 	/** @title Nota de custo (rodapé da barra lateral) */
 	costNote?: string;
+	/** @title Rótulos da interface */
+	labels?: Labels;
 }
 
 /** A static picture of the panel, in HTML. Every name and message here is made up. */
@@ -60,7 +86,9 @@ export default function PanelMock({
 	messages = [],
 	draft = "",
 	costNote = "",
+	labels = {},
 }: Props) {
+	const l = { ...PT, ...labels };
 	const open = rows[0];
 	const active = categories[0];
 	return (
@@ -101,7 +129,7 @@ export default function PanelMock({
 										<span className="t">{r.time}</span>
 									</div>
 									<div className="r2">{r.preview}</div>
-									<div className="r3">rascunho pronto</div>
+									<div className="r3">{l.draftReady}</div>
 								</div>
 							))}
 						</div>
@@ -129,22 +157,22 @@ export default function PanelMock({
 								))}
 							</div>
 							<div className="m-draft">
-								<div className="m-draft-l">Rascunho no seu jeito de escrever</div>
+								<div className="m-draft-l">{l.draftTitle}</div>
 								<p>
 									<Draft text={draft} />
 								</p>
 								<div className="m-keys">
 									<span className="go">
-										Responder no WhatsApp <Key>Y</Key>
+										{l.reply} <Key>Y</Key>
 									</span>
 									<span>
-										Editar <Key>E</Key>
+										{l.edit} <Key>E</Key>
 									</span>
 									<span>
-										Arquivar <Key>A</Key>
+										{l.archive} <Key>A</Key>
 									</span>
 									<span className="hide-sm">
-										Ignorar sempre <Key>I</Key>
+										{l.ignore} <Key>I</Key>
 									</span>
 								</div>
 							</div>

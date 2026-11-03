@@ -1,6 +1,6 @@
 import { DecoRootLayout } from "@decocms/tanstack";
 import type { QueryClient } from "@tanstack/react-query";
-import { createRootRouteWithContext } from "@tanstack/react-router";
+import { createRootRouteWithContext, useRouterState } from "@tanstack/react-router";
 // Inlined: no render-blocking stylesheet request.
 import appCss from "../styles/app.css?inline";
 
@@ -45,5 +45,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function Root() {
-	return <DecoRootLayout siteName="zapzero" lang="pt-BR" />;
+	const path = useRouterState({ select: (s) => s.location.pathname });
+	return <DecoRootLayout siteName="zapzero" lang={path.startsWith("/en") ? "en" : "pt-BR"} />;
 }

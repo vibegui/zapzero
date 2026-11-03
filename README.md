@@ -19,7 +19,7 @@ zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**
 
 - **Categories by when:** Important & urgent · This week · Older than a week · You're waiting on them · Groups · Cleanup.
 - **Areas by who:** Clients, Hiring, Team, Investors, Partners, Family, Friends, Home & services, Selling to you, Other. Once a day the AI suggests new areas from your pending chats ("Apartment renovation", "Events & talks"); accept one and it becomes a triage choice.
-- **Your tone of voice.** After the first scan the AI reads ~150 of your own messages and writes who you are and how you write. You accept or edit it on the **Seu jeito** screen; every draft follows it.
+- **Your voice ("Seu jeito").** After the first scan the AI reads ~150 of your own messages, your 40 busiest chats and the groups you write in most, and writes who you are, one editable field per topic (where you live, work, family, people who matter, current projects, routine, languages), plus a guide to how you write. Accept or edit each part; triage uses it to know who's who and every draft follows your tone.
 - **Keyboard flow:** `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor.
 - **Runs in the background**, re-reading WhatsApp every 15 minutes and only re-doing AI work for chats that changed.
 

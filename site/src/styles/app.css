@@ -1028,3 +1028,107 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+.lang {
+  font: 600 13px/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.lang:hover {
+  color: var(--ink);
+  background: var(--sunken);
+}
+
+/* ---- seu jeito ---- */
+.voice-mock {
+  padding: 28px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.voice-mock h3 {
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.voice-note {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.voice-label {
+  margin: 20px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.voice-box {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.voice-guide {
+  list-style: none;
+  margin: 0;
+  font: 13px/1.6 var(--mono);
+}
+.voice-guide li::before {
+  content: "- ";
+  color: var(--faint);
+}
+.voice-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.voice-actions .accept {
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.voice-actions .reread {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.voice-steps {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 0;
+  display: grid;
+  gap: 28px;
+}
+.voice-steps li {
+  display: flex;
+  gap: 18px;
+}
+.voice-steps .num {
+  font: 600 13px/1.9 var(--mono);
+  color: var(--accent);
+}
+.voice-steps h3 {
+  font-weight: 750;
+  font-stretch: 106%;
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.voice-steps p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 16px;
+}
+.voice-box {
+  white-space: pre-line;
+}

@@ -1,0 +1,406 @@
+{
+  "name": "Home (EN)",
+  "__resolveType": "website/pages/Page.tsx",
+  "path": "/en",
+  "seo": {
+    "__resolveType": "website/sections/Seo/SeoV2.tsx",
+    "title": "zapzero · Inbox zero for WhatsApp",
+    "description": "Clear your WhatsApp. AI triages every chat and drafts replies in your own voice. No bot, no risk, never leaves your Mac.",
+    "type": "website",
+    "noIndexing": false,
+    "image": "https://zapzero.dev/og-en.png"
+  },
+  "sections": [
+    {
+      "__resolveType": "site/sections/Hero.tsx",
+      "domain": "zapzero.dev",
+      "eyebrow": "For WhatsApp Desktop on Mac",
+      "title": "Clear your WhatsApp.",
+      "subtitle": "Inbox zero for WhatsApp. No bot, no risk, never leaves your Mac.",
+      "body": "AI reads your chats right there on your Mac and tells you who's waiting on you. For each one, it leaves a reply written your way. Press Y, WhatsApp opens with the text ready, you hit Enter. Next.",
+      "ctaLabel": "★ Star on GitHub",
+      "ctaHref": "https://github.com/vibegui/zapzero",
+      "secondaryLabel": "How it works",
+      "secondaryHref": "#como-funciona",
+      "promises": [
+        "Read-only",
+        "Nothing leaves your Mac",
+        "Nothing sent without you",
+        "Open source (MIT)"
+      ],
+      "otherLangLabel": "PT",
+      "otherLangHref": "/pt?lang=pt"
+    },
+    {
+      "__resolveType": "site/sections/PanelMock.tsx",
+      "caption": "The real panel, with made-up chats. Names and messages are fictional.",
+      "categories": [
+        {
+          "label": "Important & urgent",
+          "count": 3,
+          "kind": "urgent"
+        },
+        {
+          "label": "This week",
+          "count": 7
+        },
+        {
+          "label": "Older than a week",
+          "count": 12
+        },
+        {
+          "label": "Waiting on them",
+          "count": 5
+        },
+        {
+          "label": "Groups",
+          "count": 9
+        },
+        {
+          "label": "Cleanup",
+          "count": 41
+        },
+        {
+          "label": "Clients",
+          "count": 4,
+          "kind": "area"
+        },
+        {
+          "label": "Hiring",
+          "count": 2,
+          "kind": "area"
+        },
+        {
+          "label": "Apartment renovation",
+          "count": 3,
+          "kind": "suggested"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Marina Okada",
+          "preview": "Can you send me the revised version by tomorrow?",
+          "time": "9:41",
+          "unread": 2,
+          "context": "Client · Okada Studio · waiting on you for 2 h"
+        },
+        {
+          "name": "Arnaldo (building manager)",
+          "preview": "The elevator tech comes Thursday. Can someone open the garage?",
+          "time": "8:12",
+          "unread": 1,
+          "context": "Building · waiting on you for 3 h"
+        },
+        {
+          "name": "Rafa Teixeira",
+          "preview": "Did you lock the interview date with Bruno?",
+          "time": "yesterday",
+          "context": "Partner · waiting on you for 1 day"
+        }
+      ],
+      "messages": [
+        {
+          "text": "Hi! Saw the quote, looks great.",
+          "time": "9:38"
+        },
+        {
+          "text": "One thing: can you include the photos in the same proposal?",
+          "time": "9:39"
+        },
+        {
+          "text": "Can you send me the revised version by tomorrow? I want to take it to Friday's meeting.",
+          "time": "9:41"
+        }
+      ],
+      "draft": "Hi Marina! Sure, I'll include the photos. I'll send the revised version by [tomorrow 6pm], with the photos as a separate [$ ___], so you can decide on Friday.",
+      "costNote": "AI in the last 24 h: US$ 0.004",
+      "labels": {
+        "draftReady": "draft ready",
+        "draftTitle": "Draft in your own voice",
+        "reply": "Reply in WhatsApp",
+        "edit": "Edit",
+        "archive": "Archive",
+        "ignore": "Ignore forever"
+      }
+    },
+    {
+      "__resolveType": "site/sections/HowItWorks.tsx",
+      "kicker": "How it works",
+      "title": "Three steps.",
+      "dim": "The last one is yours.",
+      "steps": [
+        {
+          "title": "Reads your Mac. Only reads.",
+          "text": "zapzero opens WhatsApp Desktop's local database read-only. No extra linked device, no side API, and your chats go to no server of ours."
+        },
+        {
+          "title": "AI triages everything.",
+          "text": "Who's waiting on whom, how urgent it is, who this person is to you. Fractions of a cent per chat. And for everyone waiting on you, a draft in your own voice."
+        },
+        {
+          "title": "You clear it.",
+          "text": "Y opens the chat in WhatsApp with the reply typed in. You check it and hit Enter. Commitments (dates, prices, yes or no) come [in brackets] for you to fill."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Areas.tsx",
+      "kicker": "Areas",
+      "title": "Categories say when.",
+      "dim": "Areas say who.",
+      "body": "Besides urgent, this week or stale, every chat gets an area: client, hiring, family, someone trying to sell you something. Open Clients and see only the clients waiting on you.",
+      "areas": [
+        {
+          "label": "Clients",
+          "count": 15
+        },
+        {
+          "label": "Hiring",
+          "count": 14
+        },
+        {
+          "label": "Team",
+          "count": 19
+        },
+        {
+          "label": "Investors",
+          "count": 23
+        },
+        {
+          "label": "Partners",
+          "count": 48
+        },
+        {
+          "label": "Family",
+          "count": 3
+        },
+        {
+          "label": "Friends",
+          "count": 25
+        },
+        {
+          "label": "Home & services",
+          "count": 17
+        },
+        {
+          "label": "Selling to you",
+          "count": 5
+        },
+        {
+          "label": "Other",
+          "count": 42
+        }
+      ],
+      "suggestionsLabel": "AI suggests new areas",
+      "suggestions": [
+        {
+          "label": "Apartment renovation",
+          "count": 6,
+          "reason": "Six chats with the carpenter, the architect and the building manager about the same project, now scattered across Home and Other."
+        },
+        {
+          "label": "Events & talks",
+          "count": 7,
+          "reason": "Plenty of invites and plans for events, livestreams and panels, with no area of their own."
+        }
+      ],
+      "note": "Once a day it looks at what's pending and suggests areas yours don't cover. Accept one and it becomes an area and re-sorts the rest."
+    },
+    {
+      "__resolveType": "site/sections/Voice.tsx",
+      "kicker": "Your voice",
+      "title": "Writes like you.",
+      "dim": "Because it read how you write.",
+      "screenTitle": "Your voice",
+      "screenNote": "The AI read your chats and wrote this. Accept or edit each part.",
+      "profileLabel": "Who you are · Work",
+      "profile": "- You're a partner at an architecture studio in Brooklyn.\n- Clients come by referral; Marina Okada is the biggest account this year.",
+      "voiceLabel": "How you write",
+      "voice": [
+        "Short messages, sometimes in bursts",
+        "Barely any periods; \"u\", \"tbh\", \"lmk\"",
+        "Laughs with \"haha\", emoji rare",
+        "Says yes with \"deal\" and \"let's go\"; no with \"can't this week\"",
+        "Signs off family chats with \"love u\""
+      ],
+      "accept": "Accept",
+      "reread": "Read my chats again",
+      "steps": [
+        {
+          "title": "Reads how you write.",
+          "text": "After the first scan, the AI reads your messages, your busiest chats and the groups you write in most."
+        },
+        {
+          "title": "Writes who you are.",
+          "text": "Where you live, work, family, who matters, what's going on. One topic per field, each one editable."
+        },
+        {
+          "title": "You accept or tweak.",
+          "text": "Triage knows who's who and every draft comes out in your tone. Changed jobs? Edit one line."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Privacy.tsx",
+      "kicker": "Privacy",
+      "title": "Your chats stay on your Mac.",
+      "dim": "Period.",
+      "points": [
+        {
+          "title": "Read-only",
+          "text": "Reads the database the official app already keeps on your Mac. Never writes to it."
+        },
+        {
+          "title": "No bot, no risk",
+          "text": "No extra linked device, no unofficial API. To WhatsApp, it's just you using the app."
+        },
+        {
+          "title": "No server of ours",
+          "text": "There's no zapzero cloud with your chats. Only the excerpt needed goes to the model you chose, with your own key."
+        },
+        {
+          "title": "Or nothing leaves at all",
+          "text": "Run a local model and not even the AI touches the internet."
+        },
+        {
+          "title": "Nothing sent without you",
+          "text": "zapzero doesn't send messages. It types. You hit Enter."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Keyboard.tsx",
+      "kicker": "On the keyboard",
+      "title": "Y, Y, Y. E, Y.",
+      "dim": "Cleared before your coffee gets cold.",
+      "sequence": "Y Y Y E Y",
+      "sequenceNote": "Reply, reply, reply, tweak one, reply. Hands never leave the keyboard.",
+      "shortcuts": [
+        {
+          "key": "Y",
+          "action": "Reply.",
+          "detail": "Opens the chat in WhatsApp with the text typed in. You hit Enter."
+        },
+        {
+          "key": "E",
+          "action": "Edit.",
+          "detail": "Tweak the draft before sending."
+        },
+        {
+          "key": "R",
+          "action": "New draft.",
+          "detail": "Don't like it? The AI writes another."
+        },
+        {
+          "key": "A",
+          "action": "Archive.",
+          "detail": "Needs no reply."
+        },
+        {
+          "key": "I",
+          "action": "Ignore forever.",
+          "detail": "Your great-aunt's good-morning GIFs, gone for good."
+        },
+        {
+          "key": "Z",
+          "action": "Undo.",
+          "detail": "Oops? Back it goes."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Pricing.tsx",
+      "kicker": "What it costs",
+      "title": "Cents a month.",
+      "dim": "Your key.",
+      "body": "Bring your own OpenRouter key and pay the AI provider directly, no middleman. Or run a local model and pay nothing.",
+      "figures": [
+        {
+          "value": "US$ 0.09",
+          "label": "to triage 1,600 chats and draft 110 replies"
+        },
+        {
+          "value": "0%",
+          "label": "markup: you pay the AI directly, with your own OpenRouter key"
+        },
+        {
+          "value": "$0",
+          "label": "with a local model"
+        }
+      ],
+      "notes": [
+        "Runs as an app inside deco Studio, or in any browser on your private network (Tailscale).",
+        "Open source: app + skill for any agent, so anyone can plug it into their own WhatsApp Desktop."
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Faq.tsx",
+      "kicker": "Questions",
+      "title": "What everyone asks.",
+      "items": [
+        {
+          "q": "Is it safe for my number?",
+          "a": "<p>Yes. zapzero doesn't connect to WhatsApp: it reads, read-only, the database the official app already keeps on your Mac. No bot, no extra device, no unofficial API, which is what usually gets numbers banned. To WhatsApp, it's just you using the app.</p>"
+        },
+        {
+          "q": "Does it send messages by itself?",
+          "a": "<p>Never. It opens the chat with the text typed in and stops there. You hit Enter. And anything that's a commitment (a date, an amount, yes or no) comes in brackets for you to decide.</p>"
+        },
+        {
+          "q": "Does it work on Windows? On iPhone?",
+          "a": "<p>Not yet. For now it's Mac only, with WhatsApp Desktop installed. The panel opens in any browser on your private network (Tailscale), phone included, but the Mac is what reads the chats.</p>"
+        },
+        {
+          "q": "Who sees my chats?",
+          "a": "<p>No one at zapzero: we have no server with your chats. Each chat's excerpt goes only to the AI model you pick, with your own key. With a local model, not even that leaves the Mac.</p>"
+        },
+        {
+          "q": "How much does it cost?",
+          "a": "<p>You only pay for the AI, directly to the provider. In practice: US$ 0.09 to triage 1,600 chats and draft 110 replies. With a local model, nothing.</p>"
+        },
+        {
+          "q": "Do I need deco Studio?",
+          "a": "<p>No. It runs as an app inside deco Studio, or on its own in the browser.</p>"
+        },
+        {
+          "q": "Is the panel in English?",
+          "a": "<p>Not yet: the panel is in Portuguese for now. English is on the roadmap, and contributions are welcome.</p>"
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Footer.tsx",
+      "closer": "Ready to clear it?",
+      "ctaLabel": "★ Star on GitHub",
+      "ctaHref": "https://github.com/vibegui/zapzero",
+      "domain": "zapzero.dev",
+      "links": [
+        {
+          "label": "How it works",
+          "href": "#como-funciona"
+        },
+        {
+          "label": "Areas",
+          "href": "#areas"
+        },
+        {
+          "label": "Your voice",
+          "href": "#seu-jeito"
+        },
+        {
+          "label": "Privacy",
+          "href": "#privacidade"
+        },
+        {
+          "label": "Questions",
+          "href": "#perguntas"
+        },
+        {
+          "label": "GitHub",
+          "href": "https://github.com/vibegui/zapzero"
+        }
+      ],
+      "fine": "zapzero isn't affiliated with WhatsApp or Meta. Names and messages on this page are fictional."
+    }
+  ]
+}
