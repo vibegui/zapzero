@@ -344,6 +344,69 @@ export function perfil() {
 	return text || "O dono deste WhatsApp.";
 }
 
+// ---- proposed meetings found in messages ----------------------------------------------------
+
+db.run(`create table if not exists proposals (
+	msg integer primary key, pk integer, at integer, mine integer, text text,
+	event integer, title text, start text, minutes integer,
+	status text, result text, event_id text, guests text)`);
+
+export type Proposal = {
+	msg: number;
+	pk: number;
+	at: number;
+	mine: number;
+	text: string;
+	/** 1 = a meeting/appointment with a day and time; 0 = looked at, not one */
+	event: number;
+	title: string | null;
+	/** local "YYYY-MM-DDTHH:mm" */
+	start: string | null;
+	minutes: number | null;
+	/** pending (owner hasn't decided), booking, booked, dismissed, error */
+	status: string;
+	result: string | null;
+	event_id: string | null;
+	guests: string | null;
+};
+
+export const proposalSeen = () =>
+	new Set(
+		db
+			.query<{ msg: number }, []>("select msg from proposals")
+			.all()
+			.map((r) => r.msg),
+	);
+
+export function saveProposal(p: Omit<Proposal, "status" | "result" | "event_id" | "guests">) {
+	db.query(
+		"insert or ignore into proposals (msg, pk, at, mine, text, event, title, start, minutes, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')",
+	).run(p.msg, p.pk, p.at, p.mine, p.text, p.event, p.title, p.start, p.minutes);
+}
+
+/** Meetings waiting on the owner, plus recent ones being booked or just booked, soonest first. */
+export const proposals = () =>
+	db
+		.query<Proposal, [number]>(
+			"select * from proposals where event = 1 and status != 'dismissed' and at > ? order by start",
+		)
+		.all(Date.now() - 14 * 86_400_000);
+
+export const proposal = (msg: number) =>
+	db.query<Proposal, [number]>("select * from proposals where msg = ?").get(msg);
+
+export function setProposal(
+	msg: number,
+	status: string,
+	result: string | null = null,
+	eventId: string | null = null,
+	guests: string | null = null,
+) {
+	db.query(
+		"update proposals set status = ?, result = coalesce(?, result), event_id = coalesce(?, event_id), guests = coalesce(?, guests) where msg = ?",
+	).run(status, result, eventId, guests, msg);
+}
+
 // ---- calendar events ------------------------------------------------------------------------
 
 export type EventRow = {

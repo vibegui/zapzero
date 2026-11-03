@@ -65,11 +65,16 @@ ok("panel built");
 if (!process.argv.includes("--no-launchd")) {
 	// The background server is its own small binary, so Full Disk Access (or the "access data from other
 	// apps" answer) goes to zapzero alone, not to bun, which runs every other script on the machine.
+	// Built once: the same file keeps its permission; updates only change the code it runs.
 	mkdirSync(`${DATA}/bin`, { recursive: true });
-	if (run(["bun", "build", "server/main.ts", "--compile", "--outfile", SERVER]).exitCode !== 0)
-		fail("server build failed", "Run `bun build server/main.ts --compile` to see why.");
-	run(["codesign", "-s", "-", "-f", "-i", LABEL, SERVER]);
-	ok(`server binary: ${SERVER}`);
+	if (!existsSync(SERVER)) {
+		if (
+			run(["bun", "build", "scripts/launcher.ts", "--compile", "--outfile", SERVER]).exitCode !== 0
+		)
+			fail("server build failed", "Run `bun build scripts/launcher.ts --compile` to see why.");
+		run(["codesign", "-s", "-", "-f", "-i", LABEL, SERVER]);
+	}
+	ok(`server program: ${SERVER}`);
 	mkdirSync(`${homedir()}/Library/LaunchAgents`, { recursive: true });
 	writeFileSync(
 		PLIST,
@@ -79,10 +84,13 @@ if (!process.argv.includes("--no-launchd")) {
 <dict>
 	<key>Label</key><string>${LABEL}</string>
 	<key>ProgramArguments</key>
-	<array><string>${SERVER}</string><string>serve</string></array>
+	<array><string>${SERVER}</string><string>server/main.ts</string><string>serve</string></array>
 	<key>WorkingDirectory</key><string>${process.cwd()}</string>
 	<key>EnvironmentVariables</key>
-	<dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+	<dict>
+		<key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+		<key>BUN_BE_BUN</key><string>1</string>
+	</dict>
 	<key>RunAtLoad</key><true/>
 	<key>KeepAlive</key><true/>
 	<key>ThrottleInterval</key><integer>30</integer>
@@ -105,7 +113,7 @@ if (!process.argv.includes("--no-launchd")) {
 	console.log(`  macOS asks before the server reads WhatsApp's folder. So it stops asking, give Full Disk Access
   to the server binary only (not bun): System Settings → Privacy & Security → Full Disk Access → +
   → ${SERVER}
-  Rebuilding it (setup again) changes the binary: turn it off and on there once more.`);
+  Done once: updates don't touch that file, so the permission stays.`);
 } else {
 	console.log("  – skipped launchd: start it with `bun run start`");
 }

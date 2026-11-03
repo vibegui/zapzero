@@ -151,3 +151,42 @@ export async function scheduleWithGuest(
 	if (m) return { ok: true, result: `CRIADO: ${m[3]}`, eventId: m[2]! };
 	return { ok: false, result: r.last.slice(0, 300) || r.all.slice(0, 300), eventId: null };
 }
+
+/** A meeting found in the messages, accepted by the owner: find it in the calendar or create it, invite who's known. */
+export function bookPrompt(
+	name: string,
+	title: string,
+	start: string,
+	minutes: number,
+	emails: string[],
+	text: string,
+) {
+	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	return `Eu (o dono deste WhatsApp) aceitei marcar este compromisso no meu calendário.
+
+Contato: «${name.replace(/[«»\n]/g, " ").slice(0, 60)}»
+Mensagem: «${text.replace(/[«»]/g, '"').slice(0, 600)}»
+Título: «${title.replace(/[«»\n]/g, " ").slice(0, 80)}»
+Início: ${start} (fuso ${tz}) · duração: ${minutes} min
+
+1. Liste meus eventos nesse dia. Se já houver um evento nesse horário (± 1 h) que seja esse compromisso, ${emails.length ? `adicione ${emails.join(", ")} como convidado(s) nele` : "não crie outro"}.
+2. Senão, crie o evento com esse título e horário, descrição "Combinado pelo WhatsApp (zapzero)"${emails.length ? `, convidados ${emails.join(", ")} e link de videochamada (Google Meet) se for call` : ", sem convidados"}.
+${emails.length ? `Convide só ${emails.join(", ")}.` : "Não convide ninguém."} Não apague nem mude nenhum outro evento.
+Termine com uma linha só: "CRIADO: <id do evento> | <dia e hora>", "EXISTE: <id do evento> | <dia e hora>" ou "ERRO: <motivo>".`;
+}
+
+export async function bookProposal(
+	name: string,
+	title: string,
+	start: string,
+	minutes: number,
+	emails: string[],
+	text: string,
+): Promise<{ ok: boolean; result: string; eventId: string | null }> {
+	const r = await run(bookPrompt(name, title, start, minutes, emails, text), SCHEDULE_TOOLS);
+	if (r.code !== 0)
+		return { ok: false, result: r.all.slice(0, 300) || `exit ${r.code}`, eventId: null };
+	const m = r.last.match(/^(CRIADO|EXISTE):\s*([\w-]+)\s*\|\s*(.+)$/);
+	if (m) return { ok: true, result: `${m[1]}: ${m[3]}`, eventId: m[2]! };
+	return { ok: false, result: r.last.slice(0, 300) || r.all.slice(0, 300), eventId: null };
+}

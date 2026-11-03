@@ -277,6 +277,23 @@ export function activeChats(
 }
 
 /** Every content message of the last `days` in DMs and groups, oldest first: the raw input for stats. */
+/** Text messages in DMs from the last `days`, both directions, for finding proposed meetings. */
+export function recentTexts(days: number) {
+	if (snapshotAt() == null) return [];
+	const db = open();
+	const since = Date.now() / 1000 - COCOA - days * 86400;
+	const rows = db
+		.query<{ msg: number; pk: number; mine: number; at: number; text: string }, [number]>(
+			`select m.Z_PK msg, m.ZCHATSESSION pk, m.ZISFROMME mine, m.ZMESSAGEDATE + ${COCOA} at, m.ZTEXT text
+			from ZWAMESSAGE m join ZWACHATSESSION s on s.Z_PK = m.ZCHATSESSION
+			where m.ZMESSAGEDATE > ? and m.ZMESSAGETYPE = 0 and s.ZSESSIONTYPE = 0 and length(m.ZTEXT) between 6 and 600
+			order by m.ZMESSAGEDATE`,
+		)
+		.all(since);
+	db.close();
+	return rows.map((r) => ({ ...r, mine: r.mine === 1, at: r.at * 1000 }));
+}
+
 export function messageLog(days: number): { pk: number; mine: boolean; at: number }[] {
 	if (snapshotAt() == null) return [];
 	const db = open();

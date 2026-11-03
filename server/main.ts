@@ -6,7 +6,8 @@ import { serveStatic } from "hono/bun";
 import { z } from "zod";
 import { hasTime } from "../web/slots.ts";
 import * as ai from "./ai.ts";
-import { addGuest, CLAUDE, createEvent, scheduleWithGuest } from "./calendar.ts";
+import { addGuest, bookProposal, CLAUDE, createEvent, scheduleWithGuest } from "./calendar.ts";
+import { emailsFor } from "./contacts.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
 import { buildInbox, CATEGORIES, findPendingInvite, type PendingInvite } from "./inbox.ts";
 import { cohorts, type Who, weekOf } from "./stats.ts";
@@ -36,6 +37,7 @@ function refresh(): Promise<void> {
 			await ai.drafts(say);
 			await ai.suggest(say);
 			await ai.learn(say);
+			await ai.detectProposals(say);
 		} catch (e) {
 			ok = false;
 			say(`erro: ${(e as Error).message}`);
@@ -109,6 +111,7 @@ app.get("/api/inbox", (c) => {
 		})),
 		categories: CATEGORIES.map((k) => ({ ...k, items: box[k.id] })),
 		calendar: CLAUDE != null,
+		proposals: proposalList(),
 	});
 });
 
@@ -131,6 +134,41 @@ app.get("/api/media/:pk", (c) => {
 });
 
 /** What the other person wrote in a chat, lowercased: e-mails to invite must appear here. */
+/** E-mails we may invite for a chat: the macOS contact's, and any the person wrote in the chat. */
+function knownEmails(pk: number, phone: string | null) {
+	const said = incoming(pk).match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? [];
+	return [...new Set([...emailsFor(phone), ...said])];
+}
+
+/** Who to invite: e-mails written in the proposal itself first, then the contact's and the chat's. */
+const proposalEmails = (p: store.Proposal, phone: string | null) => [
+	...new Set([
+		...(p.text.toLowerCase().match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? []),
+		...knownEmails(p.pk, phone),
+	]),
+];
+
+/** Meetings found in messages: upcoming, one per chat (the latest message wins). */
+function proposalList() {
+	const byPk = new Map(wa.chats().map((c) => [c.pk, c]));
+	const soon = Date.now() - 3_600_000;
+	const seen = new Set<string>();
+	return store
+		.proposals()
+		.sort((a, b) => b.at - a.at)
+		.filter((p) => {
+			const k = String(p.pk); // times get negotiated: the latest proposal in a chat is the live one
+			if (seen.has(k) || !p.start) return false;
+			seen.add(k);
+			return p.status !== "pending" || new Date(p.start).getTime() > soon;
+		})
+		.sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))
+		.map((p) => {
+			const c = byPk.get(p.pk);
+			return { ...p, name: c?.name ?? String(p.pk), emails: proposalEmails(p, c?.phone ?? null) };
+		});
+}
+
 const incoming = (pk: number) =>
 	wa
 		.messages(pk, 50)
@@ -314,6 +352,40 @@ app.post("/api/compose/:pk", async (c) => {
 	} catch (e) {
 		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
 	}
+});
+
+// the owner accepts a meeting found in the messages: their Claude books it (in the background) and invites
+// only e-mails we know for that person; or dismisses it
+app.post("/api/proposal/:msg", async (c) => {
+	const p = store.proposal(Number(c.req.param("msg")));
+	if (!p?.start || !p.event) return c.json({ error: "proposal" }, 404);
+	const b = z
+		.object({
+			action: z.enum(["accept", "dismiss"]),
+			emails: z.array(z.string()).max(10).default([]),
+		})
+		.safeParse(await c.req.json().catch(() => null));
+	if (!b.success) return c.json({ error: "invalid" }, 400);
+	if (b.data.action === "dismiss") {
+		store.setProposal(p.msg, "dismissed");
+		return c.json({ ok: true });
+	}
+	if (p.status === "booking" || p.status === "booked") return c.json({ ok: true });
+	const chat = wa.chats().find((x) => x.pk === p.pk);
+	const allowed = proposalEmails(p, chat?.phone ?? null);
+	const emails = b.data.emails.filter((e) => allowed.includes(e.toLowerCase()));
+	store.setProposal(p.msg, "booking", null, null, emails.join(","));
+	void bookProposal(
+		chat?.name ?? "",
+		p.title ?? "Compromisso",
+		p.start,
+		p.minutes ?? 60,
+		emails,
+		p.text,
+	)
+		.then((r) => store.setProposal(p.msg, r.ok ? "booked" : "error", r.result, r.eventId))
+		.catch((e) => store.setProposal(p.msg, "error", String(e).slice(0, 300)));
+	return c.json({ ok: true });
 });
 
 const Id = z.object({ id: z.string().min(1).max(80) });

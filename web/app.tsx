@@ -54,7 +54,7 @@ const ICONS: Record<CategoryId, typeof Flame> = {
 	limpeza: Archive,
 };
 
-const useInbox = () =>
+export const useInbox = () =>
 	useQuery({ queryKey: ["inbox"], queryFn: api.inbox, refetchInterval: 30_000, enabled: !!TOKEN });
 
 // ---- shell ---------------------------------------------------------------------------------
@@ -134,6 +134,17 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 						</Link>
 					);
 				})}
+				<Link
+					to="/agenda"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<CalendarDays className="size-4" />
+					<span className="flex-1 truncate">Proposta de agenda</span>
+					<span className="text-xs tabular-nums text-faint">
+						{inbox?.proposals.filter((p) => p.status === "pending").length || ""}
+					</span>
+				</Link>
 				<Areas inbox={inbox} />
 				<Link
 					to="/desempenho"

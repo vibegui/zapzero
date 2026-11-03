@@ -1,6 +1,6 @@
 import type { CategoryId, Item } from "../server/inbox.ts";
 import type { Week, Who } from "../server/stats.ts";
-import type { Decision, DecisionKind, Learned, Voice } from "../server/store.ts";
+import type { Decision, DecisionKind, Learned, Proposal, Voice } from "../server/store.ts";
 import type { Message } from "../server/wa.ts";
 
 export type { CategoryId, DecisionKind, Item, Message, Voice };
@@ -13,6 +13,8 @@ export type Inbox = {
 	voice: Voice;
 	/** style rules learned from the owner's edits, waiting for them */
 	learned: Learned | null;
+	/** meetings found in messages, waiting on the owner (or being booked) */
+	proposals: (Proposal & { name: string; emails: string[] })[];
 	/** Claude Code found: replies with a time can create a calendar event */
 	calendar: boolean;
 	areas: { id: string; label: string; builtin: boolean }[];
@@ -89,6 +91,8 @@ export const api = {
 	suggestVoice: () => call<Voice>("voice/suggest", {}),
 	compose: (pk: number, b: { template: string; picks: { slot: string; value: string }[] }) =>
 		call<{ text: string }>(`compose/${pk}`, b),
+	proposal: (msg: number, b: { action: "accept" | "dismiss"; emails?: string[] }) =>
+		call<{ ok: true }>(`proposal/${msg}`, b),
 	keepLearned: (keep: string[]) => call<Voice>("voice/learned", { keep }),
 };
 
