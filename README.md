@@ -34,14 +34,15 @@ The UI is in Portuguese for now.
 
 - macOS with [WhatsApp Desktop](https://www.whatsapp.com/download) linked to your phone. Linking syncs about the last 3 months of messages; older chats show in the list without text.
 - [Bun](https://bun.com) 1.3+.
-- An [OpenRouter](https://openrouter.ai/keys) key. Triage uses OpenRouter's decisions API with the Jev model (`typesafe/jev-1.14`, about US$0.00005 per chat); drafts and suggestions use a small chat model (`anthropic/claude-haiku-5.5` by default). Real numbers from one account: US$0.09 to triage 1,600 chats and draft 110 replies.
+- [Claude Code](https://claude.com/claude-code), logged in. zapzero runs it headless (`claude -p`, no tools, no MCP) and your Claude subscription pays for triage, drafts, rewrites, profile and suggestions. Nothing else to pay or configure.
+- Optional: an [OpenRouter](https://openrouter.ai/keys) key. It unlocks Jev (`typesafe/jev-1.14`) for triage: faster than batching through Claude and about US$0.00005 per chat (US$0.09 to triage 1,600 chats). Without Claude Code, OpenRouter also runs the chat model (`ZAP_LLM=openrouter`).
 
 ## Install
 
 ```sh
 git clone https://github.com/vibegui/zapzero && cd zapzero
 bun install
-cp .env.example .env        # paste your OpenRouter key
+cp .env.example .env        # optional: your OpenRouter key, for Jev
 bun run setup
 ```
 

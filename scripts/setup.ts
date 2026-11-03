@@ -3,6 +3,7 @@
 import { existsSync, lstatSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { DATA, OPENROUTER_API_KEY, PORT, TOKEN, WA_DIR } from "../server/env.ts";
+import { LLM, llmLabel } from "../server/llm.ts";
 import * as wa from "../server/wa.ts";
 
 const LABEL = "dev.zapzero.server";
@@ -43,12 +44,17 @@ Detail: ${(e as Error).message.slice(0, 200)}`,
 }
 ok(`read-only snapshot: ${wa.chats().length} chats`);
 
-if (!OPENROUTER_API_KEY)
+if (LLM === "none")
 	fail(
-		"OPENROUTER_API_KEY missing",
-		"cp .env.example .env and paste your key from https://openrouter.ai/keys\nTriage uses OpenRouter's decisions API (Jev); drafts use a small chat model.",
+		"no model to read your chats",
+		"Install Claude Code (https://claude.com/claude-code) and log in: zapzero uses your Claude subscription.\nOr put OPENROUTER_API_KEY in .env (cp .env.example .env).",
 	);
-ok("OpenRouter key");
+ok(`model: ${llmLabel()}`);
+ok(
+	OPENROUTER_API_KEY
+		? "triage: Jev on OpenRouter (fast, fractions of a cent)"
+		: "triage: your Claude, in batches (optional: OPENROUTER_API_KEY in .env unlocks Jev, faster and cheaper)",
+);
 
 console.log("\n  building the panel…");
 if (run(["bun", "run", "build"]).exitCode !== 0)
