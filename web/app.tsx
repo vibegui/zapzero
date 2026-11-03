@@ -720,7 +720,10 @@ function Focus({
 								{item.group && !m.mine && (
 									<div className="mb-0.5 text-[11px] font-medium text-accent">{m.who}</div>
 								)}
-								<div className="whitespace-pre-wrap break-words">{m.text}</div>
+								{m.media && <Media pk={m.pk} />}
+								{!(m.media && /^\[(imagem|sticker)\]$/.test(m.text)) && (
+									<div className="whitespace-pre-wrap break-words">{m.text}</div>
+								)}
 								<div className="mt-0.5 text-right text-[10px] text-faint">
 									{new Date(m.at).toLocaleTimeString("pt-BR", {
 										hour: "2-digit",
@@ -1164,5 +1167,20 @@ export function VoiceScreen() {
 				</span>
 			</div>
 		</section>
+	);
+}
+
+function Media({ pk }: { pk: number }) {
+	const q = useQuery({
+		queryKey: ["media", pk],
+		queryFn: () => api.media(pk),
+		staleTime: Infinity,
+	});
+	if (q.isError) return null;
+	if (!q.data) return <div className="h-40 w-56 animate-pulse rounded-lg bg-sunken" />;
+	return (
+		<a href={q.data} target="_blank" rel="noreferrer">
+			<img src={q.data} alt="" className="mb-1 max-h-72 max-w-full rounded-lg object-contain" />
+		</a>
 	);
 }

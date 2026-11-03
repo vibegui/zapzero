@@ -1,6 +1,6 @@
 // Reads the read-only snapshot of WhatsApp Desktop's database. Never touches the app's own files except to copy them.
 import { Database } from "bun:sqlite";
-import { renameSync, rmSync, statSync } from "node:fs";
+import { existsSync, renameSync, rmSync, statSync } from "node:fs";
 import { DATA, WA_DIR } from "./env.ts";
 
 const COCOA = 978307200;
@@ -175,7 +175,38 @@ export function chats(): Chat[] {
 	return out;
 }
 
-export type Message = { pk: number; mine: boolean; at: number; who: string; text: string };
+export type Message = {
+	pk: number;
+	mine: boolean;
+	at: number;
+	who: string;
+	text: string;
+	/** an image or sticker the Mac has on disk: GET /api/media/<pk> */
+	media?: true;
+};
+
+const MEDIA = `${WA_DIR}/Message/`;
+const IMAGE = new Set([1, 15]);
+
+/** Where an image or sticker of this message lives on disk (full file, else its thumbnail), inside WhatsApp's Message folder only. */
+export function mediaFile(msgPk: number): string | null {
+	if (snapshotAt() == null) return null;
+	const db = open();
+	const r = db
+		.query<{ kind: number; file: string | null; thumb: string | null }, [number]>(
+			`select m.ZMESSAGETYPE kind, i.ZMEDIALOCALPATH file, i.ZXMPPTHUMBPATH thumb
+			from ZWAMESSAGE m join ZWAMEDIAITEM i on i.Z_PK = m.ZMEDIAITEM where m.Z_PK = ?`,
+		)
+		.get(msgPk);
+	db.close();
+	if (!r || !IMAGE.has(r.kind)) return null;
+	for (const rel of [r.file, r.thumb]) {
+		if (!rel || rel.includes("..")) continue;
+		const f = MEDIA + rel;
+		if (existsSync(f)) return f;
+	}
+	return null;
+}
 
 /** Last n content messages of a chat, oldest first. */
 export function messages(pk: number, n = 20): Message[] {
@@ -190,12 +221,14 @@ export function messages(pk: number, n = 20): Message[] {
 				who: string | null;
 				text: string | null;
 				kind: number;
+				path: string | null;
 			},
 			[number, number]
 		>(
 			`select m.Z_PK pk, m.ZISFROMME mine, m.ZMESSAGEDATE + ${COCOA} at, coalesce(g.ZCONTACTNAME, m.ZPUSHNAME) who,
-			  m.ZTEXT text, m.ZMESSAGETYPE kind
+			  m.ZTEXT text, m.ZMESSAGETYPE kind, coalesce(i.ZMEDIALOCALPATH, i.ZXMPPTHUMBPATH) path
 			from ZWAMESSAGE m left join ZWAGROUPMEMBER g on g.Z_PK = m.ZGROUPMEMBER
+			left join ZWAMEDIAITEM i on i.Z_PK = m.ZMEDIAITEM
 			where m.ZCHATSESSION = ? and m.ZMESSAGETYPE in (${CONTENT}) order by m.ZSORT desc limit ?`,
 		)
 		.all(pk, n);
@@ -206,6 +239,7 @@ export function messages(pk: number, n = 20): Message[] {
 		at: r.at * 1000,
 		who: r.mine ? "Você" : (r.who ?? ""),
 		text: body(r.text, r.kind).slice(0, 2000),
+		...(IMAGE.has(r.kind) && r.path ? { media: true as const } : {}),
 	}));
 }
 

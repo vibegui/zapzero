@@ -111,6 +111,12 @@ app.get("/api/inbox", (c) => {
 });
 
 app.get("/api/chat/:pk", (c) => c.json(wa.messages(Number(c.req.param("pk")), 30)));
+// read-only: an image file from WhatsApp's own Message folder, never a path from the request
+app.get("/api/media/:pk", (c) => {
+	const f = wa.mediaFile(Number(c.req.param("pk")));
+	if (!f) return c.json({ error: "media" }, 404);
+	return new Response(Bun.file(f), { headers: { "cache-control": "private, max-age=86400" } });
+});
 
 /** What the other person wrote in a chat, lowercased: e-mails to invite must appear here. */
 const incoming = (pk: number) =>
