@@ -132,6 +132,69 @@
       ]
     },
     {
+      "__resolveType": "site/sections/Areas.tsx",
+      "kicker": "Áreas",
+      "title": "Categorias dizem quando.",
+      "dim": "Áreas dizem quem.",
+      "body": "Além de urgente, essa semana ou parada, cada conversa ganha uma área: cliente, contratação, família, alguém tentando te vender algo. Abre Clientes e vê só os clientes esperando você.",
+      "areas": [
+        {
+          "label": "Clientes",
+          "count": 15
+        },
+        {
+          "label": "Hiring",
+          "count": 14
+        },
+        {
+          "label": "Time",
+          "count": 19
+        },
+        {
+          "label": "Investidores",
+          "count": 23
+        },
+        {
+          "label": "Parceiros",
+          "count": 48
+        },
+        {
+          "label": "Família",
+          "count": 3
+        },
+        {
+          "label": "Amigos",
+          "count": 25
+        },
+        {
+          "label": "Casa e serviços",
+          "count": 17
+        },
+        {
+          "label": "Te vendendo algo",
+          "count": 5
+        },
+        {
+          "label": "Outros",
+          "count": 42
+        }
+      ],
+      "suggestionsLabel": "A IA sugere áreas novas",
+      "suggestions": [
+        {
+          "label": "Reforma do apê",
+          "count": 6,
+          "reason": "Seis conversas com marceneiro, arquiteta e síndico sobre a mesma obra, hoje espalhadas entre Casa e Outros."
+        },
+        {
+          "label": "Eventos e palestras",
+          "count": 7,
+          "reason": "Vários convites e combinados de eventos, lives e painéis, sem área própria."
+        }
+      ],
+      "note": "Uma vez por dia ela olha o que está pendente e propõe áreas que as suas não cobrem. Aceitou, vira área e ela reclassifica o resto."
+    },
+    {
       "__resolveType": "site/sections/Privacy.tsx",
       "kicker": "Privacidade",
       "title": "Suas conversas ficam no seu Mac.",
@@ -265,6 +328,10 @@
         {
           "label": "Como funciona",
           "href": "#como-funciona"
+        },
+        {
+          "label": "Áreas",
+          "href": "#areas"
         },
         {
           "label": "Privacidade",

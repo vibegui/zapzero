@@ -26,6 +26,10 @@
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
           "namespace": "site"
         },
+        "site/sections/Areas.tsx": {
+          "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+          "namespace": "site"
+        },
         "site/sections/Footer.tsx": {
           "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
           "namespace": "site"
@@ -1032,6 +1036,10 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
               },
@@ -1338,6 +1346,10 @@
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
                     },
                     {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
+                    },
+                    {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
                     },
@@ -1405,6 +1417,10 @@
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
               },
               {
+                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
+              },
+              {
                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
               },
@@ -1466,6 +1482,10 @@
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
                       "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                    },
+                    {
+                      "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+                      "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
                     },
                     {
                       "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
@@ -1559,6 +1579,10 @@
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
                                 "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+                              },
+                              {
+                                "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+                                "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
                               },
                               {
                                 "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
@@ -2133,6 +2157,113 @@
           }
         }
       },
+      "c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props": {
+        "type": "object",
+        "properties": {
+          "kicker": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "title": "Título"
+          },
+          "dim": {
+            "type": "string",
+            "nullable": true,
+            "title": "Segunda linha (mais clara)"
+          },
+          "body": {
+            "type": "string",
+            "nullable": true,
+            "title": "Texto"
+          },
+          "areas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "title": "Nome"
+                },
+                "count": {
+                  "type": "number",
+                  "title": "Conversas"
+                }
+              },
+              "required": [
+                "label",
+                "count"
+              ],
+              "titleBy": "label"
+            },
+            "nullable": true,
+            "title": "Áreas"
+          },
+          "suggestionsLabel": {
+            "type": "string",
+            "nullable": true,
+            "title": "Rótulo das sugestões"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "title": "Nome da área sugerida"
+                },
+                "count": {
+                  "type": "number",
+                  "title": "Conversas"
+                },
+                "reason": {
+                  "type": "string",
+                  "title": "Por que a IA sugeriu"
+                }
+              },
+              "required": [
+                "label",
+                "count",
+                "reason"
+              ],
+              "titleBy": "label"
+            },
+            "nullable": true,
+            "title": "Sugestões da IA"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "title": "Nota"
+          }
+        }
+      },
+      "c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=": {
+        "title": "site/sections/Areas.tsx",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
+          }
+        ],
+        "required": [
+          "__resolveType"
+        ],
+        "properties": {
+          "__resolveType": {
+            "type": "string",
+            "enum": [
+              "site/sections/Areas.tsx"
+            ],
+            "default": "site/sections/Areas.tsx"
+          }
+        }
+      },
       "c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props": {
         "type": "object",
         "properties": {
@@ -2358,6 +2489,10 @@
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
           },
           {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
+          },
+          {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props"
           },
@@ -2415,6 +2550,10 @@
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9QYW5lbE1vY2sudHN4",
             "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL1BhbmVsTW9jay50c3g=@Props"
+          },
+          {
+            "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9BcmVhcy50c3g=",
+            "inputSchema": "#/definitions/c3JjL3NlY3Rpb25zL0FyZWFzLnRzeA==@Props"
           },
           {
             "$ref": "#/definitions/c2l0ZS9zZWN0aW9ucy9Gb290ZXIudHN4",
