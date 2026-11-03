@@ -7,7 +7,8 @@
     "title": "zapzero · Inbox zero pro WhatsApp",
     "description": "Zere o WhatsApp. A IA tria cada conversa e rascunha a resposta no seu jeito de escrever. Sem bot, sem risco, sem sair do seu Mac.",
     "type": "website",
-    "noIndexing": true
+    "noIndexing": true,
+    "image": "https://zapzero.dev/og.png"
   },
   "sections": [
     {
