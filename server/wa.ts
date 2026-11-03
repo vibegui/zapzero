@@ -139,7 +139,15 @@ export function chats(): Chat[] {
 	const out = rows.map((r): Chat => {
 		const group = r.type !== 0;
 		const phoneJid = r.jid.endsWith("@s.whatsapp.net") ? r.jid : r.phoneJid;
-		const phone = !group && phoneJid?.endsWith("@s.whatsapp.net") ? phoneJid.split("@")[0]! : null;
+		// @lid chats with no address-book match: WhatsApp names them by the number ("+55 21 9…")
+		const shown = r.name?.replace(/[^+\d]/g, "") ?? "";
+		const phone = group
+			? null
+			: phoneJid?.endsWith("@s.whatsapp.net")
+				? phoneJid.split("@")[0]!
+				: /^\+\d{8,15}$/.test(shown)
+					? shown.slice(1)
+					: null;
 		let name = r.fullName || r.name || "";
 		if (!group && (!name || name.startsWith("+")) && r.push && !r.push.endsWith("="))
 			name = `~${r.push}${phone ? ` · +${phone}` : ""}`;
