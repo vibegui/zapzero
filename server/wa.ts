@@ -195,3 +195,21 @@ export function ownSamples(n = 25): string[] {
 	db.close();
 	return rows.map((r) => r.text.replace(/\s+/g, " "));
 }
+
+/** The chats with the most messages in the last `days`, busiest first: context for who the owner is. */
+export function activeChats(
+	days: number,
+	n: number,
+): { pk: number; count: number; mine: number }[] {
+	if (snapshotAt() == null) return [];
+	const db = open();
+	const since = Date.now() / 1000 - COCOA - days * 86400;
+	const rows = db
+		.query<{ pk: number; count: number; mine: number }, [number, number]>(
+			`select ZCHATSESSION pk, count(*) count, sum(ZISFROMME) mine from ZWAMESSAGE
+			where ZMESSAGEDATE > ? and ZMESSAGETYPE in (${CONTENT}) group by ZCHATSESSION order by count desc limit ?`,
+		)
+		.all(since, n);
+	db.close();
+	return rows;
+}

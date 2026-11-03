@@ -30,6 +30,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { PROFILE_TOPICS, type Profile } from "../server/profile.ts";
 import {
 	ago,
 	api,
@@ -783,67 +784,69 @@ export function VoiceScreen() {
 	const qc = useQueryClient();
 	const inbox = useInbox();
 	const v = inbox.data?.voice;
-	const [perfil, setPerfil] = useState<string | null>(null);
+	// local edits only; null = show what the server has
+	const [edits, setEdits] = useState<Partial<Profile>>({});
 	const [voz, setVoz] = useState<string | null>(null);
-	const p = perfil ?? v?.perfil ?? "";
+	const perfil = { ...(v?.perfil ?? ({} as Profile)), ...edits };
 	const z = voz ?? v?.voz ?? "";
-	const refresh = () => qc.invalidateQueries({ queryKey: ["inbox"] });
+	const reset = () => {
+		setEdits({});
+		setVoz(null);
+		qc.invalidateQueries({ queryKey: ["inbox"] });
+	};
 	const save = useMutation({
-		mutationFn: () => api.saveVoice({ perfil: p, voz: z }),
-		onSuccess: () => {
-			setPerfil(null);
-			setVoz(null);
-			refresh();
-		},
+		mutationFn: () => api.saveVoice({ perfil, voz: z }),
+		onSuccess: reset,
 	});
-	const regen = useMutation({
-		mutationFn: api.suggestVoice,
-		onSuccess: () => {
-			setPerfil(null);
-			setVoz(null);
-			refresh();
-		},
-	});
-	const dirty = perfil != null || voz != null;
+	const regen = useMutation({ mutationFn: api.suggestVoice, onSuccess: reset });
+	const dirty = Object.keys(edits).length > 0 || voz != null;
 	if (!v) return <Blank title="Lendo…">Carregando.</Blank>;
+	const field =
+		"mt-1.5 w-full resize-y rounded-xl border border-line bg-panel px-4 py-2.5 text-[14px] leading-relaxed outline-none [field-sizing:content] focus:border-accent";
 	return (
 		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-8">
 			<h1 className="text-[22px] font-semibold tracking-tight">Seu jeito</h1>
 			<p className="mt-1 text-sm text-muted">
 				{v.state === "suggested"
-					? `A IA leu ${v.samples} mensagens suas e escreveu isto. Os rascunhos seguem esse texto: aceite ou ajuste.`
+					? "A IA leu suas mensagens, suas conversas mais ativas e seus grupos, e escreveu isto. A triagem e os rascunhos seguem esse texto: aceite ou ajuste cada parte."
 					: v.state === "accepted"
-						? "Os rascunhos seguem este texto. Mude quando quiser."
-						: "Depois do primeiro scan a IA preenche isto a partir das suas mensagens."}
+						? "A triagem e os rascunhos seguem este texto. Mude quando quiser."
+						: "Depois do primeiro scan a IA preenche isto a partir das suas conversas."}
 			</p>
-			<label className="mt-6 block text-[13px] font-medium" htmlFor="perfil">
-				Quem é você
-			</label>
-			<p className="text-xs text-faint">
-				O que a triagem e os rascunhos precisam saber: o que você faz, quem importa.
-			</p>
-			<textarea
-				id="perfil"
-				value={p}
-				onChange={(e) => setPerfil(e.target.value)}
-				className="mt-2 min-h-28 w-full resize-y rounded-xl border border-line bg-panel px-4 py-3 text-[14px] leading-relaxed outline-none [field-sizing:content] focus:border-accent"
-			/>
-			<label className="mt-6 block text-[13px] font-medium" htmlFor="voz">
-				Como você escreve
-			</label>
+
+			<h2 className="mt-8 text-[15px] font-semibold">Quem é você</h2>
+			<div className="mt-2 grid gap-5">
+				{PROFILE_TOPICS.map((t) => (
+					<div key={t.id}>
+						<label className="block text-[13px] font-medium" htmlFor={`p-${t.id}`}>
+							{t.label}
+						</label>
+						<p className="text-xs text-faint">{t.hint}</p>
+						<textarea
+							id={`p-${t.id}`}
+							value={perfil[t.id] ?? ""}
+							onChange={(e) => setEdits((x) => ({ ...x, [t.id]: e.target.value }))}
+							placeholder="—"
+							className={clsx(field, "min-h-11")}
+						/>
+					</div>
+				))}
+			</div>
+
+			<h2 className="mt-10 text-[15px] font-semibold">Como você escreve</h2>
 			<p className="text-xs text-faint">
 				Tamanho, tom, pontuação, emoji, expressões suas. Um tópico por linha.
 			</p>
 			<textarea
-				id="voz"
 				value={z}
 				onChange={(e) => setVoz(e.target.value)}
-				className="mt-2 min-h-56 w-full resize-y rounded-xl border border-line bg-panel px-4 py-3 font-mono text-[13px] leading-relaxed outline-none [field-sizing:content] focus:border-accent"
+				className={clsx(field, "min-h-56 font-mono text-[13px]")}
 			/>
-			<div className="mt-4 flex flex-wrap items-center gap-2">
+
+			<div className="sticky bottom-0 mt-6 flex flex-wrap items-center gap-2 border-t border-line bg-bg py-4">
 				<button
 					type="button"
-					disabled={!p.trim() || save.isPending}
+					disabled={save.isPending}
 					onClick={() => save.mutate()}
 					className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-4 text-[13px] font-medium text-accent-ink hover:brightness-110 disabled:opacity-50"
 				>
@@ -861,16 +864,16 @@ export function VoiceScreen() {
 					) : (
 						<Sparkles className="size-3.5" />
 					)}
-					Ler minhas mensagens de novo
+					Ler minhas conversas de novo
 				</button>
 				{save.isSuccess && !dirty && <span className="text-xs text-accent">Salvo.</span>}
 				{(save.error || regen.error) && (
 					<span className="text-xs text-hot">{((save.error || regen.error) as Error).message}</span>
 				)}
+				<span className="ml-auto text-xs text-faint">
+					Ler de novo substitui tudo pelo que a IA sugerir agora.
+				</span>
 			</div>
-			<p className="mt-3 text-xs text-faint">
-				Ler de novo substitui os dois textos pelo que a IA sugerir agora.
-			</p>
 		</section>
 	);
 }

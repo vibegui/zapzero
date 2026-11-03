@@ -52,7 +52,7 @@ export const api = {
 	area: (action: "accept" | "dismiss" | "remove", id: string) =>
 		call<{ ok: true }>(`areas/${action}`, { id }),
 	suggest: () => call<{ ok: true; count: number }>("suggest", {}),
-	saveVoice: (b: { perfil: string; voz: string }) => call<{ ok: true }>("voice", b),
+	saveVoice: (b: { perfil: Record<string, string>; voz: string }) => call<{ ok: true }>("voice", b),
 	suggestVoice: () => call<Voice>("voice/suggest", {}),
 };
 

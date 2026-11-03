@@ -2,6 +2,7 @@
 import { Database } from "bun:sqlite";
 import { readFileSync } from "node:fs";
 import { DATA } from "./env.ts";
+import { PROFILE_TOPICS, type Profile } from "./profile.ts";
 
 export const db = new Database(`${DATA}/zap.sqlite`, { create: true });
 db.run("pragma journal_mode = wal");
@@ -251,39 +252,59 @@ export function removeArea(id: string) {
 
 // ---- the owner: who they are and how they write ---------------------------------------------
 
+export { PROFILE_TOPICS, type Profile, type ProfileTopic } from "./profile.ts";
+
 export type Voice = {
-	perfil: string;
+	perfil: Profile;
 	voz: string;
 	/** suggested = written by the model after the first scan, waiting for the owner; accepted = owner's */
 	state: "empty" | "suggested" | "accepted";
 	samples: number;
 };
 
+const emptyProfile = () => Object.fromEntries(PROFILE_TOPICS.map((t) => [t.id, ""])) as Profile;
+
 export function voice(): Voice {
-	let perfil = kvGet("perfil") ?? "";
-	if (!perfil) {
-		try {
-			perfil = readFileSync(`${DATA}/perfil.txt`, "utf8").trim(); // older installs
-		} catch {}
+	const perfil = emptyProfile();
+	const raw = kvGet("perfil_v2");
+	if (raw) Object.assign(perfil, JSON.parse(raw));
+	else {
+		// older installs: one free-text profile (kv or perfil.txt) goes into "outros"
+		let old = kvGet("perfil") ?? "";
+		if (!old) {
+			try {
+				old = readFileSync(`${DATA}/perfil.txt`, "utf8").trim();
+			} catch {}
+		}
+		perfil.outros = old;
 	}
+	const filled = Object.values(perfil).some((v) => v.trim());
 	return {
 		perfil,
 		voz: kvGet("voz") ?? "",
-		state: (kvGet("voice_state") as Voice["state"]) ?? (perfil ? "accepted" : "empty"),
+		state: (kvGet("voice_state") as Voice["state"]) ?? (filled ? "accepted" : "empty"),
 		samples: Number(kvGet("voice_samples") ?? 0),
 	};
 }
 
 export function saveVoice(
-	v: { perfil: string; voz: string },
+	v: { perfil: Partial<Profile>; voz: string },
 	state: "suggested" | "accepted",
 	samples?: number,
 ) {
-	kvSet("perfil", v.perfil.trim());
+	const perfil = emptyProfile();
+	for (const t of PROFILE_TOPICS) perfil[t.id] = (v.perfil[t.id] ?? "").trim();
+	kvSet("perfil_v2", JSON.stringify(perfil));
 	kvSet("voz", v.voz.trim());
 	kvSet("voice_state", state);
 	if (samples != null) kvSet("voice_samples", String(samples));
 }
 
-/** Who the owner is, for every prompt. */
-export const perfil = () => voice().perfil || "O dono deste WhatsApp.";
+/** Who the owner is, for every prompt: the filled topics as labelled lines. */
+export function perfil() {
+	const p = voice().perfil;
+	const text = PROFILE_TOPICS.filter((t) => p[t.id].trim())
+		.map((t) => `${t.label}: ${p[t.id].trim()}`)
+		.join("\n");
+	return text || "O dono deste WhatsApp.";
+}

@@ -157,7 +157,10 @@ app.post("/api/areas/:action", async (c) => {
 	return c.json({ ok: true });
 });
 
-const VoiceBody = z.object({ perfil: z.string().max(4000), voz: z.string().max(8000) });
+const VoiceBody = z.object({
+	perfil: z.record(z.string(), z.string().max(4000)),
+	voz: z.string().max(8000),
+});
 app.post("/api/voice", async (c) => {
 	const p = VoiceBody.safeParse(await c.req.json().catch(() => null));
 	if (!p.success) return c.json({ error: "invalid" }, 400);
