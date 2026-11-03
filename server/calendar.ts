@@ -13,6 +13,9 @@ export const CLAUDE = process.env.ZAP_CLAUDE ?? CANDIDATES.find((p) => existsSyn
 /** The one tool the headless Claude may call. Any other tool (built-in or MCP) is denied. */
 export const CALENDAR_TOOL =
 	process.env.ZAP_CALENDAR_TOOL ?? "mcp__claude_ai_Google_Calendar__create_event";
+/** For adding a guest later: the only tool that second run may call. */
+export const CALENDAR_UPDATE_TOOL =
+	process.env.ZAP_CALENDAR_UPDATE_TOOL ?? "mcp__claude_ai_Google_Calendar__update_event";
 const MODEL = process.env.ZAP_AGENT_MODEL; // unset: the owner's Claude Code default
 
 export function eventPrompt(name: string, reply: string, invite: string[] = [], now = new Date()) {
@@ -38,24 +41,32 @@ ${
 		: "- Sem convidados e sem videochamada: o evento é só no meu calendário."
 }
 - Se a resposta não tiver um horário combinado, não crie nada.
-Termine com uma linha só: "CRIADO: <dia e hora>" ou "NAO_CRIADO: <motivo>".`;
+Termine com uma linha só: "CRIADO: <id do evento> | <dia e hora>" ou "NAO_CRIADO: <motivo>".`;
 }
 
-/** Runs the owner's Claude with only the calendar tool allowed. Never throws: returns what happened. */
-export async function createEvent(
-	name: string,
-	reply: string,
-	invite: string[] = [],
-): Promise<{ ok: boolean; result: string }> {
-	if (!CLAUDE) return { ok: false, result: "Claude Code não encontrado (defina ZAP_CLAUDE)" };
+export function invitePrompt(eventId: string, email: string) {
+	return `No meu calendário, adicione um convidado ao evento ${eventId}, com a ferramenta de editar evento:
+- adicione só ${email} como convidado (os convidados que já estão continuam);
+- inclua um link de videochamada (Google Meet) se ainda não tiver;
+- mande o convite por e-mail a ele;
+- não mude data, horário, título nem nada mais.
+Termine com uma linha só: "ADICIONADO: ${email}" ou "ERRO: <motivo>".`;
+}
+
+/** Runs the owner's Claude with one calendar tool allowed (nothing built-in). Never throws. */
+async function run(
+	prompt: string,
+	tool: string,
+): Promise<{ code: number; last: string; all: string }> {
+	if (!CLAUDE) return { code: -1, last: "", all: "Claude Code não encontrado (defina ZAP_CLAUDE)" };
 	const args = [
 		CLAUDE,
 		"-p",
-		eventPrompt(name, reply, invite),
+		prompt,
 		"--tools",
 		"",
 		"--allowedTools",
-		CALENDAR_TOOL,
+		tool,
 		"--no-session-persistence",
 	];
 	if (MODEL) args.push("--model", MODEL);
@@ -67,8 +78,36 @@ export async function createEvent(
 	]);
 	clearTimeout(timer);
 	await p.exited;
-	const last = out.trim().split("\n").at(-1)?.trim() ?? "";
-	if (p.exitCode !== 0)
-		return { ok: false, result: (err || out).trim().slice(0, 300) || `exit ${p.exitCode}` };
-	return { ok: last.startsWith("CRIADO"), result: last.slice(0, 300) || out.trim().slice(0, 300) };
+	const all = (p.exitCode === 0 ? out : err || out).trim();
+	return { code: p.exitCode ?? -1, last: out.trim().split("\n").at(-1)?.trim() ?? "", all };
+}
+
+/** Creates the event the owner's reply agrees to. `eventId` comes back so a guest can be added later. */
+export async function createEvent(
+	name: string,
+	reply: string,
+	invite: string[] = [],
+): Promise<{ ok: boolean; result: string; eventId: string | null }> {
+	const r = await run(eventPrompt(name, reply, invite), CALENDAR_TOOL);
+	if (r.code !== 0)
+		return { ok: false, result: r.all.slice(0, 300) || `exit ${r.code}`, eventId: null };
+	const m = r.last.match(/^CRIADO:\s*([\w-]+)\s*\|\s*(.+)$/);
+	if (m) return { ok: true, result: `CRIADO: ${m[2]}`, eventId: m[1]! };
+	return {
+		ok: r.last.startsWith("CRIADO"),
+		result: r.last.slice(0, 300) || r.all.slice(0, 300),
+		eventId: null,
+	};
+}
+
+export async function addGuest(
+	eventId: string,
+	email: string,
+): Promise<{ ok: boolean; result: string }> {
+	const r = await run(invitePrompt(eventId, email), CALENDAR_UPDATE_TOOL);
+	if (r.code !== 0) return { ok: false, result: r.all.slice(0, 300) || `exit ${r.code}` };
+	return {
+		ok: r.last.startsWith("ADICIONADO"),
+		result: r.last.slice(0, 300) || r.all.slice(0, 300),
+	};
 }

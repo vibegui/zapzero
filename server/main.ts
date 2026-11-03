@@ -5,7 +5,7 @@ import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { z } from "zod";
 import * as ai from "./ai.ts";
-import { CLAUDE, createEvent } from "./calendar.ts";
+import { addGuest, CLAUDE, createEvent } from "./calendar.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
 import { buildInbox, CATEGORIES } from "./inbox.ts";
 import { cohorts, type Who, weekOf } from "./stats.ts";
@@ -85,6 +85,14 @@ app.get("/api/inbox", (c) => {
 
 app.get("/api/chat/:pk", (c) => c.json(wa.messages(Number(c.req.param("pk")), 30)));
 
+/** What the other person wrote in a chat, lowercased: e-mails to invite must appear here. */
+const incoming = (pk: number) =>
+	wa
+		.messages(pk, 50)
+		.filter((m) => !m.mine)
+		.map((m) => m.text.toLowerCase())
+		.join("\n");
+
 const Decide = z.object({
 	pk: z.number().int(),
 	lastPk: z.number().int(),
@@ -125,25 +133,56 @@ app.post("/api/decide", async (c) => {
 	if (kind === "reply" && p.data.event && text) {
 		// the owner's click is the approval; their Claude creates it in the background (~15 s)
 		event = true;
-		store.eventStart(pk, lastPk, text);
-		const said = wa
-			.messages(pk, 50)
-			.filter((m) => !m.mine)
-			.map((m) => m.text.toLowerCase())
-			.join("\n");
+		const said = incoming(pk);
 		const invite = (p.data.invite ?? [])
 			.map((e) => e.toLowerCase())
 			.filter((e) => said.includes(e));
+		store.eventStart(pk, lastPk, text, invite);
 		void createEvent(chat.name, text, invite).then((r) =>
 			store.eventDone(
 				pk,
 				lastPk,
 				r.ok ? "ok" : r.result.startsWith("NAO_CRIADO") ? "skipped" : "error",
 				r.result,
+				r.eventId,
 			),
 		);
 	}
 	return c.json({ ok: true, via, event });
+});
+
+// The chat's latest calendar event, so the panel can offer adding the e-mail the person sent afterwards.
+app.get("/api/event/:pk", (c) => {
+	const e = store.latestEvent(Number(c.req.param("pk")));
+	return c.json(
+		e && {
+			lastPk: e.last_pk,
+			when: e.result?.replace(/^CRIADO:\s*/, "") ?? "",
+			guests: e.guests?.split(",").filter(Boolean) ?? [],
+		},
+	);
+});
+
+let inviting = false;
+app.post("/api/event/invite", async (c) => {
+	const p = z
+		.object({ pk: z.number().int(), email: z.email().max(200) })
+		.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	const email = p.data.email.toLowerCase();
+	const e = store.latestEvent(p.data.pk);
+	if (!e?.event_id) return c.json({ error: "event" }, 404);
+	// only an address the other person actually wrote in this chat
+	if (!incoming(p.data.pk).includes(email)) return c.json({ error: "email" }, 400);
+	if (inviting) return c.json({ error: "busy" }, 429);
+	inviting = true;
+	try {
+		const r = await addGuest(e.event_id, email);
+		if (r.ok) store.eventGuest(e.pk, e.last_pk, email);
+		return c.json(r, r.ok ? 200 : 502);
+	} finally {
+		inviting = false;
+	}
 });
 
 app.post("/api/undo", async (c) => {

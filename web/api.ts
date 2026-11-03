@@ -65,6 +65,10 @@ export const api = {
 		invite?: string[];
 	}) => call<{ ok: true; via: "whatsapp" | "clipboard" | null; event: boolean }>("decide", b),
 	undo: (b: { pk: number; lastPk: number }) => call<{ ok: true }>("undo", b),
+	event: (pk: number) =>
+		call<{ lastPk: number; when: string; guests: string[] } | null>(`event/${pk}`),
+	invite: (b: { pk: number; email: string }) =>
+		call<{ ok: boolean; result: string }>("event/invite", b),
 	draft: (pk: number) => call<{ text: string }>(`draft/${pk}`, {}),
 	refresh: () => call<{ ok: true }>("refresh", {}),
 	area: (action: "accept" | "dismiss" | "remove", id: string) =>

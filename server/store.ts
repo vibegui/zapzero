@@ -26,6 +26,11 @@ db.run(`create table if not exists suggestions (
 // calendar events the owner asked for when replying; created by their own Claude, see calendar.ts
 db.run(`create table if not exists events (
 	pk integer, last_pk integer, at integer, text text, status text, result text, primary key (pk, last_pk))`);
+for (const col of ["event_id text", "guests text"]) {
+	try {
+		db.run(`alter table events add column ${col}`);
+	} catch {} // already there
+}
 for (const col of ["area text", "area_ver integer"]) {
 	try {
 		db.run(`alter table triage add column ${col}`);
@@ -321,24 +326,41 @@ export type EventRow = {
 	text: string;
 	status: "pending" | "ok" | "skipped" | "error";
 	result: string | null;
+	event_id: string | null;
+	/** comma-separated e-mails invited */
+	guests: string | null;
 };
 
-export function eventStart(pk: number, lastPk: number, text: string) {
-	db.query("insert or replace into events values (?, ?, ?, ?, 'pending', null)").run(
-		pk,
-		lastPk,
-		Date.now(),
-		text,
-	);
+export function eventStart(pk: number, lastPk: number, text: string, guests: string[]) {
+	db.query(
+		"insert or replace into events (pk, last_pk, at, text, status, result, guests) values (?, ?, ?, ?, 'pending', null, ?)",
+	).run(pk, lastPk, Date.now(), text, guests.join(",") || null);
 }
 
-export function eventDone(pk: number, lastPk: number, status: EventRow["status"], result: string) {
-	db.query("update events set status = ?, result = ? where pk = ? and last_pk = ?").run(
-		status,
-		result,
-		pk,
-		lastPk,
-	);
+export function eventDone(
+	pk: number,
+	lastPk: number,
+	status: EventRow["status"],
+	result: string,
+	eventId: string | null = null,
+) {
+	db.query(
+		"update events set status = ?, result = ?, event_id = coalesce(?, event_id) where pk = ? and last_pk = ?",
+	).run(status, result, eventId, pk, lastPk);
+}
+
+/** The newest event created for a chat in the last two weeks: the one a guest can still be added to. */
+export const latestEvent = (pk: number) =>
+	db
+		.query<EventRow, [number, number]>(
+			"select * from events where pk = ? and status = 'ok' and event_id is not null and at > ? order by at desc limit 1",
+		)
+		.get(pk, Date.now() - 14 * 86_400_000);
+
+export function eventGuest(pk: number, lastPk: number, email: string) {
+	db.query(
+		"update events set guests = trim(coalesce(guests, '') || ',' || ?, ',') where pk = ? and last_pk = ?",
+	).run(email, pk, lastPk);
 }
 
 export const events = () =>

@@ -541,6 +541,19 @@ function Focus({
 		[chat.data],
 	);
 	const [inviteOn, setInviteOn] = useState(true);
+	// an event already created for this chat: when the person sends their e-mail afterwards, offer the invite
+	const qcFocus = useQueryClient();
+	const ev = useQuery({
+		queryKey: ["event", item.pk],
+		queryFn: () => api.event(item.pk),
+		enabled: calendar && !item.group,
+	});
+	const newGuests = emails.filter((e) => ev.data && !ev.data.guests.includes(e));
+	const invite = useMutation({
+		mutationFn: (email: string) => api.invite({ pk: item.pk, email }),
+		onSettled: () => qcFocus.invalidateQueries({ queryKey: ["event", item.pk] }),
+	});
+	const asksEmail = /e-?mail/i.test(text);
 	const box = useRef<HTMLTextAreaElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
 	const redraft = useMutation({
@@ -654,6 +667,45 @@ function Focus({
 			<footer className="border-t border-line bg-panel px-6 py-4">
 				{!cleanup && (
 					<div className="mx-auto max-w-3xl">
+						{ev.data && newGuests.length > 0 && (
+							<div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-accent/40 bg-accent-soft px-3 py-2 text-[13px]">
+								<CalendarDays className="size-4 text-accent" />
+								<span className="text-muted">
+									Mandou o e-mail para o convite de {ev.data.when}:
+								</span>
+								{newGuests.map((e) => (
+									<button
+										key={e}
+										type="button"
+										disabled={invite.isPending}
+										onClick={() => invite.mutate(e)}
+										className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 font-medium text-accent-ink disabled:opacity-60"
+									>
+										{invite.isPending && invite.variables === e ? (
+											<Loader2 className="size-3.5 animate-spin" />
+										) : (
+											<Check className="size-3.5" />
+										)}
+										Adicionar {e} no convite
+									</button>
+								))}
+								{invite.data && !invite.data.ok && (
+									<span className="text-hot">{invite.data.result}</span>
+								)}
+								{invite.error && (
+									<span className="text-hot">{(invite.error as Error).message}</span>
+								)}
+							</div>
+						)}
+						{ev.data &&
+							ev.data.guests.length > 0 &&
+							newGuests.length === 0 &&
+							emails.length > 0 && (
+								<div className="mb-2 flex items-center gap-1.5 text-[12px] text-accent">
+									<CalendarDays className="size-3.5" /> {ev.data.guests.join(", ")} no convite de{" "}
+									{ev.data.when}
+								</div>
+							)}
 						{open.length > 0 && (
 							<SlotBar slots={open} onFill={(s, v) => setText(fill(text, s, v))} />
 						)}
@@ -702,6 +754,19 @@ function Focus({
 							{emails.length && inviteOn ? "" : ", só na sua agenda, sem convidados"}
 						</span>
 					</label>
+				)}
+				{!cleanup && offersEvent && eventOn && emails.length === 0 && !asksEmail && (
+					<div className="mx-auto mt-1 max-w-3xl pl-6">
+						<button
+							type="button"
+							onClick={() =>
+								setText(`${text.trimEnd()} Me passa seu e-mail que te mando o convite?`)
+							}
+							className="rounded-lg border border-line px-2 py-0.5 text-[12px] text-muted hover:border-accent hover:text-ink"
+						>
+							+ pedir o e-mail dele pro convite
+						</button>
+					</div>
 				)}
 				{!cleanup && offersEvent && eventOn && emails.length > 0 && (
 					<label className="mx-auto mt-1 flex max-w-3xl cursor-pointer items-center gap-2 pl-6 text-[13px] text-muted">
