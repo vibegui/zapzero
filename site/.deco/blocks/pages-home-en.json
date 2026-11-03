@@ -400,7 +400,11 @@
           "href": "https://github.com/vibegui/zapzero"
         }
       ],
-      "fine": "zapzero isn't affiliated with WhatsApp or Meta. Names and messages on this page are fictional."
+      "fine": "zapzero isn't affiliated with WhatsApp or Meta. Names and messages on this page are fictional.",
+      "creditBefore": "made with",
+      "creditAfter": "in Rio de Janeiro by",
+      "creditLink": "vibegui.com",
+      "creditHref": "https://vibegui.com"
     }
   ]
 }

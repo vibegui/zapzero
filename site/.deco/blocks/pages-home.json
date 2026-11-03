@@ -388,7 +388,11 @@
           "href": "https://github.com/vibegui/zapzero"
         }
       ],
-      "fine": "O zapzero não é afiliado ao WhatsApp nem à Meta. Nomes e mensagens nesta página são fictícios."
+      "fine": "O zapzero não é afiliado ao WhatsApp nem à Meta. Nomes e mensagens nesta página são fictícios.",
+      "creditBefore": "feito com",
+      "creditAfter": "no Rio de Janeiro por",
+      "creditLink": "vibegui.com",
+      "creditHref": "https://vibegui.com"
     }
   ]
 }

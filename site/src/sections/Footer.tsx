@@ -9,6 +9,14 @@ export interface Link {
 }
 
 export interface Props {
+	/** @title Crédito: antes do coração (ex.: "feito com") */
+	creditBefore?: string;
+	/** @title Crédito: depois do coração (ex.: "no Rio de Janeiro por") */
+	creditAfter?: string;
+	/** @title Crédito: link (texto) */
+	creditLink?: string;
+	/** @title Crédito: link (URL) */
+	creditHref?: string;
 	/** @title Chamada final */
 	closer?: string;
 	/** @title Botão */
@@ -30,6 +38,10 @@ export default function Footer({
 	domain = "zapzero.dev",
 	links = [],
 	fine = "",
+	creditBefore = "",
+	creditAfter = "",
+	creditLink = "",
+	creditHref = "",
 }: Props) {
 	return (
 		<footer className="foot">
@@ -57,6 +69,14 @@ export default function Footer({
 						))}
 					</nav>
 				</div>
+				{creditBefore ? (
+					<p className="credit">
+						{creditBefore} <span aria-label="amor">💚</span> {creditAfter}{" "}
+						<a href={creditHref} rel="noopener">
+							{creditLink}
+						</a>
+					</p>
+				) : null}
 				{fine ? <p className="fine">{fine}</p> : null}
 			</div>
 		</footer>

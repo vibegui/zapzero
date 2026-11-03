@@ -2338,6 +2338,26 @@
       "c3JjL3NlY3Rpb25zL0Zvb3Rlci50c3g=@Props": {
         "type": "object",
         "properties": {
+          "creditBefore": {
+            "type": "string",
+            "nullable": true,
+            "title": "Crédito: antes do coração (ex.: \"feito com\")"
+          },
+          "creditAfter": {
+            "type": "string",
+            "nullable": true,
+            "title": "Crédito: depois do coração (ex.: \"no Rio de Janeiro por\")"
+          },
+          "creditLink": {
+            "type": "string",
+            "nullable": true,
+            "title": "Crédito: link (texto)"
+          },
+          "creditHref": {
+            "type": "string",
+            "nullable": true,
+            "title": "Crédito: link (URL)"
+          },
           "closer": {
             "type": "string",
             "nullable": true,

@@ -1132,3 +1132,14 @@ p {
 .voice-box {
   white-space: pre-line;
 }
+.credit {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.credit a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  text-underline-offset: 3px;
+}
