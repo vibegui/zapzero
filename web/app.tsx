@@ -24,6 +24,7 @@ import {
 	X,
 } from "lucide-react";
 import {
+	type CSSProperties,
 	type ReactNode,
 	type RefObject,
 	useCallback,
@@ -275,7 +276,7 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 	return (
 		<>
 			<div className="mt-4 mb-1 px-3 text-[11px] font-medium tracking-wide text-faint uppercase">
-				Áreas
+				Tags
 			</div>
 			{areas.map((a) => (
 				<Link
@@ -285,7 +286,7 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 					className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-panel hover:text-ink"
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
-					<Tag className="size-3.5" />
+					<Tag className="tag-dot size-3.5" style={tagStyle(inbox.areas, a.id)} />
 					<span className="flex-1 truncate">{a.label}</span>
 					<span className="text-xs tabular-nums text-faint">{counts.get(a.id)}</span>
 				</Link>
@@ -294,7 +295,7 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 				<span>Sugestões</span>
 				<button
 					type="button"
-					title="Sugerir áreas novas agora"
+					title="Sugerir tags novas agora"
 					onClick={() => suggest.mutate()}
 					className="rounded p-0.5 hover:bg-panel hover:text-ink"
 				>
@@ -324,7 +325,7 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 							onClick={() => act.mutate({ action: "accept", id: sg.id })}
 							className="inline-flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-[11px] font-medium text-accent-ink"
 						>
-							<Check className="size-3" /> Criar área
+							<Check className="size-3" /> Criar tag
 						</button>
 						<button
 							type="button"
@@ -528,7 +529,10 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 								<div className="mt-0.5 truncate text-[13px] text-muted">{i.preview}</div>
 								<div className="mt-1 flex items-center gap-1.5 text-[11px] text-faint">
 									{areaLabel(i.area) && (
-										<span className="rounded bg-sunken px-1.5 py-px text-muted">
+										<span
+											className="tag rounded px-1.5 py-px"
+											style={tagStyle(inbox.data?.areas, i.area)}
+										>
 											{areaLabel(i.area)}
 										</span>
 									)}
@@ -1209,4 +1213,10 @@ function linkify(text: string) {
 			part
 		);
 	});
+}
+
+/** Each tag gets its own hue, spaced by the golden angle in creation order so neighbours never look alike. */
+function tagStyle(areas: { id: string }[] | undefined, id: string | null) {
+	const n = areas?.findIndex((a) => a.id === id) ?? -1;
+	return { "--h": `${(n * 137.5 + 250) % 360}` } as CSSProperties;
 }
