@@ -16,6 +16,9 @@
 	--warn: #b7791f;
 	--bubble-me: #d9f4e4;
 	--bubble-them: #ffffff;
+	--s1: #2a78d6;
+	--s2: #eb6834;
+	--s3: #1baf7a;
 	color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -35,6 +38,9 @@
 		--warn: #e0a84a;
 		--bubble-me: #123326;
 		--bubble-them: #1a1f1d;
+		--s1: #3987e5;
+		--s2: #d95926;
+		--s3: #199e70;
 		color-scheme: dark;
 	}
 }

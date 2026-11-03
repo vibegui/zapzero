@@ -1,6 +1,6 @@
 // bun run setup: checks what zapzero needs on this Mac, builds the panel, and installs a launchd agent
 // so the server starts at login. Safe to run again. Pass --no-launchd to skip the agent.
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { homedir, platform } from "node:os";
 import { DATA, OPENROUTER_API_KEY, PORT, TOKEN, WA_DIR } from "../server/env.ts";
 import * as wa from "../server/wa.ts";
@@ -81,11 +81,28 @@ if (!process.argv.includes("--no-launchd")) {
 	);
 	const uid = process.getuid?.() ?? 501;
 	run(["launchctl", "bootout", `gui/${uid}/${LABEL}`]); // reload if it was already there
-	const r = run(["launchctl", "bootstrap", `gui/${uid}`, PLIST]);
+	// bootout finishes asynchronously: bootstrap fails with "5: Input/output error" until it has
+	let r = run(["launchctl", "bootstrap", `gui/${uid}`, PLIST]);
+	for (let i = 0; i < 10 && r.exitCode !== 0; i++) {
+		Bun.sleepSync(500);
+		r = run(["launchctl", "bootstrap", `gui/${uid}`, PLIST]);
+	}
 	if (r.exitCode !== 0) fail("launchd agent failed to load", r.stderr.toString().slice(0, 300));
 	ok(`runs at login (launchd ${LABEL}, log ${LOG})`);
 } else {
 	console.log("  – skipped launchd: start it with `bun run start`");
+}
+
+// Claude Code skill: lets Claude call zapzero from any session (`zap api …`). A link, so it follows the repo.
+if (existsSync(`${homedir()}/.claude`)) {
+	const dest = `${homedir()}/.claude/skills/zapzero`;
+	mkdirSync(`${homedir()}/.claude/skills`, { recursive: true });
+	let there = false;
+	try {
+		there = lstatSync(dest) != null;
+	} catch {}
+	if (!there) symlinkSync(`${process.cwd()}/skills/zapzero`, dest);
+	ok(there ? `Claude skill already at ${dest}` : `Claude skill linked: ${dest}`);
 }
 
 console.log(`

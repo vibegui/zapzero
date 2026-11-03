@@ -1,4 +1,5 @@
 import type { CategoryId, Item } from "../server/inbox.ts";
+import type { Week, Who } from "../server/stats.ts";
 import type { Decision, DecisionKind, Voice } from "../server/store.ts";
 import type { Message } from "../server/wa.ts";
 
@@ -19,6 +20,11 @@ export type Inbox = {
 		pks: number[];
 		names: string[];
 	}[];
+};
+export type Stats = {
+	weeks: Record<Who, Week[]>;
+	usage: Record<string, Partial<Record<DecisionKind, number>>>;
+	unread: Record<Who, number>;
 };
 export type DecisionRow = Decision & { name: string };
 
@@ -43,6 +49,7 @@ async function call<T>(path: string, body?: unknown): Promise<T> {
 export const api = {
 	inbox: () => call<Inbox>("inbox"),
 	chat: (pk: number) => call<Message[]>(`chat/${pk}`),
+	stats: () => call<Stats>("stats"),
 	decisions: () => call<DecisionRow[]>("decisions"),
 	decide: (b: { pk: number; lastPk: number; kind: DecisionKind; text?: string }) =>
 		call<{ ok: true; via: "whatsapp" | "clipboard" | null }>("decide", b),

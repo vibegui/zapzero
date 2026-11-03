@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import {
 	Archive,
 	CalendarDays,
+	ChartLine,
 	Check,
 	CheckCheck,
 	Clock3,
@@ -131,8 +132,16 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				})}
 				<Areas inbox={inbox} />
 				<Link
-					to="/feitas"
+					to="/desempenho"
 					className="mt-3 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<ChartLine className="size-4" />
+					<span>Desempenho</span>
+				</Link>
+				<Link
+					to="/feitas"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<CheckCheck className="size-4" />

@@ -20,6 +20,8 @@ zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**
 - **Categories by when:** Important & urgent · This week · Older than a week · You're waiting on them · Groups · Cleanup.
 - **Areas by who:** Clients, Hiring, Team, Investors, Partners, Family, Friends, Home & services, Selling to you, Other. Once a day the AI suggests new areas from your pending chats ("Apartment renovation", "Events & talks"); accept one and it becomes a triage choice.
 - **Your voice ("Seu jeito").** After the first scan the AI reads ~150 of your own messages, your 40 busiest chats and the groups you write in most, and writes who you are, one editable field per topic (where you live, work, family, people who matter, current projects, routine, languages), plus a guide to how you write. Accept or edit each part; triage uses it to know who's who and every draft follows your tone.
+- **Performance ("Desempenho").** Week by week over the last 13: how often you answered within 24 h, how long you typically take, who never got an answer, split by saved contacts, strangers and groups. Computed from the snapshot, no AI. A "turn" is a message that arrives after you spoke and after an hour of silence, so a live back-and-forth counts once.
+- **Use it from Claude.** `bun run setup` links a Claude Code skill: ask Claude "who's waiting on me?", "how fast did I answer this month?" or "I live in Rio, fix my profile", and it calls zapzero locally through `bun run zap api …`. No MCP server or token to configure.
 - **Keyboard flow:** `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor.
 - **Runs in the background**, re-reading WhatsApp every 15 minutes and only re-doing AI work for chats that changed.
 
@@ -67,6 +69,8 @@ bun run zap refresh     # snapshot -> triage -> drafts, once
 bun run zap inbox       # counts per category
 bun run zap voice       # re-read how you write
 bun run zap suggest     # suggest new areas now
+bun run zap stats       # answer performance as JSON
+bun run zap api inbox   # any API route, token handled (POST: bun run zap api <route> '<json>')
 bun run start           # build + serve in the foreground (instead of launchd)
 launchctl kickstart -k gui/$(id -u)/dev.zapzero.server   # restart the agent after updating
 ```
@@ -77,7 +81,7 @@ Settings live in `.env` (see `.env.example`): models, port, refresh interval, da
 
 ```sh
 launchctl bootout gui/$(id -u)/dev.zapzero.server
-rm ~/Library/LaunchAgents/dev.zapzero.server.plist
+rm ~/Library/LaunchAgents/dev.zapzero.server.plist ~/.claude/skills/zapzero
 rm -r ~/Library/Application\ Support/zap    # your snapshots, drafts and decisions
 ```
 
@@ -95,7 +99,7 @@ WhatsApp Desktop's SQLite ──read-only copy──▶ snapshot (every 15 min)
 - `server/wa.ts` reads the snapshot. `server/ai.ts` holds every paid call, each capped per run in items and dollars, and stopped when the upstream fails. `server/inbox.ts` is the pure ranking (tested). `server/store.ts` is zapzero's own SQLite.
 - `web/` is the panel: React, TanStack Router + Query, Tailwind.
 - `site/` is the landing page at [zapzero.dev](https://zapzero.dev) (TanStack Start + deco blocks).
-- `skills/zapzero/SKILL.md` teaches an agent to read the database and drive zapzero.
+- `skills/zapzero/SKILL.md` teaches an agent to call zapzero (`zap api …`) or read the database directly. `server/stats.ts` is the pure performance math (tested).
 
 ### Development
 

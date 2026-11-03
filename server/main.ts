@@ -7,6 +7,7 @@ import { z } from "zod";
 import * as ai from "./ai.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
 import { buildInbox, CATEGORIES } from "./inbox.ts";
+import { cohorts, type Who, weekOf } from "./stats.ts";
 import * as store from "./store.ts";
 import * as wa from "./wa.ts";
 
@@ -157,15 +158,23 @@ app.post("/api/areas/:action", async (c) => {
 	return c.json({ ok: true });
 });
 
+// Topics left out keep their text, so one topic can be fixed alone. The panel saves everything and accepts;
+// an agent fixing one topic for the owner keeps it "suggested" until the owner accepts in the panel.
 const VoiceBody = z.object({
-	perfil: z.record(z.string(), z.string().max(4000)),
-	voz: z.string().max(8000),
+	perfil: z.record(z.string(), z.string().max(4000)).default({}),
+	voz: z.string().max(8000).optional(),
+	state: z.enum(["suggested", "accepted"]).default("accepted"),
 });
+app.get("/api/voice", (c) => c.json(store.voice()));
 app.post("/api/voice", async (c) => {
 	const p = VoiceBody.safeParse(await c.req.json().catch(() => null));
 	if (!p.success) return c.json({ error: "invalid" }, 400);
-	store.saveVoice(p.data, "accepted");
-	return c.json({ ok: true });
+	const cur = store.voice();
+	store.saveVoice(
+		{ perfil: { ...cur.perfil, ...p.data.perfil }, voz: p.data.voz ?? cur.voz },
+		p.data.state,
+	);
+	return c.json(store.voice());
 });
 app.post("/api/voice/suggest", async (c) => {
 	if (suggesting) return c.json({ error: "busy" }, 429);
@@ -206,6 +215,47 @@ app.get("/api/decisions", (c) => {
 	);
 });
 
+let statsCache: { at: number | null; data: ReturnType<typeof stats> } | null = null;
+/** Answer performance over the last 13 weeks, plus what was done through zapzero. Cached per snapshot. */
+function stats() {
+	const who = new Map<number, Who>(
+		wa.chats().map((c) => [c.pk, c.group ? "grupo" : c.saved ? "conhecido" : "desconhecido"]),
+	);
+	const usage: Record<string, Record<string, number>> = {};
+	for (const d of store.recentDecisions(100_000)) {
+		if (d.kind === "skip") continue;
+		const w = weekOf(d.at);
+		usage[w] ??= {};
+		usage[w][d.kind] = (usage[w][d.kind] ?? 0) + 1;
+	}
+	return {
+		weeks: cohorts(wa.messageLog(91), (pk) => who.get(pk) ?? null),
+		usage,
+		unread: {
+			conhecido: wa
+				.chats()
+				.filter((c) => !c.group && c.saved)
+				.reduce((s, c) => s + c.unread, 0),
+			desconhecido: wa
+				.chats()
+				.filter((c) => !c.group && !c.saved)
+				.reduce((s, c) => s + c.unread, 0),
+			grupo: wa
+				.chats()
+				.filter((c) => c.group)
+				.reduce((s, c) => s + c.unread, 0),
+		},
+	};
+}
+const cachedStats = () => {
+	const at = wa.snapshotAt();
+	if (statsCache?.at !== at) statsCache = { at, data: stats() };
+	return statsCache.data;
+};
+app.get("/api/stats", (c) => c.json(cachedStats()));
+
+app.all("/api/*", (c) => c.json({ error: "route" }, 404));
+
 // The panel's own files carry no data; inside Studio they load from origin "null" in CORS mode.
 app.use("/*", async (c, next) => {
 	await next();
@@ -240,6 +290,23 @@ if (cmd === "serve") {
 	await ai.drafts();
 } else if (cmd === "refresh") {
 	await refresh();
+} else if (cmd === "api") {
+	// `zap api <route> [json]`: the API for agents and scripts. Goes to the running server when there is one
+	// (its refresh lock and pipeline), else runs the route in this process. GET without a body, POST with one.
+	const [route = "", body] = process.argv.slice(3);
+	const init = {
+		method: body === undefined ? "GET" : "POST",
+		headers: { "x-zap-token": TOKEN, "content-type": "application/json" },
+		body,
+	};
+	const url = `/api/${route.replace(/^\/?(api\/)?/, "")}`;
+	const res = await fetch(`http://127.0.0.1:${PORT}${url}`, init).catch(() =>
+		app.request(url, init),
+	);
+	console.log(await res.text());
+	process.exit(res.ok ? 0 : 1);
+} else if (cmd === "stats") {
+	console.log(JSON.stringify(cachedStats(), null, 1));
 } else if (cmd === "inbox") {
 	const box = buildInbox(wa.chats(), store.triages(), store.drafts(), store.decisions());
 	for (const k of CATEGORIES) {
@@ -250,7 +317,7 @@ if (cmd === "serve") {
 	}
 } else {
 	console.log(
-		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | refresh | inbox",
+		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | refresh | inbox | stats | api <route> [json]",
 	);
 	process.exit(1);
 }

@@ -213,3 +213,18 @@ export function activeChats(
 	db.close();
 	return rows;
 }
+
+/** Every content message of the last `days` in DMs and groups, oldest first: the raw input for stats. */
+export function messageLog(days: number): { pk: number; mine: boolean; at: number }[] {
+	if (snapshotAt() == null) return [];
+	const db = open();
+	const since = Date.now() / 1000 - COCOA - days * 86400;
+	const rows = db
+		.query<{ pk: number; mine: number; at: number }, [number]>(
+			`select m.ZCHATSESSION pk, m.ZISFROMME mine, m.ZMESSAGEDATE + ${COCOA} at from ZWAMESSAGE m
+			where m.ZMESSAGEDATE > ? and m.ZMESSAGETYPE in (${CONTENT}) order by m.ZMESSAGEDATE`,
+		)
+		.all(since);
+	db.close();
+	return rows.map((r) => ({ pk: r.pk, mine: r.mine === 1, at: r.at * 1000 }));
+}
