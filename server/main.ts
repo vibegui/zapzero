@@ -111,6 +111,16 @@ app.get("/api/inbox", (c) => {
 });
 
 app.get("/api/chat/:pk", (c) => c.json(wa.messages(Number(c.req.param("pk")), 30)));
+// opens the chat in WhatsApp Desktop, nothing typed: the owner looks before deciding
+app.post("/api/open/:pk", (c) => {
+	const chat = wa.chats().find((x) => x.pk === Number(c.req.param("pk")));
+	if (!chat) return c.json({ error: "chat" }, 404);
+	Bun.spawnSync(
+		chat.phone ? ["open", `whatsapp://send?phone=${chat.phone}`] : ["open", "-a", "WhatsApp"],
+	);
+	return c.json({ via: chat.phone ? "chat" : "app" });
+});
+
 // read-only: an image file from WhatsApp's own Message folder, never a path from the request
 app.get("/api/media/:pk", (c) => {
 	const f = wa.mediaFile(Number(c.req.param("pk")));

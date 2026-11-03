@@ -8,6 +8,7 @@ import {
 	Check,
 	CheckCheck,
 	Clock3,
+	ExternalLink,
 	EyeOff,
 	Flame,
 	Hourglass,
@@ -477,6 +478,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 				a: () => act("archive"),
 				s: () => act("skip"),
 				i: () => act("ignore"),
+				o: () => item && api.open(item.pk),
 				z: () => toast && undo.mutate({ pk: toast.pk, lastPk: toast.lastPk }),
 			};
 			// 1–9: pick that choice in the draft's first open [slot]
@@ -695,6 +697,9 @@ function Focus({
 						{item.phone && !item.name.includes(item.phone) ? ` · +${item.phone}` : ""}
 					</div>
 				</div>
+				<Btn onClick={() => api.open(item.pk)} k="O">
+					<ExternalLink className="size-4" /> Ir para conversa
+				</Btn>
 				<span className="text-xs tabular-nums text-faint">{position}</span>
 			</header>
 
@@ -722,7 +727,7 @@ function Focus({
 								)}
 								{m.media && <Media pk={m.pk} />}
 								{!(m.media && /^\[(imagem|sticker)\]$/.test(m.text)) && (
-									<div className="whitespace-pre-wrap break-words">{m.text}</div>
+									<div className="whitespace-pre-wrap break-words">{linkify(m.text)}</div>
 								)}
 								<div className="mt-0.5 text-right text-[10px] text-faint">
 									{new Date(m.at).toLocaleTimeString("pt-BR", {
@@ -882,7 +887,7 @@ function Focus({
 						? "Arquivar fica registrado; o executor que arquiva no app ainda não existe."
 						: "Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá."}{" "}
 					<kbd>E</kbd> edita · <kbd>1</kbd>–<kbd>9</kbd> escolhe o que falta · <kbd>J</kbd>/
-					<kbd>K</kbd> navega · <kbd>⌘↵</kbd> responde editando
+					<kbd>K</kbd> navega · <kbd>O</kbd> abre a conversa · <kbd>⌘↵</kbd> responde editando
 				</div>
 			</footer>
 		</>
@@ -1183,4 +1188,25 @@ function Media({ pk }: { pk: number }) {
 			<img src={q.data} alt="" className="mb-1 max-h-72 max-w-full rounded-lg object-contain" />
 		</a>
 	);
+}
+
+/** URLs in a message become links; the rest stays text (never HTML). */
+function linkify(text: string) {
+	let at = 0;
+	return text.split(/(https?:\/\/[^\s<>"]+)/g).map((part, n) => {
+		at += part.length;
+		return n % 2 ? (
+			<a
+				key={at}
+				href={part}
+				target="_blank"
+				rel="noreferrer"
+				className="break-all text-accent underline"
+			>
+				{part}
+			</a>
+		) : (
+			part
+		);
+	});
 }

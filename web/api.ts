@@ -54,6 +54,7 @@ async function call<T>(path: string, body?: unknown): Promise<T> {
 export const api = {
 	inbox: () => call<Inbox>("inbox"),
 	chat: (pk: number) => call<Message[]>(`chat/${pk}`),
+	open: (pk: number) => call<{ via: "chat" | "app" }>(`open/${pk}`, {}),
 	/** an image as an object URL: the token goes in a header, never in an <img> URL */
 	media: async (pk: number) => {
 		const res = await fetch(`api/media/${pk}`, { headers: { "x-zap-token": TOKEN } });
