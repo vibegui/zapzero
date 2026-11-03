@@ -1,0 +1,77 @@
+import { Logo } from "~/components/ui";
+
+export interface Props {
+	/** @title Domínio (aparece no topo) */
+	domain?: string;
+	/** @title Rótulo acima do título */
+	eyebrow?: string;
+	/** @title Título */
+	title?: string;
+	/** @title Subtítulo */
+	subtitle?: string;
+	/** @title Texto */
+	body?: string;
+	/** @title Botão principal */
+	ctaLabel?: string;
+	/**
+	 * @title Link do botão principal
+	 * @description mailto: ou URL do formulário de lista de espera
+	 */
+	ctaHref?: string;
+	/** @title Botão secundário */
+	secondaryLabel?: string;
+	/** @title Link do botão secundário */
+	secondaryHref?: string;
+	/** @title Garantias (abaixo dos botões) */
+	promises?: string[];
+}
+
+export default function Hero({
+	domain = "zapzero.ai",
+	eyebrow = "",
+	title = "Zere o WhatsApp.",
+	subtitle = "",
+	body = "",
+	ctaLabel = "Quero testar",
+	ctaHref = "#",
+	secondaryLabel = "",
+	secondaryHref = "#como-funciona",
+	promises = [],
+}: Props) {
+	return (
+		<section className="hero">
+			<nav className="wrap top">
+				<a href="/" aria-label="zapzero">
+					<Logo />
+				</a>
+				<span className="domain">{domain}</span>
+				<a className="btn small" href={ctaHref}>
+					{ctaLabel}
+				</a>
+			</nav>
+			<div className="wrap hero-copy">
+				{eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+				<h1 className="display">{title}</h1>
+				{subtitle ? <p className="sub">{subtitle}</p> : null}
+				{body ? <p className="lede">{body}</p> : null}
+				<div className="actions">
+					<a className="btn" href={ctaHref}>
+						{ctaLabel} <span aria-hidden="true">→</span>
+					</a>
+					{secondaryLabel ? (
+						<a className="btn ghost" href={secondaryHref}>
+							{secondaryLabel}
+						</a>
+					) : null}
+				</div>
+				{promises.length ? (
+					<ul className="promises">
+						{promises.map((p) => (
+							<li key={p}>{p}</li>
+						))}
+					</ul>
+				) : null}
+			</div>
+		</section>
+	);
+}

@@ -1,0 +1,281 @@
+{
+  "name": "Home",
+  "__resolveType": "website/pages/Page.tsx",
+  "path": "/",
+  "seo": {
+    "__resolveType": "website/sections/Seo/SeoV2.tsx",
+    "title": "zapzero · Inbox zero pro WhatsApp",
+    "description": "Zere o WhatsApp. A IA tria cada conversa e rascunha a resposta no seu jeito de escrever. Sem bot, sem risco, sem sair do seu Mac.",
+    "type": "website",
+    "noIndexing": true
+  },
+  "sections": [
+    {
+      "__resolveType": "site/sections/Hero.tsx",
+      "domain": "zapzero.ai",
+      "eyebrow": "Pro WhatsApp Desktop no Mac",
+      "title": "Zere o WhatsApp.",
+      "subtitle": "Inbox zero pro WhatsApp. Sem bot, sem risco, sem sair do seu Mac.",
+      "body": "A IA lê suas conversas ali mesmo, no Mac, e te diz quem está esperando você. Pra cada um, deixa a resposta escrita do seu jeito. Você aperta Y, o WhatsApp abre com o texto pronto, você dá Enter. Próxima.",
+      "ctaLabel": "Quero testar",
+      "ctaHref": "mailto:oi@zapzero.ai?subject=Quero%20testar%20o%20zapzero",
+      "secondaryLabel": "Como funciona",
+      "secondaryHref": "#como-funciona",
+      "promises": [
+        "Somente leitura",
+        "Nada sai do seu Mac",
+        "Nada é enviado sem você"
+      ]
+    },
+    {
+      "__resolveType": "site/sections/PanelMock.tsx",
+      "caption": "O painel de verdade, com conversas de mentira. Nomes e mensagens são fictícios.",
+      "categories": [
+        {
+          "label": "Importante e urgente",
+          "count": 3,
+          "kind": "urgent"
+        },
+        {
+          "label": "Esta semana",
+          "count": 7
+        },
+        {
+          "label": "Mais de uma semana",
+          "count": 12
+        },
+        {
+          "label": "Esperando eles",
+          "count": 5
+        },
+        {
+          "label": "Grupos",
+          "count": 9
+        },
+        {
+          "label": "Limpeza",
+          "count": 41
+        },
+        {
+          "label": "Clientes",
+          "count": 4,
+          "kind": "area"
+        },
+        {
+          "label": "Contratações",
+          "count": 2,
+          "kind": "area"
+        },
+        {
+          "label": "Reforma do apê",
+          "count": 3,
+          "kind": "suggested"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Marina Okada",
+          "preview": "Consegue me mandar a revisada até amanhã?",
+          "time": "9:41",
+          "unread": 2,
+          "context": "Cliente · Estúdio Okada · esperando você há 2 h"
+        },
+        {
+          "name": "Seu Arnaldo (síndico)",
+          "preview": "O técnico do elevador vem quinta. Alguém libera a garagem?",
+          "time": "8:12",
+          "unread": 1,
+          "context": "Prédio · esperando você há 3 h"
+        },
+        {
+          "name": "Rafa Teixeira",
+          "preview": "Fechou a data da entrevista com o Bruno?",
+          "time": "ontem",
+          "context": "Sócio · esperando você há 1 dia"
+        }
+      ],
+      "messages": [
+        {
+          "text": "Oi! Vi o orçamento, ficou ótimo.",
+          "time": "9:38"
+        },
+        {
+          "text": "Só uma coisa: dá pra incluir as fotos na mesma proposta?",
+          "time": "9:39"
+        },
+        {
+          "text": "Consegue me mandar a revisada até amanhã? Quero levar na reunião de sexta.",
+          "time": "9:41"
+        }
+      ],
+      "draft": "Oi Marina! Dá sim, incluo as fotos. Te mando a revisada até [amanhã às 18h], com as fotos em [R$ ___] separado, pra vocês decidirem na sexta.",
+      "costNote": "IA nas últimas 24 h: US$ 0,004"
+    },
+    {
+      "__resolveType": "site/sections/HowItWorks.tsx",
+      "kicker": "Como funciona",
+      "title": "Três passos.",
+      "dim": "O último é seu.",
+      "steps": [
+        {
+          "title": "Lê o seu Mac. Só lê.",
+          "text": "O zapzero abre o banco local do WhatsApp Desktop em modo somente leitura. Não conecta aparelho extra, não usa API paralela, não manda suas conversas pra servidor nenhum."
+        },
+        {
+          "title": "A IA tria tudo.",
+          "text": "Quem espera quem, quão urgente é, quem é essa pessoa pra você. Por frações de centavo por conversa. E pra cada pessoa esperando você, um rascunho no seu jeito de escrever."
+        },
+        {
+          "title": "Você zera.",
+          "text": "Y abre a conversa no WhatsApp com a resposta digitada. Você confere e aperta Enter. Compromisso (data, preço, sim ou não) vem [entre colchetes] pra você preencher."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Privacy.tsx",
+      "kicker": "Privacidade",
+      "title": "Suas conversas ficam no seu Mac.",
+      "dim": "Ponto.",
+      "points": [
+        {
+          "title": "Somente leitura",
+          "text": "Lê o banco que o app oficial já guarda no seu Mac. Nunca escreve nele."
+        },
+        {
+          "title": "Sem bot, sem risco",
+          "text": "Nada de aparelho conectado a mais, nada de API não oficial. Pro WhatsApp, é só você usando o app."
+        },
+        {
+          "title": "Sem servidor nosso",
+          "text": "Não existe nuvem do zapzero com os seus chats. Só o trecho necessário vai pro modelo que você escolheu, com a sua chave."
+        },
+        {
+          "title": "Ou nada sai mesmo",
+          "text": "Rode um modelo local e nem a IA passa pela internet."
+        },
+        {
+          "title": "Nada é enviado sem você",
+          "text": "O zapzero não manda mensagem. Ele digita. Quem aperta Enter é você."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Keyboard.tsx",
+      "kicker": "No teclado",
+      "title": "Y, Y, Y. E, Y.",
+      "dim": "Zerado antes do café esfriar.",
+      "sequence": "Y Y Y E Y",
+      "sequenceNote": "Responde, responde, responde, ajusta uma, responde. Sem tirar a mão do teclado.",
+      "shortcuts": [
+        {
+          "key": "Y",
+          "action": "Responder.",
+          "detail": "Abre a conversa no WhatsApp com o texto digitado. Você dá Enter."
+        },
+        {
+          "key": "E",
+          "action": "Editar.",
+          "detail": "Mexe no rascunho antes de mandar."
+        },
+        {
+          "key": "R",
+          "action": "Novo rascunho.",
+          "detail": "Não gostou? A IA escreve outro."
+        },
+        {
+          "key": "A",
+          "action": "Arquivar.",
+          "detail": "Não precisa de resposta."
+        },
+        {
+          "key": "I",
+          "action": "Ignorar pra sempre.",
+          "detail": "Os gifs de bom dia da tia-avó nunca mais aparecem."
+        },
+        {
+          "key": "Z",
+          "action": "Desfazer.",
+          "detail": "Errou? Volta."
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Pricing.tsx",
+      "kicker": "Quanto custa",
+      "title": "Centavos por mês.",
+      "dim": "Chave sua.",
+      "body": "Traga sua chave da OpenRouter e pague direto ao provedor de IA, sem intermediário. Ou rode um modelo local e pague zero.",
+      "figures": [
+        {
+          "value": "US$ 0,09",
+          "label": "pra triar 1.600 conversas e rascunhar 110 respostas"
+        },
+        {
+          "value": "0%",
+          "label": "de margem: você paga a IA direto, com a sua chave da OpenRouter"
+        },
+        {
+          "value": "R$ 0",
+          "label": "com modelo local"
+        }
+      ],
+      "notes": [
+        "Roda como app dentro do deco Studio, ou em qualquer navegador da sua rede privada (Tailscale).",
+        "Vai sair como skill aberta + app completo, pra qualquer um plugar no próprio WhatsApp Desktop."
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Faq.tsx",
+      "kicker": "Perguntas",
+      "title": "O que todo mundo pergunta.",
+      "items": [
+        {
+          "q": "É seguro pro meu número?",
+          "a": "<p>É. O zapzero não se conecta ao WhatsApp: ele lê, em modo somente leitura, o banco que o app oficial já guarda no seu Mac. Não tem bot, aparelho extra nem API não oficial, que é o que costuma dar banimento. Pro WhatsApp, é só você usando o app.</p>"
+        },
+        {
+          "q": "Ele manda mensagem sozinho?",
+          "a": "<p>Nunca. Ele abre a conversa com o texto digitado e para aí. Quem aperta Enter é você. E o que é compromisso (data, valor, sim ou não) vem entre colchetes pra você decidir.</p>"
+        },
+        {
+          "q": "Funciona no Windows? E no iPhone?",
+          "a": "<p>Ainda não. Por enquanto é só Mac, com o WhatsApp Desktop instalado. O painel abre em qualquer navegador da sua rede privada (Tailscale), inclusive no celular, mas quem lê as conversas é o Mac.</p>"
+        },
+        {
+          "q": "Quem vê minhas conversas?",
+          "a": "<p>Ninguém do zapzero: não temos servidor com os seus chats. O trecho de cada conversa vai só pro modelo de IA que você escolher, com a sua chave. Com um modelo local, nem isso sai do Mac.</p>"
+        },
+        {
+          "q": "Quanto custa?",
+          "a": "<p>Você paga só a IA, direto ao provedor. Na prática: US$ 0,09 pra triar 1.600 conversas e rascunhar 110 respostas. Com modelo local, nada.</p>"
+        },
+        {
+          "q": "Preciso do deco Studio?",
+          "a": "<p>Não. Ele roda como app dentro do deco Studio, ou sozinho no navegador.</p>"
+        }
+      ]
+    },
+    {
+      "__resolveType": "site/sections/Footer.tsx",
+      "closer": "Bora zerar?",
+      "ctaLabel": "Quero testar",
+      "ctaHref": "mailto:oi@zapzero.ai?subject=Quero%20testar%20o%20zapzero",
+      "domain": "zapzero.ai",
+      "links": [
+        {
+          "label": "Como funciona",
+          "href": "#como-funciona"
+        },
+        {
+          "label": "Privacidade",
+          "href": "#privacidade"
+        },
+        {
+          "label": "Perguntas",
+          "href": "#perguntas"
+        }
+      ],
+      "fine": "O zapzero não é afiliado ao WhatsApp nem à Meta. Nomes e mensagens nesta página são fictícios."
+    }
+  ]
+}

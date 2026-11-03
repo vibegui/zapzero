@@ -1,0 +1,15 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "zapzero-site",
+	"main": "./src/worker-entry.ts",
+	"compatibility_date": "2026-08-01",
+	"compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
+	"observability": { "enabled": true },
+	// No custom domain yet (zapzero.ai is a placeholder). Add a `routes` entry once one is picked.
+	"workers_dev": true,
+	"assets": { "binding": "ASSETS" },
+	"vars": {
+		"DECO_SITE_NAME": "zapzero",
+		"DECO_ENV_NAME": "production"
+	}
+}
