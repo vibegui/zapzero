@@ -23,6 +23,9 @@ db.run(
 );
 db.run(`create table if not exists suggestions (
 	id text primary key, label text, criteria text, pks text, reason text, at integer, status text)`);
+// calendar events the owner asked for when replying; created by their own Claude, see calendar.ts
+db.run(`create table if not exists events (
+	pk integer, last_pk integer, at integer, text text, status text, result text, primary key (pk, last_pk))`);
 for (const col of ["area text", "area_ver integer"]) {
 	try {
 		db.run(`alter table triage add column ${col}`);
@@ -308,3 +311,40 @@ export function perfil() {
 		.join("\n");
 	return text || "O dono deste WhatsApp.";
 }
+
+// ---- calendar events ------------------------------------------------------------------------
+
+export type EventRow = {
+	pk: number;
+	last_pk: number;
+	at: number;
+	text: string;
+	status: "pending" | "ok" | "skipped" | "error";
+	result: string | null;
+};
+
+export function eventStart(pk: number, lastPk: number, text: string) {
+	db.query("insert or replace into events values (?, ?, ?, ?, 'pending', null)").run(
+		pk,
+		lastPk,
+		Date.now(),
+		text,
+	);
+}
+
+export function eventDone(pk: number, lastPk: number, status: EventRow["status"], result: string) {
+	db.query("update events set status = ?, result = ? where pk = ? and last_pk = ?").run(
+		status,
+		result,
+		pk,
+		lastPk,
+	);
+}
+
+export const events = () =>
+	new Map(
+		db
+			.query<EventRow, []>("select * from events")
+			.all()
+			.map((e) => [`${e.pk}:${e.last_pk}`, e]),
+	);

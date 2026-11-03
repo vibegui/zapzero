@@ -41,7 +41,7 @@ import {
 	type Item,
 	TOKEN,
 } from "./api.ts";
-import { fill, slots } from "./slots.ts";
+import { fill, hasTime, slots } from "./slots.ts";
 
 const ICONS: Record<CategoryId, typeof Flame> = {
 	urgente: Flame,
@@ -358,7 +358,11 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 							: b.kind === "done"
 								? `${name}: resolvida`
 								: `${name}: pulada até chegar mensagem nova`;
-			setToast({ text, pk: b.pk, lastPk: b.kind === "ignore" ? 0 : b.lastPk });
+			setToast({
+				text: r.event ? `${text} · criando o evento no seu calendário` : text,
+				pk: b.pk,
+				lastPk: b.kind === "ignore" ? 0 : b.lastPk,
+			});
 		},
 		onSettled: () => qc.invalidateQueries({ queryKey: ["inbox"] }),
 	});
@@ -370,9 +374,9 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 		},
 	});
 
-	const act = (kind: DecisionKind, text?: string) => {
+	const act = (kind: DecisionKind, text?: string, event?: boolean) => {
 		if (!item?.lastPk) return;
-		decide.mutate({ pk: item.pk, lastPk: item.lastPk, kind, text });
+		decide.mutate({ pk: item.pk, lastPk: item.lastPk, kind, text, event });
 	};
 
 	useEffect(() => {
@@ -397,6 +401,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 				y: () => focusRef.current?.reply(),
 				enter: () => focusRef.current?.reply(),
 				e: () => focusRef.current?.edit(),
+				c: () => focusRef.current?.toggleEvent(),
 				r: () => focusRef.current?.redraft(),
 				d: () => act("done"),
 				a: () => act("archive"),
@@ -513,7 +518,7 @@ function Focus({
 	item: Item;
 	areaLabel?: string;
 	position: string;
-	act: (kind: DecisionKind, text?: string) => void;
+	act: (kind: DecisionKind, text?: string, event?: boolean) => void;
 	handle: RefObject<FocusHandle | null>;
 }) {
 	const chat = useQuery({
@@ -521,6 +526,9 @@ function Focus({
 		queryFn: () => api.chat(item.pk),
 	});
 	const [text, setText] = useState(item.draft ?? "");
+	const calendar = useInbox().data?.calendar ?? false;
+	const [eventOn, setEventOn] = useState(true);
+	const offersEvent = calendar && !item.group && hasTime(text);
 	const box = useRef<HTMLTextAreaElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
 	const redraft = useMutation({
@@ -545,11 +553,12 @@ function Focus({
 			document.querySelector<HTMLInputElement>("[data-slot-input]")?.focus();
 			return;
 		}
-		act("reply", text.trim());
+		act("reply", text.trim(), offersEvent && eventOn);
 	};
 	const open = slots(text);
 	handle.current = {
 		reply,
+		toggleEvent: () => offersEvent && setEventOn((v) => !v),
 		pick: (i) => {
 			const s = open[0];
 			if (!s?.options[i]) return false;
@@ -661,6 +670,19 @@ function Focus({
 						)}
 					</div>
 				)}
+				{!cleanup && offersEvent && (
+					<label className="mx-auto mt-2 flex max-w-3xl cursor-pointer items-center gap-2 text-[13px] text-muted">
+						<input
+							type="checkbox"
+							checked={eventOn}
+							onChange={(e) => setEventOn(e.target.checked)}
+							className="accent-accent"
+						/>
+						<CalendarDays className="size-3.5" />
+						Ao responder, criar o evento no meu calendário <kbd>C</kbd>
+						<span className="text-faint">· seu Claude cria, só na sua agenda, sem convidados</span>
+					</label>
+				)}
 				<div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center gap-2">
 					{!cleanup && (
 						<Btn primary onClick={reply} k="Y">
@@ -709,6 +731,7 @@ type FocusHandle = {
 	reply: () => void;
 	edit: () => void;
 	redraft: () => void;
+	toggleEvent: () => void;
 	/** fill the first open slot with its i-th choice; false when there is none */
 	pick: (i: number) => boolean;
 };
@@ -799,7 +822,13 @@ const KIND_LABEL: Record<DecisionKind, string> = {
 
 export function Done() {
 	const qc = useQueryClient();
-	const list = useQuery({ queryKey: ["decisions"], queryFn: api.decisions });
+	const list = useQuery({
+		queryKey: ["decisions"],
+		queryFn: api.decisions,
+		// poll while a calendar event is being created
+		refetchInterval: (q) =>
+			q.state.data?.some((d) => d.event?.status === "pending") ? 3000 : false,
+	});
 	const undo = useMutation({
 		mutationFn: api.undo,
 		onSuccess: () => {
@@ -821,6 +850,27 @@ export function Done() {
 								</span>
 							</div>
 							{d.text && <div className="mt-0.5 line-clamp-2 text-[13px] text-muted">{d.text}</div>}
+							{d.event && (
+								<div
+									className={clsx(
+										"mt-1 inline-flex items-center gap-1 text-[12px]",
+										d.event.status === "ok"
+											? "text-accent"
+											: d.event.status === "error"
+												? "text-hot"
+												: "text-faint",
+									)}
+								>
+									<CalendarDays className="size-3.5" />
+									{d.event.status === "pending"
+										? "criando o evento…"
+										: d.event.status === "ok"
+											? `no calendário: ${d.event.result?.replace(/^CRIADO:\s*/, "")}`
+											: d.event.status === "skipped"
+												? `evento não criado: ${d.event.result?.replace(/^NAO_CRIADO:\s*/, "")}`
+												: `erro no evento: ${d.event.result}`}
+								</div>
+							)}
 						</div>
 						<button
 							type="button"

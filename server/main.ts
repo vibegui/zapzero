@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { z } from "zod";
 import * as ai from "./ai.ts";
+import { CLAUDE, createEvent } from "./calendar.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
 import { buildInbox, CATEGORIES } from "./inbox.ts";
 import { cohorts, type Who, weekOf } from "./stats.ts";
@@ -78,6 +79,7 @@ app.get("/api/inbox", (c) => {
 			names: s.pks.map((pk) => names.get(pk) ?? String(pk)),
 		})),
 		categories: CATEGORIES.map((k) => ({ ...k, items: box[k.id] })),
+		calendar: CLAUDE != null,
 	});
 });
 
@@ -88,6 +90,8 @@ const Decide = z.object({
 	lastPk: z.number().int(),
 	kind: z.enum(["reply", "done", "skip", "archive", "ignore"]),
 	text: z.string().max(4000).optional(),
+	/** reply only: also put the time this reply agrees to in the owner's calendar */
+	event: z.boolean().optional(),
 });
 
 app.post("/api/decide", async (c) => {
@@ -115,7 +119,21 @@ app.post("/api/decide", async (c) => {
 		}
 	}
 	store.decide(pk, lastPk, kind, text ?? null);
-	return c.json({ ok: true, via });
+	let event = false;
+	if (kind === "reply" && p.data.event && text) {
+		// the owner's click is the approval; their Claude creates it in the background (~15 s)
+		event = true;
+		store.eventStart(pk, lastPk, text);
+		void createEvent(chat.name, text).then((r) =>
+			store.eventDone(
+				pk,
+				lastPk,
+				r.ok ? "ok" : r.result.startsWith("NAO_CRIADO") ? "skipped" : "error",
+				r.result,
+			),
+		);
+	}
+	return c.json({ ok: true, via, event });
 });
 
 app.post("/api/undo", async (c) => {
@@ -217,8 +235,16 @@ app.post("/api/refresh", (c) => {
 
 app.get("/api/decisions", (c) => {
 	const names = new Map(wa.chats().map((x) => [x.pk, x.name]));
+	const events = store.events();
 	return c.json(
-		store.recentDecisions(100).map((d) => ({ ...d, name: names.get(d.pk) ?? String(d.pk) })),
+		store.recentDecisions(100).map((d) => {
+			const e = events.get(`${d.pk}:${d.last_pk}`);
+			return {
+				...d,
+				name: names.get(d.pk) ?? String(d.pk),
+				event: e ? { status: e.status, result: e.result } : null,
+			};
+		}),
 	);
 });
 

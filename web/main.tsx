@@ -14,6 +14,12 @@ import { Category, Done, Shell, VoiceScreen } from "./app.tsx";
 import { StatsScreen } from "./stats.tsx";
 import "./styles.css";
 
+// On first load the hash history appends the page's own query (?t=…) to the hash's: "535?t=…". Read the number.
+const pkSearch = (s: Record<string, unknown>): { pk?: number } => {
+	const pk = Number.parseInt(String(s.pk ?? ""), 10);
+	return pk > 0 ? { pk } : {};
+};
+
 const root = createRootRoute({ component: Shell });
 const index = createRoute({
 	getParentRoute: () => root,
@@ -23,8 +29,7 @@ const index = createRoute({
 const category = createRoute({
 	getParentRoute: () => root,
 	path: "/c/$cat",
-	validateSearch: (s: Record<string, unknown>): { pk?: number } =>
-		s.pk ? { pk: Number(s.pk) } : {},
+	validateSearch: pkSearch,
 	component: function CategoryRoute() {
 		const { cat } = category.useParams();
 		const { pk } = category.useSearch();
@@ -34,8 +39,7 @@ const category = createRoute({
 const area = createRoute({
 	getParentRoute: () => root,
 	path: "/a/$area",
-	validateSearch: (s: Record<string, unknown>): { pk?: number } =>
-		s.pk ? { pk: Number(s.pk) } : {},
+	validateSearch: pkSearch,
 	component: function AreaRoute() {
 		const { area: id } = area.useParams();
 		const { pk } = area.useSearch();

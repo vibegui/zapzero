@@ -11,6 +11,8 @@ export type Inbox = {
 	spend24h: { what: string; n: number; cost: number }[];
 	categories: { id: CategoryId; label: string; items: Item[] }[];
 	voice: Voice;
+	/** Claude Code found: replies with a time can create a calendar event */
+	calendar: boolean;
 	areas: { id: string; label: string; builtin: boolean }[];
 	suggestions: {
 		id: string;
@@ -26,7 +28,10 @@ export type Stats = {
 	usage: Record<string, Partial<Record<DecisionKind, number>>>;
 	unread: Record<Who, number>;
 };
-export type DecisionRow = Decision & { name: string };
+export type DecisionRow = Decision & {
+	name: string;
+	event: { status: "pending" | "ok" | "skipped" | "error"; result: string | null } | null;
+};
 
 /** The token arrives in the iframe URL (?t=). Kept in memory only: storage throws in a sandboxed frame. */
 export const TOKEN = new URLSearchParams(location.search).get("t") ?? "";
@@ -51,8 +56,8 @@ export const api = {
 	chat: (pk: number) => call<Message[]>(`chat/${pk}`),
 	stats: () => call<Stats>("stats"),
 	decisions: () => call<DecisionRow[]>("decisions"),
-	decide: (b: { pk: number; lastPk: number; kind: DecisionKind; text?: string }) =>
-		call<{ ok: true; via: "whatsapp" | "clipboard" | null }>("decide", b),
+	decide: (b: { pk: number; lastPk: number; kind: DecisionKind; text?: string; event?: boolean }) =>
+		call<{ ok: true; via: "whatsapp" | "clipboard" | null; event: boolean }>("decide", b),
 	undo: (b: { pk: number; lastPk: number }) => call<{ ok: true }>("undo", b),
 	draft: (pk: number) => call<{ text: string }>(`draft/${pk}`, {}),
 	refresh: () => call<{ ok: true }>("refresh", {}),
