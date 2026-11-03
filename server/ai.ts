@@ -251,6 +251,36 @@ export async function draftOne(c: Chat, samples = ownSamples()) {
 	return { text, cost: costOf(r.providerMetadata) };
 }
 
+/**
+ * The owner answered the draft's [choices]: rewrite the whole message around what they picked, so it reads
+ * naturally in their voice instead of the template with words pasted into it.
+ */
+export async function compose(c: Chat, template: string, picks: { slot: string; value: string }[]) {
+	requireKey();
+	const { system } = draftPrompt(c, [], ownSamples());
+	const ms = messages(c.pk, 15);
+	const r = await generateText({
+		model: chatModel(),
+		system,
+		prompt: `Conversa com ${c.name}. Hoje é ${fmt(Date.now())}.
+${transcript(ms)}
+
+Rascunho com as decisões em aberto:
+${template}
+
+O que o dono decidiu em cada ponto:
+${picks.map((p) => `- [${p.slot}] → ${p.value}`).join("\n")}
+
+Escreva a mensagem que ele mandaria agora com essas decisões, natural, curta e no tom dele. O rascunho é só referência do assunto: escreva de novo do zero se as decisões mudam o sentido (uma recusa não começa com "pode sim" nem termina com "fica bom pra mim"). Sem colchetes. Responda só com o texto da mensagem.`,
+		maxOutputTokens: 600,
+		temperature: 0.3,
+		maxRetries: 2,
+	});
+	const text = r.text.trim();
+	if (!text) throw new Error(`empty (finish: ${r.finishReason})`);
+	return { text, cost: costOf(r.providerMetadata) };
+}
+
 /** Drafts for the reply categories, best-ranked first, skipping ones already drafted for the same last message. */
 export async function drafts(log = console.log) {
 	requireKey();

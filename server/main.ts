@@ -294,6 +294,28 @@ app.post("/api/draft/:pk", async (c) => {
 	}
 });
 
+const Compose = z.object({
+	template: z.string().min(1).max(4000),
+	picks: z
+		.array(z.object({ slot: z.string().max(500), value: z.string().max(500) }))
+		.min(1)
+		.max(9),
+});
+// the owner filled the draft's choices: one cheap call rewrites the message around them
+app.post("/api/compose/:pk", async (c) => {
+	const chat = wa.chats().find((x) => x.pk === Number(c.req.param("pk")));
+	if (!chat) return c.json({ error: "chat" }, 404);
+	const p = Compose.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	try {
+		const r = await ai.compose(chat, p.data.template, p.data.picks);
+		store.spend("compose", 1, r.cost);
+		return c.json({ text: r.text });
+	} catch (e) {
+		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
+	}
+});
+
 const Id = z.object({ id: z.string().min(1).max(80) });
 app.post("/api/areas/:action", async (c) => {
 	const p = Id.safeParse(await c.req.json().catch(() => null));

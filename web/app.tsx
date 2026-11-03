@@ -43,7 +43,7 @@ import {
 	type Item,
 	TOKEN,
 } from "./api.ts";
-import { emailsIn, fill, hasTime, slots } from "./slots.ts";
+import { emailsIn, fill, hasTime, type Slot, slots } from "./slots.ts";
 
 const ICONS: Record<CategoryId, typeof Flame> = {
 	urgente: Flame,
@@ -636,6 +636,22 @@ function Focus({
 		onSuccess: (r) => setText(r.text),
 	});
 	const cleanup = item.category === "limpeza";
+	// the draft's [choices] as a form: when the last one is answered, the message is rewritten around them
+	const form = useRef<{ template: string; picks: { slot: string; value: string }[] } | null>(null);
+	const compose = useMutation({
+		mutationFn: (f: NonNullable<typeof form.current>) => api.compose(item.pk, f),
+		onSuccess: (r) => {
+			form.current = null;
+			setText(r.text);
+		},
+	});
+	const fillSlot = (s: Slot, value: string) => {
+		form.current ??= { template: text, picks: [] };
+		form.current.picks.push({ slot: text.slice(s.start + 1, s.end - 1), value });
+		const next = fill(text, s, value);
+		setText(next);
+		if (slots(next).length === 0) compose.mutate(form.current);
+	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: scroll to the bottom when messages arrive
 	useEffect(() => {
@@ -644,7 +660,7 @@ function Focus({
 
 	const reply = () => {
 		const el = box.current;
-		if (!text.trim()) {
+		if (!text.trim() || compose.isPending) {
 			el?.focus();
 			return;
 		}
@@ -669,7 +685,7 @@ function Focus({
 		pick: (i) => {
 			const s = open[0];
 			if (!s?.options[i]) return false;
-			setText(fill(text, s, s.options[i]));
+			fillSlot(s, s.options[i]);
 			return true;
 		},
 		edit: () => {
@@ -759,8 +775,18 @@ function Focus({
 									{ev.data.when}
 								</div>
 							)}
-						{open.length > 0 && (
-							<SlotBar slots={open} onFill={(s, v) => setText(fill(text, s, v))} />
+						{open.length > 0 && <SlotBar slots={open} onFill={fillSlot} />}
+						{compose.isPending && (
+							<div className="mb-2 flex items-center gap-1.5 text-[12px] text-accent">
+								<Loader2 className="size-3.5 animate-spin" /> reescrevendo com o que você escolheu,
+								no seu tom…
+							</div>
+						)}
+						{compose.isError && (
+							<div className="mb-2 text-[12px] text-hot">
+								Não deu pra reescrever ({(compose.error as Error).message}); o texto ficou com as
+								escolhas coladas.
+							</div>
 						)}
 						<div className="relative">
 							<textarea

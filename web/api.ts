@@ -87,6 +87,8 @@ export const api = {
 	suggest: () => call<{ ok: true; count: number }>("suggest", {}),
 	saveVoice: (b: { perfil: Record<string, string>; voz: string }) => call<{ ok: true }>("voice", b),
 	suggestVoice: () => call<Voice>("voice/suggest", {}),
+	compose: (pk: number, b: { template: string; picks: { slot: string; value: string }[] }) =>
+		call<{ text: string }>(`compose/${pk}`, b),
 	keepLearned: (keep: string[]) => call<Voice>("voice/learned", { keep }),
 };
 
