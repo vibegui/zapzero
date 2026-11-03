@@ -473,7 +473,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 				c: () => focusRef.current?.toggleEvent(),
 				"/": () => document.querySelector<HTMLInputElement>("[data-search]")?.focus(),
 				r: () => focusRef.current?.redraft(),
-				d: () => act("done"),
+				d: () => (focusRef.current ? focusRef.current.done() : act("done")),
 				a: () => act("archive"),
 				s: () => act("skip"),
 				i: () => act("ignore"),
@@ -598,7 +598,9 @@ function Focus({
 	const [text, setText] = useState(item.draft ?? "");
 	const calendar = useInbox().data?.calendar ?? false;
 	const [eventOn, setEventOn] = useState(true);
-	const offersEvent = calendar && !item.group && hasTime(text);
+	// a call agreed earlier in the chat (pending invite) is offered whatever the reply says
+	const pendingCall = calendar && item.invite != null;
+	const offersEvent = pendingCall || (calendar && !item.group && hasTime(text));
 	// the other person shared an e-mail for the call: invite it (they see it before Y, and can untick)
 	const emails = useMemo(
 		() =>
@@ -612,26 +614,13 @@ function Focus({
 	);
 	const [inviteOn, setInviteOn] = useState(true);
 	// an event already created for this chat: when the person sends their e-mail afterwards, offer the invite
-	const qcFocus = useQueryClient();
 	const ev = useQuery({
 		queryKey: ["event", item.pk],
 		queryFn: () => api.event(item.pk),
 		enabled: calendar && !item.group,
 	});
 	const newGuests = emails.filter((e) => ev.data && !ev.data.guests.includes(e));
-	const invite = useMutation({
-		mutationFn: (email: string) => api.invite({ pk: item.pk, email }),
-		onSettled: () => qcFocus.invalidateQueries({ queryKey: ["event", item.pk] }),
-	});
 	const asksEmail = /e-?mail/i.test(text);
-	// they sent the e-mail for a call agreed in WhatsApp itself: find or create the event, with them invited
-	const schedule = useMutation({
-		mutationFn: () => api.schedule(item.pk),
-		onSuccess: (r) => {
-			if (r.ok) qcFocus.invalidateQueries({ queryKey: ["inbox"] });
-			qcFocus.invalidateQueries({ queryKey: ["event", item.pk] });
-		},
-	});
 	const box = useRef<HTMLTextAreaElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
 	const redraft = useMutation({
@@ -664,9 +653,11 @@ function Focus({
 		);
 	};
 	const open = slots(text);
+	const done = () => act("done", undefined, pendingCall && eventOn);
 	handle.current = {
 		reply,
 		toggleEvent: () => offersEvent && setEventOn((v) => !v),
+		done,
 		pick: (i) => {
 			const s = open[0];
 			if (!s?.options[i]) return false;
@@ -745,79 +736,6 @@ function Focus({
 			<footer className="border-t border-line bg-panel px-6 py-4">
 				{!cleanup && (
 					<div className="mx-auto max-w-3xl">
-						{item.invite && !ev.data && (
-							<div className="mb-2 rounded-xl border border-accent/40 bg-accent-soft px-3 py-2 text-[13px]">
-								<div className="flex flex-wrap items-center gap-2">
-									<CalendarDays className="size-4 text-accent" />
-									<span className="text-muted">
-										Mandou <span className="text-ink">{item.invite.email}</span> pro convite da call
-										que você combinou:
-									</span>
-									<button
-										type="button"
-										disabled={schedule.isPending || schedule.data?.ok}
-										onClick={() => schedule.mutate()}
-										className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 font-medium text-accent-ink disabled:opacity-60"
-									>
-										{schedule.isPending ? (
-											<Loader2 className="size-3.5 animate-spin" />
-										) : (
-											<Check className="size-3.5" />
-										)}
-										{schedule.data?.ok ? "Convidado" : "Criar o evento e convidar"}
-									</button>
-								</div>
-								<div className="mt-1 line-clamp-2 pl-6 text-[12px] text-faint">
-									você: «{item.invite.agreed}» · seu Claude olha a agenda: se a call já existe, só
-									adiciona o convidado
-								</div>
-								{schedule.data && (
-									<div
-										className={clsx(
-											"mt-1 pl-6 text-[12px]",
-											schedule.data.ok ? "text-accent" : "text-hot",
-										)}
-									>
-										{schedule.data.result.replace(/^CRIADO:\s*/, "no calendário: ")}
-									</div>
-								)}
-								{schedule.error && (
-									<div className="mt-1 pl-6 text-[12px] text-hot">
-										{(schedule.error as Error).message}
-									</div>
-								)}
-							</div>
-						)}
-						{ev.data && newGuests.length > 0 && (
-							<div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-accent/40 bg-accent-soft px-3 py-2 text-[13px]">
-								<CalendarDays className="size-4 text-accent" />
-								<span className="text-muted">
-									Mandou o e-mail para o convite de {ev.data.when}:
-								</span>
-								{newGuests.map((e) => (
-									<button
-										key={e}
-										type="button"
-										disabled={invite.isPending}
-										onClick={() => invite.mutate(e)}
-										className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 font-medium text-accent-ink disabled:opacity-60"
-									>
-										{invite.isPending && invite.variables === e ? (
-											<Loader2 className="size-3.5 animate-spin" />
-										) : (
-											<Check className="size-3.5" />
-										)}
-										Adicionar {e} no convite
-									</button>
-								))}
-								{invite.data && !invite.data.ok && (
-									<span className="text-hot">{invite.data.result}</span>
-								)}
-								{invite.error && (
-									<span className="text-hot">{(invite.error as Error).message}</span>
-								)}
-							</div>
-						)}
 						{ev.data &&
 							ev.data.guests.length > 0 &&
 							newGuests.length === 0 &&
@@ -860,7 +778,25 @@ function Focus({
 						)}
 					</div>
 				)}
-				{!cleanup && offersEvent && (
+				{!cleanup && pendingCall && item.invite && (
+					<label className="mx-auto mt-2 flex max-w-3xl cursor-pointer items-start gap-2 text-[13px] text-muted">
+						<input
+							type="checkbox"
+							checked={eventOn}
+							onChange={(e) => setEventOn(e.target.checked)}
+							className="mt-0.5 accent-accent"
+						/>
+						<CalendarDays className="mt-0.5 size-3.5 shrink-0" />
+						<span>
+							Ao responder ou resolver, garantir a call no calendário com{" "}
+							<span className="text-ink">{item.invite.email}</span> <kbd>C</kbd>
+							<span className="block line-clamp-1 text-[12px] text-faint">
+								você combinou: «{item.invite.agreed}» · seu Claude acha o evento ou cria, e convida
+							</span>
+						</span>
+					</label>
+				)}
+				{!cleanup && offersEvent && !pendingCall && (
 					<label className="mx-auto mt-2 flex max-w-3xl cursor-pointer items-center gap-2 text-[13px] text-muted">
 						<input
 							type="checkbox"
@@ -876,20 +812,25 @@ function Focus({
 						</span>
 					</label>
 				)}
-				{!cleanup && offersEvent && eventOn && emails.length === 0 && !asksEmail && (
-					<div className="mx-auto mt-1 max-w-3xl pl-6">
-						<button
-							type="button"
-							onClick={() =>
-								setText(`${text.trimEnd()} Me passa seu e-mail que te mando o convite?`)
-							}
-							className="rounded-lg border border-line px-2 py-0.5 text-[12px] text-muted hover:border-accent hover:text-ink"
-						>
-							+ pedir o e-mail dele pro convite
-						</button>
-					</div>
-				)}
-				{!cleanup && offersEvent && eventOn && emails.length > 0 && (
+				{!cleanup &&
+					offersEvent &&
+					!pendingCall &&
+					eventOn &&
+					emails.length === 0 &&
+					!asksEmail && (
+						<div className="mx-auto mt-1 max-w-3xl pl-6">
+							<button
+								type="button"
+								onClick={() =>
+									setText(`${text.trimEnd()} Me passa seu e-mail que te mando o convite?`)
+								}
+								className="rounded-lg border border-line px-2 py-0.5 text-[12px] text-muted hover:border-accent hover:text-ink"
+							>
+								+ pedir o e-mail dele pro convite
+							</button>
+						</div>
+					)}
+				{!cleanup && offersEvent && !pendingCall && eventOn && emails.length > 0 && (
 					<label className="mx-auto mt-1 flex max-w-3xl cursor-pointer items-center gap-2 pl-6 text-[13px] text-muted">
 						<input
 							type="checkbox"
@@ -918,7 +859,7 @@ function Focus({
 						</Btn>
 					)}
 					<div className="flex-1" />
-					<Btn onClick={() => act("done")} k="D">
+					<Btn onClick={done} k="D">
 						<CheckCheck className="size-3.5" /> Resolvida
 					</Btn>
 					{!cleanup && (
@@ -950,6 +891,8 @@ type FocusHandle = {
 	edit: () => void;
 	redraft: () => void;
 	toggleEvent: () => void;
+	/** resolve; also schedules a pending call when its toggle is on */
+	done: () => void;
 	/** fill the first open slot with its i-th choice; false when there is none */
 	pick: (i: number) => boolean;
 };

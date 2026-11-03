@@ -1,6 +1,6 @@
 // Reads the read-only snapshot of WhatsApp Desktop's database. Never touches the app's own files except to copy them.
 import { Database } from "bun:sqlite";
-import { renameSync, statSync } from "node:fs";
+import { renameSync, rmSync, statSync } from "node:fs";
 import { DATA, WA_DIR } from "./env.ts";
 
 const COCOA = 978307200;
@@ -16,15 +16,35 @@ const KINDS: Record<number, string> = {
 	15: "sticker",
 };
 
-/** Copies ChatStorage + ContactsV2 with sqlite's online backup over a mode=ro connection, then swaps atomically. */
-export function snapshot() {
+/**
+ * Copies ChatStorage + ContactsV2 over a mode=ro connection, then swaps atomically. `VACUUM INTO` reads the
+ * whole database in one read transaction: `.backup` restarts every time WhatsApp writes, and on a busy
+ * database it never finished (it held the server for 20+ min). Async with a time limit, so it can't block.
+ */
+export async function snapshot(limitMs = 120_000) {
 	for (const [src, dest] of [
 		["ChatStorage.sqlite", "chat.sqlite"],
 		["ContactsV2.sqlite", "contacts.sqlite"],
 	] as const) {
 		const tmp = `${DATA}/${dest}.tmp`;
-		const r = Bun.spawnSync(["sqlite3", `file:${WA_DIR}/${src}?mode=ro`, `.backup '${tmp}'`]);
-		if (r.exitCode !== 0) throw new Error(`snapshot ${src}: ${r.stderr.toString().slice(0, 300)}`);
+		rmSync(tmp, { force: true }); // VACUUM INTO refuses an existing file
+		const p = Bun.spawn(
+			[
+				"sqlite3",
+				"-cmd",
+				".timeout 10000",
+				`file:${WA_DIR}/${src}?mode=ro`,
+				`VACUUM INTO '${tmp}'`,
+			],
+			{ stdout: "ignore", stderr: "pipe" },
+		);
+		const timer = setTimeout(() => p.kill(), limitMs);
+		const err = await new Response(p.stderr).text();
+		clearTimeout(timer);
+		if ((await p.exited) !== 0)
+			throw new Error(
+				`snapshot ${src}: ${p.signalCode ? `no answer in ${limitMs / 1000}s` : err.slice(0, 300)}`,
+			);
 		renameSync(tmp, `${DATA}/${dest}`);
 	}
 }

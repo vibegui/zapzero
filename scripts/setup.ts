@@ -31,7 +31,7 @@ if (!existsSync(WA_DIR))
 		"Install WhatsApp from the Mac App Store or whatsapp.com, link it to your phone, and let it sync.",
 	);
 try {
-	wa.snapshot();
+	await wa.snapshot();
 } catch (e) {
 	fail(
 		"can't read WhatsApp's database",

@@ -28,7 +28,7 @@ function refresh(): Promise<void> {
 		};
 		let ok = true;
 		try {
-			wa.snapshot();
+			await wa.snapshot();
 			say(`snapshot: ${wa.chats().length} chats`);
 			// first scan: propose who the owner is and how they write, before triage and drafts use it
 			if (store.voice().state === "empty") await ai.suggestVoice(say);
@@ -157,7 +157,18 @@ app.post("/api/decide", async (c) => {
 	}
 	store.decide(pk, lastPk, kind, text ?? null);
 	let event = false;
-	if (kind === "reply" && p.data.event && text) {
+	// a call agreed earlier in the chat, waiting on the invite: independent of what this reply says
+	const inv =
+		p.data.event && (kind === "reply" || kind === "done")
+			? findPendingInvite(wa.messages(pk, 12), store.invitedIn(pk), hasTime)
+			: null;
+	if (inv) {
+		event = true;
+		store.eventStart(pk, lastPk, inv.agreed, [inv.email]);
+		void scheduleWithGuest(chat.name, inv.agreed, inv.agreedAt, inv.email).then((r) =>
+			store.eventDone(pk, lastPk, r.ok ? "ok" : "error", r.result, r.eventId),
+		);
+	} else if (kind === "reply" && p.data.event && text) {
 		// the owner's click is the approval; their Claude creates it in the background (~15 s)
 		event = true;
 		const said = incoming(pk);
@@ -406,7 +417,7 @@ if (cmd === "serve") {
 		setInterval(() => void refresh(), REFRESH_MIN * 60_000);
 	}
 } else if (cmd === "snapshot") {
-	wa.snapshot();
+	await wa.snapshot();
 	console.log(`${wa.chats().length} chats`);
 } else if (cmd === "triage") {
 	await ai.triage();
