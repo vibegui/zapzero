@@ -1,5 +1,7 @@
 # zapzero
 
+[![vibebook: sala do projeto](https://vibebook.dev/badge.svg)](https://vibebook.dev/b/c9b7866d4678)
+
 **Inbox zero for WhatsApp.** No bot, no ban risk, your chats never leave your Mac.
 
 zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**. AI triages every chat (who is waiting on whom, how urgent, who this person is to you) and drafts a reply in your own tone of voice for everyone waiting on you. You clear it from the keyboard: **Y** opens the chat in WhatsApp with the reply typed in, you press Enter. Next.
