@@ -204,7 +204,9 @@
           "reason": "Plenty of invites and plans for events, livestreams and panels, with no area of their own."
         }
       ],
-      "note": "Once a day it looks at what's pending and suggests areas yours don't cover. Accept one and it becomes an area and re-sorts the rest."
+      "note": "Once a day it looks at what's pending and suggests areas yours don't cover. Accept one and it becomes an area and re-sorts the rest.",
+      "acceptLabel": "Create area",
+      "dismissLabel": "No"
     },
     {
       "__resolveType": "site/sections/Voice.tsx",

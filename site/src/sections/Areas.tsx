@@ -33,6 +33,10 @@ export interface Props {
 	suggestionsLabel?: string;
 	/** @title Sugestões da IA */
 	suggestions?: Suggestion[];
+	/** @title Botão aceitar */
+	acceptLabel?: string;
+	/** @title Botão recusar */
+	dismissLabel?: string;
 	/** @title Nota */
 	note?: string;
 }
@@ -45,6 +49,8 @@ export default function Areas({
 	areas = [],
 	suggestionsLabel = "Sugestões",
 	suggestions = [],
+	acceptLabel = "Criar área",
+	dismissLabel = "Não",
 	note = "",
 }: Props) {
 	return (
@@ -77,8 +83,8 @@ export default function Areas({
 							</header>
 							<p>{s.reason}</p>
 							<footer>
-								<span className="accept">✓ Criar área</span>
-								<span className="dismiss">✕ Não</span>
+								<span className="accept">✓ {acceptLabel}</span>
+								<span className="dismiss">✕ {dismissLabel}</span>
 							</footer>
 						</article>
 					))}
