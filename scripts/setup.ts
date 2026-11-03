@@ -9,6 +9,7 @@ import * as wa from "../server/wa.ts";
 const LABEL = "dev.zapzero.server";
 const PLIST = `${homedir()}/Library/LaunchAgents/${LABEL}.plist`;
 const LOG = `${homedir()}/Library/Logs/zapzero.log`;
+const SERVER = `${DATA}/bin/zapzero`;
 const ok = (s: string) => console.log(`  ✓ ${s}`);
 const fail = (s: string, fix: string) => {
 	console.log(`  ✗ ${s}\n    ${fix.replaceAll("\n", "\n    ")}`);
@@ -62,8 +63,14 @@ if (run(["bun", "run", "build"]).exitCode !== 0)
 ok("panel built");
 
 if (!process.argv.includes("--no-launchd")) {
+	// The background server is its own small binary, so Full Disk Access (or the "access data from other
+	// apps" answer) goes to zapzero alone, not to bun, which runs every other script on the machine.
+	mkdirSync(`${DATA}/bin`, { recursive: true });
+	if (run(["bun", "build", "server/main.ts", "--compile", "--outfile", SERVER]).exitCode !== 0)
+		fail("server build failed", "Run `bun build server/main.ts --compile` to see why.");
+	run(["codesign", "-s", "-", "-f", "-i", LABEL, SERVER]);
+	ok(`server binary: ${SERVER}`);
 	mkdirSync(`${homedir()}/Library/LaunchAgents`, { recursive: true });
-	const bunDir = process.execPath.replace(/\/[^/]+$/, "");
 	writeFileSync(
 		PLIST,
 		`<?xml version="1.0" encoding="UTF-8"?>
@@ -72,10 +79,10 @@ if (!process.argv.includes("--no-launchd")) {
 <dict>
 	<key>Label</key><string>${LABEL}</string>
 	<key>ProgramArguments</key>
-	<array><string>${process.execPath}</string><string>server/main.ts</string><string>serve</string></array>
+	<array><string>${SERVER}</string><string>serve</string></array>
 	<key>WorkingDirectory</key><string>${process.cwd()}</string>
 	<key>EnvironmentVariables</key>
-	<dict><key>PATH</key><string>${bunDir}:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+	<dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
 	<key>RunAtLoad</key><true/>
 	<key>KeepAlive</key><true/>
 	<key>ThrottleInterval</key><integer>30</integer>
@@ -95,6 +102,10 @@ if (!process.argv.includes("--no-launchd")) {
 	}
 	if (r.exitCode !== 0) fail("launchd agent failed to load", r.stderr.toString().slice(0, 300));
 	ok(`runs at login (launchd ${LABEL}, log ${LOG})`);
+	console.log(`  macOS asks before the server reads WhatsApp's folder. So it stops asking, give Full Disk Access
+  to the server binary only (not bun): System Settings → Privacy & Security → Full Disk Access → +
+  → ${SERVER}
+  Rebuilding it (setup again) changes the binary: turn it off and on there once more.`);
 } else {
 	console.log("  – skipped launchd: start it with `bun run start`");
 }

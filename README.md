@@ -48,7 +48,7 @@ bun run setup
 
 `setup` checks everything, takes the first snapshot, builds the panel, installs a launchd agent (`dev.zapzero.server`) so the server starts at login, and prints the panel URL with your access token.
 
-macOS blocks other apps' data until you allow it. If setup says it can't read WhatsApp's database: **System Settings → Privacy & Security → Full Disk Access**, add your terminal and the `bun` binary setup prints, then run it again.
+macOS blocks other apps' data until you allow it. If setup says it can't read WhatsApp's database: **System Settings → Privacy & Security → Full Disk Access**, add your terminal, then run it again. The background server is its own binary (`~/Library/Application Support/zap/bin/zapzero`), built by setup: give Full Disk Access to that one, not to `bun`, so no other script gets it.
 
 ## Use
 
