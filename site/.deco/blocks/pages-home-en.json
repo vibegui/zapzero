@@ -166,7 +166,7 @@
           "icon": "claude",
           "name": "Claude Code",
           "badge": "required",
-          "text": "Logged in with your Claude subscription. It triages, drafts replies in your voice and books your calendar. No key, no new account, no extra cost.",
+          "text": "Logged in with your Claude subscription. It triages, drafts replies in your voice and books your calendar. No key, no new account, no extra cost. Rather nothing leaves your Mac? Use a local model on Ollama.",
           "href": "https://claude.com/claude-code",
           "linkLabel": "Install"
         },
@@ -435,6 +435,10 @@
           "text": "There's no zapzero cloud with your chats. Only the excerpt needed goes to your Claude, on your account."
         },
         {
+          "title": "Or nothing leaves at all",
+          "text": "Pick a local model on Ollama in setup and not even the AI touches the internet."
+        },
+        {
           "title": "Nothing sent without you",
           "text": "zapzero doesn't send messages. It types. You hit Enter."
         }
@@ -546,7 +550,7 @@
         },
         {
           "q": "Is the panel in English?",
-          "a": "<p>Not yet: the panel is in Portuguese for now. English is on the roadmap, and contributions are welcome.</p>"
+          "a": "<p>Yes. Setup asks: Portuguese or English.</p>"
         }
       ]
     },

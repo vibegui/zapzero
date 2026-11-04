@@ -2,8 +2,10 @@
 // so the server starts at login. Safe to run again. Pass --no-launchd to skip the agent.
 import { existsSync, lstatSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { homedir, platform } from "node:os";
+import { CLAUDE } from "../server/calendar.ts";
 import { DATA, OPENROUTER_API_KEY, PORT, TOKEN, WA_DIR } from "../server/env.ts";
-import { LLM, llmLabel } from "../server/llm.ts";
+import { type Engine, ollamaModels } from "../server/llm.ts";
+import { kvGet, kvSet } from "../server/store.ts";
 import * as wa from "../server/wa.ts";
 
 const LABEL = "dev.zapzero.server";
@@ -27,6 +29,14 @@ if (run(["which", "sqlite3"]).exitCode !== 0)
 	fail("sqlite3 not found", "It ships with macOS: check your PATH.");
 ok("sqlite3");
 
+const check = run(["bun", `${import.meta.dir}/selfcheck.ts`]);
+if (check.exitCode !== 0)
+	fail(
+		"self-check failed: zapzero can't read a sample WhatsApp database on this machine",
+		`Nothing was read from your WhatsApp. Run \`bun run selfcheck\` to see why.\n${check.stderr.toString().trim().split("\n").slice(-3).join("\n")}`,
+	);
+ok("self-check on a sample database");
+
 if (!existsSync(WA_DIR))
 	fail(
 		"WhatsApp Desktop data not found",
@@ -45,16 +55,59 @@ Detail: ${(e as Error).message.slice(0, 200)}`,
 }
 ok(`read-only snapshot: ${wa.chats().length} chats`);
 
-if (LLM === "none")
+// Two choices, asked once and kept in zap.sqlite: panel language and which AI reads the chats.
+// Flags skip the questions (--lang=en, --llm=ollama); without a terminal, the saved or default answer stays.
+const flag = (k: string) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=")[1];
+const ask = (q: string, def: string) =>
+	process.stdin.isTTY ? prompt(`  ${q} [${def}]`)?.trim() || def : def;
+
+const sysLang = (process.env.LANG ?? "").startsWith("pt") ? "pt" : "en";
+const lang =
+	flag("lang") ?? ask("Panel language / idioma do painel (pt, en)", kvGet("lang") ?? sysLang);
+if (lang !== "pt" && lang !== "en") fail(`unknown language "${lang}"`, "Use pt or en.");
+kvSet("lang", lang);
+ok(`panel language: ${lang}`);
+
+const local = await ollamaModels();
+const engines: { id: Engine; label: string }[] = [];
+if (CLAUDE)
+	engines.push({ id: "claude", label: "Claude, on your Claude subscription (Claude Code)" });
+if (local?.length)
+	engines.push({
+		id: "ollama",
+		label: `local model with Ollama (${local.join(", ")}): nothing leaves your Mac`,
+	});
+if (OPENROUTER_API_KEY)
+	engines.push({ id: "openrouter", label: "OpenRouter, with your key (pay per use)" });
+if (!engines.length)
 	fail(
 		"no model to read your chats",
-		"Install Claude Code (https://claude.com/claude-code) and log in: zapzero uses your Claude subscription.\nOr put OPENROUTER_API_KEY in .env (cp .env.example .env).",
+		"Install Claude Code (https://claude.com/claude-code) and log in, or Ollama (https://ollama.com) with a model,\nor put OPENROUTER_API_KEY in .env (cp .env.example .env).",
 	);
-ok(`model: ${llmLabel()}`);
+const saved = kvGet("llm");
+let engine =
+	(flag("llm") as Engine | undefined) ?? engines.find((e) => e.id === saved)?.id ?? engines[0]!.id;
+if (!flag("llm") && engines.length > 1 && process.stdin.isTTY) {
+	console.log("  Which AI reads your chats?");
+	for (const [i, e] of engines.entries()) console.log(`    ${i + 1}. ${e.label}`);
+	const n = Number(ask("Pick a number", String(engines.findIndex((e) => e.id === engine) + 1)));
+	engine = engines[n - 1]?.id ?? engine;
+}
+if (!engines.some((e) => e.id === engine))
+	fail(`"${engine}" isn't available here`, engines.map((e) => e.id).join(", "));
+kvSet("llm", engine);
+if (engine === "ollama" && local?.length) {
+	const m =
+		local.length > 1 && process.stdin.isTTY
+			? ask(`Ollama model (${local.join(", ")})`, kvGet("ollama_model") || local[0]!)
+			: kvGet("ollama_model") || local[0]!;
+	kvSet("ollama_model", m);
+	ok(`AI: Ollama, ${m} (local)`);
+} else ok(`AI: ${engines.find((e) => e.id === engine)!.label}`);
 ok(
 	OPENROUTER_API_KEY
 		? "triage: Jev on OpenRouter (fast, fractions of a cent)"
-		: "triage: your Claude, in batches (optional: OPENROUTER_API_KEY in .env unlocks Jev, faster and cheaper)",
+		: "triage: the AI above, in batches (optional: OPENROUTER_API_KEY in .env unlocks Jev, faster and cheaper)",
 );
 
 console.log("\n  building the panel…");

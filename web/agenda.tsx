@@ -6,11 +6,12 @@ import { CalendarDays, Check, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, type Inbox } from "./api.ts";
 import { useInbox } from "./app.tsx";
+import { locale, t, tf } from "./i18n.ts";
 
 type P = Inbox["proposals"][number];
 
 const when = (start: string) =>
-	new Date(start).toLocaleString("pt-BR", {
+	new Date(start).toLocaleString(locale(), {
 		weekday: "long",
 		day: "numeric",
 		month: "short",
@@ -33,20 +34,21 @@ export function AgendaScreen() {
 	}, [booking, qc]);
 	return (
 		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-8">
-			<h1 className="text-[22px] font-semibold tracking-tight">Proposta de agenda</h1>
+			<h1 className="text-[22px] font-semibold tracking-tight">{t("Proposta de agenda")}</h1>
 			<p className="mt-1 text-sm text-muted">
-				Compromissos com dia e hora que apareceram nas conversas, seus ou da outra pessoa. Aceite e
-				o seu Claude marca no calendário e convida quem você marcar.
+				{t(
+					"Compromissos com dia e hora que apareceram nas conversas, seus ou da outra pessoa. Aceite e o seu Claude marca no calendário e convida quem você marcar.",
+				)}
 			</p>
 			{!inbox.data?.calendar && (
 				<p className="mt-4 rounded-xl border border-line bg-panel px-4 py-3 text-sm text-hot">
-					Precisa do Claude Code instalado, com um conector de calendário.
+					{t("Precisa do Claude Code instalado, com um conector de calendário.")}
 				</p>
 			)}
 			<div className="mt-6 grid gap-3">
 				{pending.length === 0 && (
 					<div className="rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-faint">
-						Nada proposto agora.
+						{t("Nada proposto agora.")}
 					</div>
 				)}
 				{pending.map((p) => (
@@ -56,7 +58,7 @@ export function AgendaScreen() {
 			{rest.length > 0 && (
 				<>
 					<h2 className="mt-10 text-[13px] font-medium tracking-wide text-faint uppercase">
-						Marcados
+						{t("Marcados")}
 					</h2>
 					<div className="mt-2 grid gap-2">
 						{rest.map((p) => (
@@ -89,7 +91,7 @@ function Card({ p }: { p: P }) {
 						<span className="text-xs text-faint">· {p.minutes} min</span>
 					</div>
 					<div className="mt-1 text-[13px] text-muted">
-						{p.mine ? "Você para " : ""}
+						{p.mine ? `${t("Você para")} ` : ""}
 						<span className="font-medium text-ink">{p.name}</span>:{" "}
 						<span className="italic">«{p.text}»</span>
 					</div>
@@ -109,14 +111,14 @@ function Card({ p }: { p: P }) {
 											})
 										}
 									/>
-									convidar {e}
+									{t("convidar")} {e}
 								</label>
 							))}
 						</div>
 					)}
 					{!done && p.emails.length === 0 && (
 						<div className="mt-2 text-[12px] text-faint">
-							Sem e-mail conhecido: o evento fica só na sua agenda.
+							{t("Sem e-mail conhecido: o evento fica só na sua agenda.")}
 						</div>
 					)}
 					{done && (
@@ -128,10 +130,10 @@ function Card({ p }: { p: P }) {
 						>
 							{p.status === "booking" && <Loader2 className="size-3.5 animate-spin" />}
 							{p.status === "booking"
-								? "seu Claude está marcando…"
+								? t("seu Claude está marcando…")
 								: p.status === "booked"
-									? `${p.result ?? "marcado"}${p.guests ? ` · convidou ${p.guests.replaceAll(",", ", ")}` : ""}`
-									: `não deu: ${p.result ?? ""}`}
+									? `${p.result ?? t("marcado")}${p.guests ? tf(" · convidou {g}", { g: p.guests.replaceAll(",", ", ") }) : ""}`
+									: tf("não deu: {r}", { r: p.result ?? "" })}
 						</div>
 					)}
 				</div>
@@ -143,7 +145,7 @@ function Card({ p }: { p: P }) {
 							onClick={() => act.mutate("accept")}
 							className="inline-flex h-8 items-center gap-1 rounded-lg bg-accent px-3 text-[12px] font-medium text-accent-ink hover:brightness-110 disabled:opacity-50"
 						>
-							<Check className="size-3.5" /> Marcar
+							<Check className="size-3.5" /> {t("Marcar")}
 						</button>
 						<button
 							type="button"
@@ -151,7 +153,7 @@ function Card({ p }: { p: P }) {
 							onClick={() => act.mutate("dismiss")}
 							className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-[12px] text-muted hover:text-ink"
 						>
-							<X className="size-3.5" /> Não
+							<X className="size-3.5" /> {t("Não")}
 						</button>
 					</div>
 				)}

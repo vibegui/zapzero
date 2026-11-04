@@ -3,14 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { Week, Who } from "../server/stats.ts";
 import { api, type Stats } from "./api.ts";
+import { lang, locale, t, tf } from "./i18n.ts";
 
 const SERIES: { who: Who; label: string; color: string }[] = [
 	{ who: "conhecido", label: "Contatos salvos", color: "var(--s1)" },
 	{ who: "desconhecido", label: "Desconhecidos", color: "var(--s2)" },
 	{ who: "grupo", label: "Grupos", color: "var(--s3)" },
 ];
-const fmt = (n: number) => Math.round(n).toLocaleString("pt-BR");
-const dm = (w: string) => `${w.slice(8, 10)}/${w.slice(5, 7)}`;
+const fmt = (n: number) => Math.round(n).toLocaleString(locale());
+const dm = (w: string) =>
+	lang() === "en" ? `${w.slice(5, 7)}/${w.slice(8, 10)}` : `${w.slice(8, 10)}/${w.slice(5, 7)}`;
 const hours = (h: number | null) =>
 	h == null
 		? "—"
@@ -19,14 +21,14 @@ const hours = (h: number | null) =>
 			: h < 1
 				? `${Math.max(1, Math.round(h * 60))} min`
 				: h < 48
-					? `${h.toFixed(1).replace(".", ",")} h`
+					? `${h.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} h`
 					: `${Math.round(h / 24)} d`;
 const pct = (num: number, den: number) => (den ? (100 * num) / den : null);
 
 export function StatsScreen() {
 	const q = useQuery({ queryKey: ["stats"], queryFn: api.stats, staleTime: 60_000 });
 	if (!q.data)
-		return <div className="p-6 text-sm text-faint">{q.error ? String(q.error) : "lendo…"}</div>;
+		return <div className="p-6 text-sm text-faint">{q.error ? String(q.error) : t("lendo…")}</div>;
 	return <Body s={q.data} />;
 }
 
@@ -59,46 +61,56 @@ function Body({ s }: { s: Stats }) {
 	const used = Object.values(s.usage[current] ?? {}).reduce((t, n) => t + (n ?? 0), 0);
 
 	const usageWeeks = weeks;
+	const series = SERIES.map((x) => ({ ...x, label: t(x.label) }));
 	return (
 		<section className="mx-auto w-full max-w-5xl overflow-y-auto px-6 py-6">
-			<h1 className="text-[22px] font-semibold tracking-tight">Desempenho</h1>
+			<h1 className="text-[22px] font-semibold tracking-tight">{t("Desempenho")}</h1>
 			<p className="mt-1 mb-5 text-sm text-muted">
-				Últimas 13 semanas, pela semana em que alguém puxou conversa com você. Conta como "puxou" a
-				mensagem que chega depois da sua e depois de 1 h de silêncio, pra que um papo ao vivo não
-				vire dezenas de cobranças.
+				{t(
+					'Últimas 13 semanas, pela semana em que alguém puxou conversa com você. Conta como "puxou" a mensagem que chega depois da sua e depois de 1 h de silêncio, pra que um papo ao vivo não vire dezenas de cobranças.',
+				)}
 			</p>
 
 			<div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
 				<Tile
 					v={r24 == null ? "—" : `${Math.round(r24)}%`}
-					l="contatos respondidos em 24 h"
+					l={t("contatos respondidos em 24 h")}
 					n={
 						r24 != null && r24b != null
-							? `${r24 >= r24b ? "+" : ""}${Math.round(r24 - r24b)} pts vs. 4 semanas antes`
-							: "4 semanas fechadas"
+							? tf("{n} pts vs. 4 semanas antes", {
+									n: `${r24 >= r24b ? "+" : ""}${Math.round(r24 - r24b)}`,
+								})
+							: t("4 semanas fechadas")
 					}
 				/>
 				<Tile
 					v={hours(meds.length ? meds.sort((a, b) => a - b)[meds.length >> 1]! : null)}
-					l="tempo típico de resposta"
-					n={`mediana, contatos · esta semana ${hours(medNow)}`}
+					l={t("tempo típico de resposta")}
+					n={tf("mediana, contatos · esta semana {h}", { h: hours(medNow) })}
 				/>
-				<Tile v={fmt(leak)} l="ficaram sem resposta" n="contatos e desconhecidos, 4 semanas" />
+				<Tile
+					v={fmt(leak)}
+					l={t("ficaram sem resposta")}
+					n={t("contatos e desconhecidos, 4 semanas")}
+				/>
 				<Tile
 					v={fmt(s.unread.conhecido + s.unread.desconhecido)}
-					l="não lidas em conversas"
-					n={`${fmt(s.unread.grupo)} em grupos · ${used} resolvidas no zapzero esta semana`}
+					l={t("não lidas em conversas")}
+					n={tf("{g} em grupos · {u} resolvidas no zapzero esta semana", {
+						g: fmt(s.unread.grupo),
+						u: used,
+					})}
 				/>
 			</div>
 
 			<div className="mt-4 grid gap-4 lg:grid-cols-2">
-				<Card title="Respondido em 24 h" sub="% das vezes em que alguém puxou conversa">
+				<Card title={t("Respondido em 24 h")} sub={t("% das vezes em que alguém puxou conversa")}>
 					<Chart
 						weeks={weeks}
 						kind="line"
 						max={100}
 						yfmt={(v) => `${Math.round(v)}%`}
-						series={SERIES.map((x) => ({
+						series={series.map((x) => ({
 							...x,
 							values: weeks.map((w) => {
 								const k = at(x.who, w);
@@ -107,32 +119,38 @@ function Body({ s }: { s: Stats }) {
 						}))}
 					/>
 				</Card>
-				<Card title="Ficaram sem resposta" sub="Alguém puxou conversa e você nunca escreveu depois">
+				<Card
+					title={t("Ficaram sem resposta")}
+					sub={t("Alguém puxou conversa e você nunca escreveu depois")}
+				>
 					<Chart
 						weeks={weeks}
 						kind="bars"
-						series={SERIES.slice(0, 2).map((x) => ({
+						series={series.slice(0, 2).map((x) => ({
 							...x,
 							values: weeks.map((w) => at(x.who, w)?.semResposta ?? 0),
 						}))}
 					/>
 				</Card>
-				<Card title="Tempo típico de resposta" sub="Mediana em horas, quando você respondeu">
+				<Card
+					title={t("Tempo típico de resposta")}
+					sub={t("Mediana em horas, quando você respondeu")}
+				>
 					<Chart
 						weeks={weeks}
 						kind="line"
 						yfmt={(v) => hours(v)}
-						series={SERIES.map((x) => ({
+						series={series.map((x) => ({
 							...x,
 							values: weeks.map((w) => at(x.who, w)?.medianaH ?? null),
 						}))}
 					/>
 				</Card>
-				<Card title="Volume" sub="Vezes em que alguém puxou conversa, por semana">
+				<Card title={t("Volume")} sub={t("Vezes em que alguém puxou conversa, por semana")}>
 					<Chart
 						weeks={weeks}
 						kind="bars"
-						series={SERIES.map((x) => ({
+						series={series.map((x) => ({
 							...x,
 							values: weeks.map((w) => at(x.who, w)?.cobrancas ?? 0),
 						}))}
@@ -141,8 +159,8 @@ function Body({ s }: { s: Stats }) {
 			</div>
 
 			<Card
-				title="Semana a semana"
-				sub="Contatos salvos · a semana atual ainda está aberta"
+				title={t("Semana a semana")}
+				sub={t("Contatos salvos · a semana atual ainda está aberta")}
 				className="mt-4"
 			>
 				<div className="overflow-x-auto">
@@ -166,7 +184,7 @@ function Body({ s }: { s: Stats }) {
 											i ? "px-2 py-1.5 text-right font-medium" : "py-1.5 text-left font-medium"
 										}
 									>
-										{h}
+										{t(h)}
 									</th>
 								))}
 							</tr>
@@ -181,7 +199,7 @@ function Body({ s }: { s: Stats }) {
 									<tr key={w} className="border-b border-line/60 text-muted">
 										<td className="py-1.5 text-ink">
 											{dm(w)}
-											{w === current && <span className="ml-1 text-faint">(aberta)</span>}
+											{w === current && <span className="ml-1 text-faint">{t("(aberta)")}</span>}
 										</td>
 										<td className="px-2 text-right">{fmt(k?.cobrancas ?? 0)}</td>
 										<td className="px-2 text-right">{p(k?.resp24h)}</td>
@@ -374,7 +392,7 @@ function Chart({
 							: { left: `${(100 * (L + bw * (hover + 1))) / W}%` }
 					}
 				>
-					<div className="font-medium">semana de {dm(weeks[hover]!)}</div>
+					<div className="font-medium">{tf("semana de {d}", { d: dm(weeks[hover]!) })}</div>
 					{series.map((s) => (
 						<div key={s.label} className="flex items-center gap-1.5 text-muted">
 							<i className="inline-block size-2 rounded-[2px]" style={{ background: s.color }} />

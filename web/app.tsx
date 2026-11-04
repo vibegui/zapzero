@@ -44,6 +44,7 @@ import {
 	type Item,
 	TOKEN,
 } from "./api.ts";
+import { lang, locale, setLang, t, tf, tReason } from "./i18n.ts";
 import { emailsIn, fill, hasTime, type Slot, slots } from "./slots.ts";
 
 const ICONS: Record<CategoryId, typeof Flame> = {
@@ -62,18 +63,22 @@ export const useInbox = () =>
 
 export function Shell() {
 	const inbox = useInbox();
+	// before any child renders, so the first paint is already in the right language
+	setLang(inbox.data?.lang ?? "pt");
+	document.documentElement.lang = lang() === "en" ? "en" : "pt-BR";
 	if (!TOKEN)
 		return (
-			<Blank title="Falta o token">
-				Abra o painel com <code>?t=…</code> (o token está em <code>$ZAP_DATA/token</code>).
+			<Blank title={t("Falta o token")}>
+				{t("Abra o painel com")} <code>?t=…</code> {t("(o token está em")}{" "}
+				<code>$ZAP_DATA/token</code>).
 			</Blank>
 		);
 	if (inbox.error)
 		return (
-			<Blank title="Sem acesso ao Mac">
+			<Blank title={t("Sem acesso ao Mac")}>
 				{(inbox.error as Error).message === "token"
-					? "Token inválido."
-					: "O Mac está desligado ou fora do tailnet."}
+					? t("Token inválido.")
+					: t("O Mac está desligado ou fora do tailnet.")}
 			</Blank>
 		);
 	return (
@@ -81,7 +86,7 @@ export function Shell() {
 			<Sidebar inbox={inbox.data} />
 			<main className="flex min-w-0 flex-1 flex-col">
 				{inbox.data?.voice.state === "suggested" && <VoiceBanner />}
-				<div className="flex min-h-0 min-w-0 flex-1">
+				<div key={lang()} className="flex min-h-0 min-w-0 flex-1">
 					<Outlet />
 				</div>
 			</main>
@@ -130,7 +135,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 							<Icon
 								className={clsx("size-4", c.id === "urgente" && c.items.length > 0 && "text-hot")}
 							/>
-							<span className="flex-1 truncate">{c.label}</span>
+							<span className="flex-1 truncate">{t(c.label)}</span>
 							<span className="text-xs tabular-nums text-faint">{c.items.length || ""}</span>
 						</Link>
 					);
@@ -141,7 +146,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<CalendarDays className="size-4" />
-					<span className="flex-1 truncate">Proposta de agenda</span>
+					<span className="flex-1 truncate">{t("Proposta de agenda")}</span>
 					<span className="text-xs tabular-nums text-faint">
 						{inbox?.proposals.filter((p) => p.status === "pending").length || ""}
 					</span>
@@ -152,7 +157,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<Newspaper className="size-4" />
-					<span className="flex-1 truncate">Resumo dos grupos</span>
+					<span className="flex-1 truncate">{t("Resumo dos grupos")}</span>
 				</Link>
 				<Areas inbox={inbox} />
 				<Link
@@ -161,7 +166,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<ChartLine className="size-4" />
-					<span>Desempenho</span>
+					<span>{t("Desempenho")}</span>
 				</Link>
 				<Link
 					to="/feitas"
@@ -169,7 +174,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<CheckCheck className="size-4" />
-					<span>Feitas</span>
+					<span>{t("Feitas")}</span>
 				</Link>
 				<Link
 					to="/voz"
@@ -177,7 +182,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<UserRound className="size-4" />
-					<span className="flex-1">Seu jeito</span>
+					<span className="flex-1">{t("Seu jeito")}</span>
 					{(inbox?.voice.state === "suggested" || inbox?.learned) && (
 						<span className="size-2 rounded-full bg-accent" />
 					)}
@@ -187,14 +192,14 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				<div className="flex items-center justify-between">
 					<span>
 						{inbox?.refreshing
-							? "atualizando…"
+							? t("atualizando…")
 							: inbox?.snapshotAt
-								? `lido há ${ago(inbox.snapshotAt)}`
-								: "sem leitura"}
+								? tf("lido há {t}", { t: ago(inbox.snapshotAt) })
+								: t("sem leitura")}
 					</span>
 					<button
 						type="button"
-						title="Ler o WhatsApp de novo"
+						title={t("Ler o WhatsApp de novo")}
 						onClick={() => refresh.mutate()}
 						className="rounded p-1 hover:bg-panel hover:text-ink"
 					>
@@ -207,7 +212,9 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					</button>
 				</div>
 				{inbox?.last && !inbox.last.ok && <div className="text-hot">{inbox.last.log.at(-1)}</div>}
-				<div>IA nas últimas 24 h: ${cost.toFixed(3)}</div>
+				<div>
+					{t("IA nas últimas 24 h:")} ${cost.toFixed(3)}
+				</div>
 			</div>
 		</nav>
 	);
@@ -253,7 +260,7 @@ function Search({ inbox }: { inbox?: Inbox }) {
 						e.currentTarget.blur();
 					}
 				}}
-				placeholder="Buscar nome  /"
+				placeholder={t("Buscar nome  /")}
 				className="w-full rounded-lg border border-line bg-panel px-3 py-1.5 text-sm outline-none placeholder:text-faint focus:border-accent"
 			/>
 			{q.trim() && (
@@ -269,11 +276,13 @@ function Search({ inbox }: { inbox?: Inbox }) {
 							className="flex w-full items-baseline gap-2 rounded-lg px-3 py-1.5 text-left text-sm hover:bg-panel"
 						>
 							<span className="flex-1 truncate">{i.name}</span>
-							<span className="shrink-0 text-[11px] text-faint">{i.catLabel}</span>
+							<span className="shrink-0 text-[11px] text-faint">{t(i.catLabel)}</span>
 						</button>
 					))}
 					{hits.length === 0 && (
-						<div className="px-3 py-1.5 text-[12px] text-faint">Nada na caixa com esse nome.</div>
+						<div className="px-3 py-1.5 text-[12px] text-faint">
+							{t("Nada na caixa com esse nome.")}
+						</div>
 					)}
 				</div>
 			)}
@@ -298,7 +307,7 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 	return (
 		<>
 			<div className="mt-4 mb-1 px-3 text-[11px] font-medium tracking-wide text-faint uppercase">
-				Tags
+				{t("Tags")}
 			</div>
 			{areas.map((a) => (
 				<Link
@@ -309,15 +318,15 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
 				>
 					<Tag className="tag-dot size-3.5" style={tagStyle(inbox.areas, a.id)} />
-					<span className="flex-1 truncate">{a.label}</span>
+					<span className="flex-1 truncate">{t(a.label)}</span>
 					<span className="text-xs tabular-nums text-faint">{counts.get(a.id)}</span>
 				</Link>
 			))}
 			<div className="mt-3 mb-1 flex items-center justify-between px-3 text-[11px] font-medium tracking-wide text-faint uppercase">
-				<span>Sugestões</span>
+				<span>{t("Sugestões")}</span>
 				<button
 					type="button"
-					title="Sugerir tags novas agora"
+					title={t("Sugerir tags novas agora")}
 					onClick={() => suggest.mutate()}
 					className="rounded p-0.5 hover:bg-panel hover:text-ink"
 				>
@@ -347,20 +356,20 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 							onClick={() => act.mutate({ action: "accept", id: sg.id })}
 							className="inline-flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-[11px] font-medium text-accent-ink"
 						>
-							<Check className="size-3" /> Criar tag
+							<Check className="size-3" /> {t("Criar tag")}
 						</button>
 						<button
 							type="button"
 							onClick={() => act.mutate({ action: "dismiss", id: sg.id })}
 							className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-faint hover:text-ink"
 						>
-							<X className="size-3" /> Não
+							<X className="size-3" /> {t("Não")}
 						</button>
 					</div>
 				</div>
 			))}
 			{inbox.suggestions.length === 0 && (
-				<div className="px-3 text-[11px] text-faint">Nenhuma agora. ✨ para pedir.</div>
+				<div className="px-3 text-[11px] text-faint">{t("Nenhuma agora. ✨ para pedir.")}</div>
 			)}
 		</>
 	);
@@ -392,7 +401,10 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 	const navigate = useNavigate();
 	const inbox = useInbox();
 	const { label, items } = viewItems(inbox.data, view);
-	const areaLabel = (id: string | null) => inbox.data?.areas.find((a) => a.id === id)?.label;
+	const areaLabel = (id: string | null) => {
+		const l = inbox.data?.areas.find((a) => a.id === id)?.label;
+		return l && t(l);
+	};
 	const idx = Math.max(0, pk ? items.findIndex((i) => i.pk === pk) : 0);
 	const item = items[idx];
 	const [toast, setToast] = useState<Toast>(null);
@@ -442,17 +454,17 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 			const text =
 				b.kind === "reply"
 					? r.via === "whatsapp"
-						? `Aberto no WhatsApp: aperte Enter lá para enviar a ${name}`
-						: `Texto copiado: cole na conversa com ${name}`
+						? tf("Aberto no WhatsApp: aperte Enter lá para enviar a {name}", { name })
+						: tf("Texto copiado: cole na conversa com {name}", { name })
 					: b.kind === "archive"
-						? `${name}: marcada para arquivar`
+						? tf("{name}: marcada para arquivar", { name })
 						: b.kind === "ignore"
-							? `${name}: ignorada para sempre`
+							? tf("{name}: ignorada para sempre", { name })
 							: b.kind === "done"
-								? `${name}: resolvida`
-								: `${name}: pulada até chegar mensagem nova`;
+								? tf("{name}: resolvida", { name })
+								: tf("{name}: pulada até chegar mensagem nova", { name });
 			setToast({
-				text: r.event ? `${text} · criando o evento no seu calendário` : text,
+				text: r.event ? `${text} · ${t("criando o evento no seu calendário")}` : text,
 				pk: b.pk,
 				lastPk: b.kind === "ignore" ? 0 : b.lastPk,
 			});
@@ -518,12 +530,12 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 		return () => window.removeEventListener("keydown", onKey);
 	});
 
-	if (!inbox.data) return <Blank title="Lendo…">Carregando o inbox do Mac.</Blank>;
+	if (!inbox.data) return <Blank title={t("Lendo…")}>{t("Carregando o inbox do Mac.")}</Blank>;
 	return (
 		<>
 			<section className="hidden w-[360px] shrink-0 flex-col border-r border-line bg-panel lg:flex">
 				<header className="flex items-baseline justify-between px-5 pt-5 pb-3">
-					<h1 className="text-[15px] font-semibold tracking-tight">{label}</h1>
+					<h1 className="text-[15px] font-semibold tracking-tight">{t(label)}</h1>
 					<span className="text-xs tabular-nums text-faint">{items.length}</span>
 				</header>
 				<ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
@@ -548,7 +560,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 										{ago(i.waitingSince ?? i.lastAt)}
 									</span>
 								</div>
-								<div className="mt-0.5 truncate text-[13px] text-muted">{i.preview}</div>
+								<div className="mt-0.5 truncate text-[13px] text-muted">{t(i.preview)}</div>
 								<div className="mt-1 flex items-center gap-1.5 text-[11px] text-faint">
 									{areaLabel(i.area) && (
 										<span
@@ -558,10 +570,10 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 											{areaLabel(i.area)}
 										</span>
 									)}
-									<span className="truncate">{i.reason}</span>
+									<span className="truncate">{tReason(i.reason)}</span>
 									{i.draft && (
 										<span className="inline-flex items-center gap-0.5 text-accent">
-											<Sparkles className="size-3" /> rascunho
+											<Sparkles className="size-3" /> {t("rascunho")}
 										</span>
 									)}
 								</div>
@@ -569,7 +581,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 						</li>
 					))}
 					{items.length === 0 && (
-						<li className="px-3 py-10 text-center text-sm text-faint">Zerado. 🎉</li>
+						<li className="px-3 py-10 text-center text-sm text-faint">{t("Zerado. 🎉")}</li>
 					)}
 				</ul>
 			</section>
@@ -580,12 +592,12 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 						key={`${item.pk}:${item.lastPk}:${item.draft ?? ""}`}
 						item={item}
 						areaLabel={areaLabel(item.area)}
-						position={`${idx + 1} de ${items.length}`}
+						position={tf("{a} de {b}", { a: idx + 1, b: items.length })}
 						act={act}
 						handle={focusRef}
 					/>
 				) : (
-					<Blank title="Nada aqui">Escolha outra categoria.</Blank>
+					<Blank title={t("Nada aqui")}>{t("Escolha outra categoria.")}</Blank>
 				)}
 				{toast && (
 					<div className="pointer-events-none absolute inset-x-0 bottom-5 flex justify-center px-4">
@@ -596,7 +608,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 								onClick={() => undo.mutate({ pk: toast.pk, lastPk: toast.lastPk })}
 								className="inline-flex items-center gap-1 font-medium opacity-80 hover:opacity-100"
 							>
-								<Undo2 className="size-3.5" /> desfazer <kbd>Z</kbd>
+								<Undo2 className="size-3.5" /> {t("desfazer")} <kbd>Z</kbd>
 							</button>
 						</div>
 					</div>
@@ -720,7 +732,7 @@ function Focus({
 	const days = useMemo(() => {
 		let lastDay = "";
 		return (chat.data ?? []).map((m) => {
-			const d = new Date(m.at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+			const d = new Date(m.at).toLocaleDateString(locale(), { day: "2-digit", month: "short" });
 			const show = d !== lastDay;
 			lastDay = d;
 			return { m, day: show ? d : null };
@@ -734,13 +746,13 @@ function Focus({
 					<div className="truncate text-[15px] font-semibold tracking-tight">{item.name}</div>
 					<div className="truncate text-xs text-muted">
 						{areaLabel ? `${areaLabel} · ` : ""}
-						{item.reason}
-						{item.waitingSince ? ` · esperando há ${ago(item.waitingSince)}` : ""}
+						{tReason(item.reason)}
+						{item.waitingSince ? ` · ${tf("esperando há {t}", { t: ago(item.waitingSince) })}` : ""}
 						{item.phone && !item.name.includes(item.phone) ? ` · +${item.phone}` : ""}
 					</div>
 				</div>
 				<Btn onClick={() => api.open(item.pk)} k="O">
-					<ExternalLink className="size-4" /> Ir para conversa
+					<ExternalLink className="size-4" /> {t("Ir para conversa")}
 				</Btn>
 				<span className="text-xs tabular-nums text-faint">{position}</span>
 			</header>
@@ -749,7 +761,7 @@ function Focus({
 				{chat.isLoading && <Loader2 className="mx-auto size-4 animate-spin text-faint" />}
 				{chat.data?.length === 0 && (
 					<div className="py-10 text-center text-sm text-faint">
-						O Mac não tem o texto desta conversa (só sincroniza ~3 meses).
+						{t("O Mac não tem o texto desta conversa (só sincroniza ~3 meses).")}
 					</div>
 				)}
 				<div className="mx-auto flex max-w-2xl flex-col gap-1.5">
@@ -772,7 +784,7 @@ function Focus({
 									<div className="whitespace-pre-wrap break-words">{linkify(m.text)}</div>
 								)}
 								<div className="mt-0.5 text-right text-[10px] text-faint">
-									{new Date(m.at).toLocaleTimeString("pt-BR", {
+									{new Date(m.at).toLocaleTimeString(locale(), {
 										hour: "2-digit",
 										minute: "2-digit",
 									})}
@@ -791,21 +803,22 @@ function Focus({
 							newGuests.length === 0 &&
 							emails.length > 0 && (
 								<div className="mb-2 flex items-center gap-1.5 text-[12px] text-accent">
-									<CalendarDays className="size-3.5" /> {ev.data.guests.join(", ")} no convite de{" "}
-									{ev.data.when}
+									<CalendarDays className="size-3.5" /> {ev.data.guests.join(", ")}{" "}
+									{t("no convite de")} {ev.data.when}
 								</div>
 							)}
 						{open.length > 0 && <SlotBar slots={open} onFill={fillSlot} />}
 						{compose.isPending && (
 							<div className="mb-2 flex items-center gap-1.5 text-[12px] text-accent">
-								<Loader2 className="size-3.5 animate-spin" /> reescrevendo com o que você escolheu,
-								no seu tom…
+								<Loader2 className="size-3.5 animate-spin" />{" "}
+								{t("reescrevendo com o que você escolheu, no seu tom…")}
 							</div>
 						)}
 						{compose.isError && (
 							<div className="mb-2 text-[12px] text-hot">
-								Não deu pra reescrever ({(compose.error as Error).message}); o texto ficou com as
-								escolhas coladas.
+								{tf("Não deu pra reescrever ({e}); o texto ficou com as escolhas coladas.", {
+									e: (compose.error as Error).message,
+								})}
 							</div>
 						)}
 						<div className="relative">
@@ -824,8 +837,8 @@ function Focus({
 									item.draft
 										? ""
 										: item.triaged
-											? "Sem rascunho: escreva, ou R para gerar"
-											: "Escreva a resposta"
+											? t("Sem rascunho: escreva, ou R para gerar")
+											: t("Escreva a resposta")
 								}
 								className="max-h-72 min-h-24 w-full resize-none rounded-xl [field-sizing:content] border border-line bg-bg px-4 py-3 text-[14px] leading-relaxed outline-none focus:border-accent"
 							/>
@@ -848,10 +861,12 @@ function Focus({
 						/>
 						<CalendarDays className="mt-0.5 size-3.5 shrink-0" />
 						<span>
-							Ao responder ou resolver, garantir a call no calendário com{" "}
+							{t("Ao responder ou resolver, garantir a call no calendário com")}{" "}
 							<span className="text-ink">{item.invite.email}</span> <kbd>C</kbd>
 							<span className="block line-clamp-1 text-[12px] text-faint">
-								você combinou: «{item.invite.agreed}» · seu Claude acha o evento ou cria, e convida
+								{tf("você combinou: «{agreed}» · seu Claude acha o evento ou cria, e convida", {
+									agreed: item.invite.agreed,
+								})}
 							</span>
 						</span>
 					</label>
@@ -865,10 +880,10 @@ function Focus({
 							className="accent-accent"
 						/>
 						<CalendarDays className="size-3.5" />
-						Ao responder, criar o evento no meu calendário <kbd>C</kbd>
+						{t("Ao responder, criar o evento no meu calendário")} <kbd>C</kbd>
 						<span className="text-faint">
-							· seu Claude cria
-							{emails.length && inviteOn ? "" : ", só na sua agenda, sem convidados"}
+							{t("· seu Claude cria")}
+							{emails.length && inviteOn ? "" : t(", só na sua agenda, sem convidados")}
 						</span>
 					</label>
 				)}
@@ -882,11 +897,11 @@ function Focus({
 							<button
 								type="button"
 								onClick={() =>
-									setText(`${text.trimEnd()} Me passa seu e-mail que te mando o convite?`)
+									setText(`${text.trimEnd()} ${t("Me passa seu e-mail que te mando o convite?")}`)
 								}
 								className="rounded-lg border border-line px-2 py-0.5 text-[12px] text-muted hover:border-accent hover:text-ink"
 							>
-								+ pedir o e-mail dele pro convite
+								{t("+ pedir o e-mail dele pro convite")}
 							</button>
 						</div>
 					)}
@@ -898,48 +913,51 @@ function Focus({
 							onChange={(e) => setInviteOn(e.target.checked)}
 							className="accent-accent"
 						/>
-						convidar <span className="text-ink">{emails.join(", ")}</span>
-						<span className="text-faint">· recebe o convite do Google por e-mail</span>
+						{t("convidar")} <span className="text-ink">{emails.join(", ")}</span>
+						<span className="text-faint">{t("· recebe o convite do Google por e-mail")}</span>
 					</label>
 				)}
 				<div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center gap-2">
 					{!cleanup && (
 						<Btn primary onClick={reply} k="Y">
-							<MessageCircleReply className="size-4" /> Responder no WhatsApp
+							<MessageCircleReply className="size-4" /> {t("Responder no WhatsApp")}
 						</Btn>
 					)}
 					{cleanup && (
 						<Btn primary onClick={() => act("archive")} k="A">
-							<Archive className="size-4" /> Arquivar
+							<Archive className="size-4" /> {t("Arquivar")}
 						</Btn>
 					)}
 					{!cleanup && !item.group && (
 						<Btn onClick={() => redraft.mutate()} k="R">
-							<Sparkles className="size-3.5" /> Novo rascunho
+							<Sparkles className="size-3.5" /> {t("Novo rascunho")}
 						</Btn>
 					)}
 					<div className="flex-1" />
 					<Btn onClick={done} k="D">
-						<CheckCheck className="size-3.5" /> Resolvida
+						<CheckCheck className="size-3.5" /> {t("Resolvida")}
 					</Btn>
 					{!cleanup && (
 						<Btn onClick={() => act("archive")} k="A">
-							<Archive className="size-3.5" /> Arquivar
+							<Archive className="size-3.5" /> {t("Arquivar")}
 						</Btn>
 					)}
 					<Btn onClick={() => act("skip")} k="S">
-						<SkipForward className="size-3.5" /> Pular
+						<SkipForward className="size-3.5" /> {t("Pular")}
 					</Btn>
 					<Btn onClick={() => act("ignore")} k="I">
-						<EyeOff className="size-3.5" /> Ignorar sempre
+						<EyeOff className="size-3.5" /> {t("Ignorar sempre")}
 					</Btn>
 				</div>
 				<div className="mx-auto mt-2 max-w-3xl text-[11px] text-faint">
 					{cleanup
-						? "Arquivar fica registrado; o executor que arquiva no app ainda não existe."
-						: "Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá."}{" "}
-					<kbd>E</kbd> edita · <kbd>1</kbd>–<kbd>9</kbd> escolhe o que falta · <kbd>J</kbd>/
-					<kbd>K</kbd> navega · <kbd>O</kbd> abre a conversa · <kbd>⌘↵</kbd> responde editando
+						? t("Arquivar fica registrado; o executor que arquiva no app ainda não existe.")
+						: t(
+								"Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá.",
+							)}{" "}
+					<kbd>E</kbd> {t("edita")} · <kbd>1</kbd>–<kbd>9</kbd> {t("escolhe o que falta")} ·{" "}
+					<kbd>J</kbd>/<kbd>K</kbd> {t("navega")} · <kbd>O</kbd> {t("abre a conversa")} ·{" "}
+					<kbd>⌘↵</kbd> {t("responde editando")}
 				</div>
 			</footer>
 		</>
@@ -968,7 +986,9 @@ function SlotBar({
 	return (
 		<div className="mb-2 space-y-2 rounded-xl border border-warn/40 bg-warn/5 p-3">
 			<div className="text-[11px] font-medium text-warn">
-				Falta você decidir {list.length > 1 ? `${list.length} coisas` : "uma coisa"}
+				{list.length > 1
+					? tf("Falta você decidir {n} coisas", { n: list.length })
+					: t("Falta você decidir uma coisa")}
 			</div>
 			{list.map((s, i) => (
 				<div key={s.start} className="flex flex-wrap items-center gap-1.5">
@@ -986,7 +1006,7 @@ function SlotBar({
 					))}
 					<input
 						data-slot-input={i === 0 ? "" : undefined}
-						placeholder={s.options.length ? "outro…" : "escreva e Enter"}
+						placeholder={s.options.length ? t("outro…") : t("escreva e Enter")}
 						onKeyDown={(e) => {
 							const v = e.currentTarget.value.trim();
 							if (e.key === "Enter" && v) {
@@ -1059,7 +1079,7 @@ export function Done() {
 	});
 	return (
 		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-6">
-			<h1 className="mb-4 text-[15px] font-semibold tracking-tight">Feitas</h1>
+			<h1 className="mb-4 text-[15px] font-semibold tracking-tight">{t("Feitas")}</h1>
 			<ul className="divide-y divide-line rounded-xl border border-line bg-panel">
 				{list.data?.map((d) => (
 					<li key={`${d.pk}:${d.last_pk}`} className="flex items-start gap-3 px-4 py-3">
@@ -1067,7 +1087,7 @@ export function Done() {
 							<div className="flex items-baseline gap-2">
 								<span className="truncate text-sm font-medium">{d.name}</span>
 								<span className="text-[11px] text-faint">
-									{KIND_LABEL[d.kind]} · {ago(d.at)}
+									{t(KIND_LABEL[d.kind])} · {ago(d.at)}
 								</span>
 							</div>
 							{d.text && <div className="mt-0.5 line-clamp-2 text-[13px] text-muted">{d.text}</div>}
@@ -1084,12 +1104,12 @@ export function Done() {
 								>
 									<CalendarDays className="size-3.5" />
 									{d.event.status === "pending"
-										? "criando o evento…"
+										? t("criando o evento…")
 										: d.event.status === "ok"
-											? `no calendário: ${d.event.result?.replace(/^CRIADO:\s*/, "")}`
+											? `${t("no calendário:")} ${d.event.result?.replace(/^CRIADO:\s*/, "")}`
 											: d.event.status === "skipped"
-												? `evento não criado: ${d.event.result?.replace(/^NAO_CRIADO:\s*/, "")}`
-												: `erro no evento: ${d.event.result}`}
+												? `${t("evento não criado:")} ${d.event.result?.replace(/^NAO_CRIADO:\s*/, "")}`
+												: `${t("erro no evento:")} ${d.event.result}`}
 								</div>
 							)}
 						</div>
@@ -1098,12 +1118,12 @@ export function Done() {
 							onClick={() => undo.mutate({ pk: d.pk, lastPk: d.last_pk })}
 							className="inline-flex items-center gap-1 text-xs text-faint hover:text-ink"
 						>
-							<Undo2 className="size-3.5" /> desfazer
+							<Undo2 className="size-3.5" /> {t("desfazer")}
 						</button>
 					</li>
 				))}
 				{list.data?.length === 0 && (
-					<li className="px-4 py-10 text-center text-sm text-faint">Nada ainda.</li>
+					<li className="px-4 py-10 text-center text-sm text-faint">{t("Nada ainda.")}</li>
 				)}
 			</ul>
 		</section>
@@ -1122,9 +1142,11 @@ function VoiceBanner() {
 		>
 			<Sparkles className="size-3.5 text-accent" />
 			<span className="flex-1">
-				Li suas mensagens e escrevi como você escreve. Confere antes dos rascunhos seguirem isso?
+				{t(
+					"Li suas mensagens e escrevi como você escreve. Confere antes dos rascunhos seguirem isso?",
+				)}
 			</span>
-			<span className="font-medium text-accent">Conferir →</span>
+			<span className="font-medium text-accent">{t("Conferir →")}</span>
 		</button>
 	);
 }
@@ -1149,32 +1171,34 @@ export function VoiceScreen() {
 	});
 	const regen = useMutation({ mutationFn: api.suggestVoice, onSuccess: reset });
 	const dirty = Object.keys(edits).length > 0 || voz != null;
-	if (!v) return <Blank title="Lendo…">Carregando.</Blank>;
+	if (!v) return <Blank title={t("Lendo…")}>{t("Carregando.")}</Blank>;
 	const field =
 		"mt-1.5 w-full resize-y rounded-xl border border-line bg-panel px-4 py-2.5 text-[14px] leading-relaxed outline-none [field-sizing:content] focus:border-accent";
 	return (
 		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-8">
-			<h1 className="text-[22px] font-semibold tracking-tight">Seu jeito</h1>
+			<h1 className="text-[22px] font-semibold tracking-tight">{t("Seu jeito")}</h1>
 			<p className="mt-1 text-sm text-muted">
 				{v.state === "suggested"
-					? "A IA leu suas mensagens, suas conversas mais ativas e seus grupos, e escreveu isto. A triagem e os rascunhos seguem esse texto: aceite ou ajuste cada parte."
+					? t(
+							"A IA leu suas mensagens, suas conversas mais ativas e seus grupos, e escreveu isto. A triagem e os rascunhos seguem esse texto: aceite ou ajuste cada parte.",
+						)
 					: v.state === "accepted"
-						? "A triagem e os rascunhos seguem este texto. Mude quando quiser."
-						: "Depois do primeiro scan a IA preenche isto a partir das suas conversas."}
+						? t("A triagem e os rascunhos seguem este texto. Mude quando quiser.")
+						: t("Depois do primeiro scan a IA preenche isto a partir das suas conversas.")}
 			</p>
 
-			<h2 className="mt-8 text-[15px] font-semibold">Quem é você</h2>
+			<h2 className="mt-8 text-[15px] font-semibold">{t("Quem é você")}</h2>
 			<div className="mt-2 grid gap-5">
-				{PROFILE_TOPICS.map((t) => (
-					<div key={t.id}>
-						<label className="block text-[13px] font-medium" htmlFor={`p-${t.id}`}>
-							{t.label}
+				{PROFILE_TOPICS.map((topic) => (
+					<div key={topic.id}>
+						<label className="block text-[13px] font-medium" htmlFor={`p-${topic.id}`}>
+							{t(topic.label)}
 						</label>
-						<p className="text-xs text-faint">{t.hint}</p>
+						<p className="text-xs text-faint">{t(topic.hint)}</p>
 						<textarea
-							id={`p-${t.id}`}
-							value={perfil[t.id] ?? ""}
-							onChange={(e) => setEdits((x) => ({ ...x, [t.id]: e.target.value }))}
+							id={`p-${topic.id}`}
+							value={perfil[topic.id] ?? ""}
+							onChange={(e) => setEdits((x) => ({ ...x, [topic.id]: e.target.value }))}
 							placeholder="—"
 							className={clsx(field, "min-h-11")}
 						/>
@@ -1182,9 +1206,9 @@ export function VoiceScreen() {
 				))}
 			</div>
 
-			<h2 className="mt-10 text-[15px] font-semibold">Como você escreve</h2>
+			<h2 className="mt-10 text-[15px] font-semibold">{t("Como você escreve")}</h2>
 			<p className="text-xs text-faint">
-				Tamanho, tom, pontuação, emoji, expressões suas. Um tópico por linha.
+				{t("Tamanho, tom, pontuação, emoji, expressões suas. Um tópico por linha.")}
 			</p>
 			{inbox.data?.learned && <Learned l={inbox.data.learned} onDone={reset} />}
 			<textarea
@@ -1201,7 +1225,7 @@ export function VoiceScreen() {
 					className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-4 text-[13px] font-medium text-accent-ink hover:brightness-110 disabled:opacity-50"
 				>
 					<Check className="size-4" />
-					{v.state === "suggested" && !dirty ? "Aceitar" : "Salvar"}
+					{v.state === "suggested" && !dirty ? t("Aceitar") : t("Salvar")}
 				</button>
 				<button
 					type="button"
@@ -1214,14 +1238,14 @@ export function VoiceScreen() {
 					) : (
 						<Sparkles className="size-3.5" />
 					)}
-					Ler minhas conversas de novo
+					{t("Ler minhas conversas de novo")}
 				</button>
-				{save.isSuccess && !dirty && <span className="text-xs text-accent">Salvo.</span>}
+				{save.isSuccess && !dirty && <span className="text-xs text-accent">{t("Salvo.")}</span>}
 				{(save.error || regen.error) && (
 					<span className="text-xs text-hot">{((save.error || regen.error) as Error).message}</span>
 				)}
 				<span className="ml-auto text-xs text-faint">
-					Ler de novo substitui tudo pelo que a IA sugerir agora.
+					{t("Ler de novo substitui tudo pelo que a IA sugerir agora.")}
 				</span>
 			</div>
 		</section>
@@ -1277,7 +1301,8 @@ function Learned({ l, onDone }: { l: NonNullable<Inbox["learned"]>; onDone: () =
 	return (
 		<div className="mt-3 rounded-xl border border-dashed border-accent/50 bg-accent-soft/40 p-4">
 			<div className="flex items-center gap-1.5 text-[13px] font-medium text-accent">
-				<Sparkles className="size-3.5" /> Aprendido com {l.pairs} respostas que você mudou
+				<Sparkles className="size-3.5" />{" "}
+				{tf("Aprendido com {n} respostas que você mudou", { n: l.pairs })}
 			</div>
 			<div className="mt-2 grid gap-1.5">
 				{l.rules.map((r) => (
@@ -1305,7 +1330,7 @@ function Learned({ l, onDone }: { l: NonNullable<Inbox["learned"]>; onDone: () =
 					onClick={() => save.mutate([...keep])}
 					className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent px-3 text-[12px] font-medium text-accent-ink hover:brightness-110 disabled:opacity-50"
 				>
-					<Check className="size-3.5" /> Adicionar ao meu jeito
+					<Check className="size-3.5" /> {t("Adicionar ao meu jeito")}
 				</button>
 				<button
 					type="button"
@@ -1313,7 +1338,7 @@ function Learned({ l, onDone }: { l: NonNullable<Inbox["learned"]>; onDone: () =
 					onClick={() => save.mutate([])}
 					className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-[12px] text-muted hover:text-ink"
 				>
-					<X className="size-3.5" /> Descartar
+					<X className="size-3.5" /> {t("Descartar")}
 				</button>
 			</div>
 		</div>

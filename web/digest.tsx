@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clsx } from "clsx";
 import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { api } from "./api.ts";
+import { locale, t, tf } from "./i18n.ts";
 
 const LEVEL = ["ruído", "leve", "vale ler", "precisa de você"];
 
@@ -23,12 +24,19 @@ export function DigestScreen() {
 		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-8">
 			<div className="flex items-start gap-4">
 				<div className="flex-1">
-					<h1 className="text-[22px] font-semibold tracking-tight">Resumo dos grupos</h1>
+					<h1 className="text-[22px] font-semibold tracking-tight">{t("Resumo dos grupos")}</h1>
 					<p className="mt-1 text-sm text-muted">
-						Uma vez por semana o seu Claude lê os grupos mais movimentados e resume o que rolou e o
-						que envolve você.
+						{t(
+							"Uma vez por semana o seu Claude lê os grupos mais movimentados e resume o que rolou e o que envolve você.",
+						)}
 						{d
-							? ` Últimos 7 dias, gerado ${new Date(d.at).toLocaleString("pt-BR", { weekday: "long", hour: "2-digit", minute: "2-digit" })}.`
+							? tf(" Últimos 7 dias, gerado {when}.", {
+									when: new Date(d.at).toLocaleString(locale(), {
+										weekday: "long",
+										hour: "2-digit",
+										minute: "2-digit",
+									}),
+								})
 							: ""}
 					</p>
 				</div>
@@ -43,12 +51,12 @@ export function DigestScreen() {
 					) : (
 						<RefreshCw className="size-3.5" />
 					)}
-					{running ? "Lendo os grupos…" : "Gerar agora"}
+					{running ? t("Lendo os grupos…") : t("Gerar agora")}
 				</button>
 			</div>
 			{!d && !running && (
 				<div className="mt-6 rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-faint">
-					Ainda não tem resumo. Ele sai sozinho na próxima leitura, ou clique em Gerar agora.
+					{t("Ainda não tem resumo. Ele sai sozinho na próxima leitura, ou clique em Gerar agora.")}
 				</div>
 			)}
 			<div className="mt-6 grid gap-3">
@@ -69,13 +77,13 @@ export function DigestScreen() {
 									g.relevancia >= 3 ? "text-accent" : "text-faint",
 								)}
 							>
-								{LEVEL[Math.round(g.relevancia)]} · {g.count} msgs
-								{g.mine ? ` · ${g.mine} suas` : ""}
+								{t(LEVEL[Math.round(g.relevancia)] ?? "")} · {g.count} msgs
+								{g.mine ? ` · ${tf("{n} suas", { n: g.mine })}` : ""}
 							</span>
 							<button
 								type="button"
 								onClick={() => api.open(g.pk)}
-								title="Ir para conversa"
+								title={t("Ir para conversa")}
 								className="shrink-0 text-faint hover:text-ink"
 							>
 								<ExternalLink className="size-3.5" />
@@ -84,7 +92,7 @@ export function DigestScreen() {
 						<p className="mt-1.5 text-[14px] leading-relaxed text-muted">{g.resumo}</p>
 						{g.voce && (
 							<p className="mt-2 rounded-lg bg-accent-soft/60 px-3 py-2 text-[13px] text-ink">
-								<b className="font-medium text-accent">Você: </b>
+								<b className="font-medium text-accent">{t("Você:")} </b>
 								{g.voce}
 							</p>
 						)}

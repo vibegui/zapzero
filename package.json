@@ -10,7 +10,8 @@
 		"check": "tsc --noEmit",
 		"test": "bun test",
 		"fmt": "biome format --write .",
-		"setup": "bun scripts/setup.ts"
+		"setup": "bun scripts/setup.ts",
+		"selfcheck": "bun test server/selfcheck.test.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.4",

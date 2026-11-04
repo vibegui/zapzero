@@ -1,24 +1,44 @@
 // The chat model behind drafts, rewrites, profile and suggestions. By default the owner's own Claude
 // subscription through Claude Code (headless `claude -p`, no tools, no MCP, no settings), so nothing
-// else is needed; OpenRouter when ZAP_LLM=openrouter or Claude Code isn't installed.
+// else is needed; a local model through Ollama (nothing leaves the Mac); or OpenRouter. The owner picks
+// in setup (kept in zap.sqlite) or with ZAP_LLM.
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateObject, generateText } from "ai";
 import { z } from "zod";
 import { CLAUDE } from "./calendar.ts";
 import { DATA, DRAFT_MODEL, OPENROUTER_API_KEY } from "./env.ts";
+import { kvGet } from "./store.ts";
 
-export const LLM: "claude" | "openrouter" | "none" =
-	(process.env.ZAP_LLM as "claude" | "openrouter" | undefined) ??
+export type Engine = "claude" | "ollama" | "openrouter";
+export const LLM: Engine | "none" =
+	(process.env.ZAP_LLM as Engine | undefined) ??
+	(kvGet("llm") as Engine | null) ??
 	(CLAUDE ? "claude" : OPENROUTER_API_KEY ? "openrouter" : "none");
+export const OLLAMA_URL = process.env.ZAP_OLLAMA_URL ?? "http://127.0.0.1:11434";
+/** Unset: the first model installed in Ollama. Model choice stays config, never a constant. */
+let ollamaModel = process.env.ZAP_OLLAMA_MODEL ?? kvGet("ollama_model") ?? "";
+
+/** Models installed in Ollama, or null when it isn't running. */
+export async function ollamaModels(): Promise<string[] | null> {
+	try {
+		const r = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(2000) });
+		const j = (await r.json()) as { models?: { name: string }[] };
+		return (j.models ?? []).map((m) => m.name);
+	} catch {
+		return null;
+	}
+}
 /** Claude Code model alias or id; the subscription pays, so a small fast one is the default. */
 const CLAUDE_MODEL = process.env.ZAP_CLAUDE_MODEL ?? "haiku";
 
 export const llmLabel = () =>
 	LLM === "claude"
 		? `Claude (${CLAUDE_MODEL}, sua assinatura)`
-		: LLM === "openrouter"
-			? `OpenRouter (${DRAFT_MODEL})`
-			: "nenhum";
+		: LLM === "ollama"
+			? `Ollama (${ollamaModel || "primeiro modelo instalado"}, local)`
+			: LLM === "openrouter"
+				? `OpenRouter (${DRAFT_MODEL})`
+				: "nenhum";
 
 export function requireLLM() {
 	if (LLM === "claude" && !CLAUDE)
@@ -45,6 +65,35 @@ async function slot<T>(fn: () => Promise<T>) {
 		running--;
 		waiting.shift()?.();
 	}
+}
+
+/** One local chat turn on Ollama (OpenAI-free, plain HTTP). `format` is a JSON schema for structured answers. */
+function ollama(system: string, prompt: string, format?: unknown, temperature = 0.4) {
+	return slot(async () => {
+		if (!ollamaModel) {
+			const ms = await ollamaModels();
+			if (!ms) throw new Error(`Ollama não respondeu em ${OLLAMA_URL}: abra o app do Ollama`);
+			if (!ms.length) throw new Error("Ollama sem modelo: rode `ollama pull <modelo>`");
+			ollamaModel = ms[0]!;
+		}
+		const r = await fetch(`${OLLAMA_URL}/api/chat`, {
+			method: "POST",
+			signal: AbortSignal.timeout(300_000),
+			body: JSON.stringify({
+				model: ollamaModel,
+				stream: false,
+				format,
+				options: { temperature },
+				messages: [
+					{ role: "system", content: system },
+					{ role: "user", content: prompt },
+				],
+			}),
+		});
+		if (!r.ok) throw new Error(`ollama: HTTP ${r.status} ${(await r.text()).slice(0, 200)}`);
+		const j = (await r.json()) as { message?: { content?: string } };
+		return (j.message?.content ?? "").trim();
+	});
 }
 
 /** One headless Claude Code turn: prompt on stdin, the subscription pays (cost reported as 0). */
@@ -100,6 +149,8 @@ const costOf = (meta: unknown) =>
 export async function text(a: Ask): Promise<{ text: string; cost: number }> {
 	requireLLM();
 	if (LLM === "claude") return { text: await claude(a.system, a.prompt), cost: 0 };
+	if (LLM === "ollama")
+		return { text: await ollama(a.system, a.prompt, undefined, a.temperature), cost: 0 };
 	const r = await generateText({
 		model: openrouter(),
 		system: a.system,
@@ -133,6 +184,21 @@ export async function object<S extends z.ZodType>(
 			maxRetries: 2,
 		});
 		return { object: r.object as z.infer<S>, cost: costOf(r.providerMetadata) };
+	}
+	if (LLM === "ollama") {
+		const json = z.toJSONSchema(schema);
+		let last: unknown;
+		for (let i = 0; i < 2; i++) {
+			try {
+				return {
+					object: schema.parse(parseJson(await ollama(a.system, a.prompt, json, 0.2))),
+					cost: 0,
+				};
+			} catch (e) {
+				last = e;
+			}
+		}
+		throw last;
 	}
 	const ask = `${a.prompt}\n\nResponda só com um JSON válido neste JSON Schema, sem nada antes ou depois:\n${JSON.stringify(z.toJSONSchema(schema))}`;
 	let last: unknown;

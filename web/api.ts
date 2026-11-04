@@ -3,9 +3,11 @@ import type { CategoryId, Item } from "../server/inbox.ts";
 import type { Week, Who } from "../server/stats.ts";
 import type { Decision, DecisionKind, Learned, Proposal, Voice } from "../server/store.ts";
 import type { Message } from "../server/wa.ts";
+import { t } from "./i18n.ts";
 
 export type { CategoryId, DecisionKind, Item, Message, Voice };
 export type Inbox = {
+	lang: "pt" | "en";
 	snapshotAt: number | null;
 	refreshing: boolean;
 	last: { at: number; ok: boolean; log: string[] } | null;
@@ -102,11 +104,11 @@ export const api = {
 export function ago(ms: number | null) {
 	if (!ms) return "";
 	const m = Math.round((Date.now() - ms) / 60_000);
-	if (m < 1) return "agora";
+	if (m < 1) return t("agora");
 	if (m < 60) return `${m} min`;
 	const h = Math.round(m / 60);
 	if (h < 24) return `${h} h`;
 	const d = Math.round(h / 24);
 	if (d < 60) return `${d} d`;
-	return `${Math.round(d / 30)} meses`;
+	return `${Math.round(d / 30)} ${t("meses")}`;
 }

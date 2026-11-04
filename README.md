@@ -28,13 +28,14 @@ zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**
 - **Keyboard flow:** `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor.
 - **Runs in the background**, re-reading WhatsApp every 15 minutes and only re-doing AI work for chats that changed.
 
-The UI is in Portuguese for now.
+The panel is in Portuguese or English (setup asks).
 
 ## Requirements
 
 - macOS with [WhatsApp Desktop](https://www.whatsapp.com/download) linked to your phone. Linking syncs about the last 3 months of messages; older chats show in the list without text.
 - [Bun](https://bun.com) 1.3+.
 - [Claude Code](https://claude.com/claude-code), logged in. zapzero runs it headless (`claude -p`, no tools, no MCP) and your Claude subscription pays for triage, drafts, rewrites, profile and suggestions. Nothing else to pay or configure.
+- Or a local model with [Ollama](https://ollama.com): nothing leaves your Mac. Setup asks which AI to use, and the panel language (Portuguese or English).
 - Optional: an [OpenRouter](https://openrouter.ai/keys) key. It unlocks Jev (`typesafe/jev-1.14`) for triage: faster than batching through Claude and about US$0.00005 per chat (US$0.09 to triage 1,600 chats). Without Claude Code, OpenRouter also runs the chat model (`ZAP_LLM=openrouter`).
 
 ## Install

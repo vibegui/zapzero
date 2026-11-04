@@ -113,6 +113,7 @@ app.get("/api/inbox", (c) => {
 		})),
 		categories: CATEGORIES.map((k) => ({ ...k, items: box[k.id] })),
 		calendar: CLAUDE != null,
+		lang: store.kvGet("lang") === "en" ? "en" : "pt",
 		proposals: proposalList(),
 	});
 });
@@ -404,6 +405,16 @@ app.post("/api/digest", (c) => {
 			});
 	}
 	return c.json({ running: true });
+});
+
+// panel language, also asked in setup
+app.post("/api/lang", async (c) => {
+	const b = z
+		.object({ lang: z.enum(["pt", "en"]) })
+		.safeParse(await c.req.json().catch(() => null));
+	if (!b.success) return c.json({ error: "invalid" }, 400);
+	store.kvSet("lang", b.data.lang);
+	return c.json({ lang: b.data.lang });
 });
 
 const Id = z.object({ id: z.string().min(1).max(80) });

@@ -2,7 +2,9 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "n
 import { homedir } from "node:os";
 
 export const DATA = process.env.ZAP_DATA ?? `${homedir()}/Library/Application Support/zap`;
-export const WA_DIR = `${homedir()}/Library/Group Containers/group.net.whatsapp.WhatsApp.shared`;
+export const WA_DIR =
+	process.env.ZAP_WA_DIR ??
+	`${homedir()}/Library/Group Containers/group.net.whatsapp.WhatsApp.shared`;
 export const PORT = Number(process.env.ZAP_PORT ?? 8810);
 export const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 /** Model choice is config: Jev for cheap classification, a small chat model for drafts. */
