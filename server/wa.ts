@@ -276,7 +276,6 @@ export function activeChats(
 	return rows;
 }
 
-/** Every content message of the last `days` in DMs and groups, oldest first: the raw input for stats. */
 /** Text messages in DMs from the last `days`, both directions, for finding proposed meetings. */
 export function recentTexts(days: number) {
 	if (snapshotAt() == null) return [];
@@ -294,6 +293,7 @@ export function recentTexts(days: number) {
 	return rows.map((r) => ({ ...r, mine: r.mine === 1, at: r.at * 1000 }));
 }
 
+/** Every content message of the last `days` in DMs and groups, oldest first: the raw input for stats. */
 export function messageLog(days: number): { pk: number; mine: boolean; at: number }[] {
 	if (snapshotAt() == null) return [];
 	const db = open();

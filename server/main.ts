@@ -39,6 +39,7 @@ function refresh(): Promise<void> {
 			await ai.learn(say);
 			await ai.detectProposals(say);
 			await ai.checkProposals(say);
+			await ai.groupDigest(say);
 		} catch (e) {
 			ok = false;
 			say(`erro: ${(e as Error).message}`);
@@ -389,6 +390,22 @@ app.post("/api/proposal/:msg", async (c) => {
 	return c.json({ ok: true });
 });
 
+// the weekly group digest; POST makes a new one now (in the background, a few calls to the owner's Claude)
+let digesting = false;
+app.get("/api/digest", (c) => c.json({ digest: ai.digest(), running: digesting }));
+app.post("/api/digest", (c) => {
+	if (!digesting) {
+		digesting = true;
+		void ai
+			.groupDigest(console.log, true)
+			.catch((e) => console.log(`digest: ${String(e).slice(0, 200)}`))
+			.finally(() => {
+				digesting = false;
+			});
+	}
+	return c.json({ running: true });
+});
+
 const Id = z.object({ id: z.string().min(1).max(80) });
 app.post("/api/areas/:action", async (c) => {
 	const p = Id.safeParse(await c.req.json().catch(() => null));
@@ -563,6 +580,8 @@ if (cmd === "serve") {
 	await ai.triage();
 } else if (cmd === "voice") {
 	await ai.suggestVoice();
+} else if (cmd === "digest") {
+	await ai.groupDigest(console.log, true);
 } else if (cmd === "learn") {
 	await ai.learn(console.log, true);
 } else if (cmd === "suggest") {
@@ -605,7 +624,7 @@ if (cmd === "serve") {
 	}
 } else {
 	console.log(
-		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | learn | refresh | inbox | stats | api <route> [json]",
+		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | learn | digest | refresh | inbox | stats | api <route> [json]",
 	);
 	process.exit(1);
 }

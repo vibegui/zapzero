@@ -54,6 +54,11 @@
           "body": "<p>Cada conversa ganha uma tag: quem é a pessoa ou do que se trata. Clique numa tag pra ver só aquelas conversas. Uma vez por dia a IA sugere tags novas quando vê um assunto que se repete; aceite com <strong>Criar tag</strong> e ela reclassifica o resto.</p>"
         },
         {
+          "id": "grupos",
+          "title": "Resumo dos grupos",
+          "body": "<p>Uma vez por semana o seu Claude lê os ~30 grupos mais movimentados e escreve, pra cada um, o que rolou (assuntos, decisões, datas) e o que envolve você: quem te citou, perguntou ou pediu algo. Abra <strong>Resumo dos grupos</strong> na lateral; os que precisam de você vêm primeiro. <strong>Gerar agora</strong> faz um novo na hora (leva uns 2 minutos).</p>"
+        },
+        {
           "id": "agenda",
           "title": "Agenda com o seu Claude",
           "body": "<p>Quando você responde aceitando um dia e hora, o painel oferece <strong>criar o evento no seu calendário</strong>. Ao apertar <kbd>Y</kbd>, o zapzero chama o seu Claude Code, que cria o evento com link de call usando o conector de calendário que ele já tem.</p>\n<ul>\n<li>Se a pessoa mandou o e-mail na conversa, ele aparece marcado pra ir no convite.</li>\n<li>Se não mandou, peça no rascunho (<strong>+ pedir o e-mail</strong>). Quando ela responder, a conversa volta pra Importante e urgente com <strong>garantir a call no calendário</strong>.</li>\n</ul>\n<p>Precisa: o Claude Code com um conector de calendário (o Google Calendar do claude.ai, por exemplo). Ele só pode criar e atualizar eventos, e só quando você responde. O zapzero nunca vê a sua agenda.</p>\n<h3>Proposta de agenda</h3><p>Na lateral, <strong>Proposta de agenda</strong> junta os compromissos com dia e hora que apareceram nas conversas dos últimos dias, seus ou da outra pessoa (\"bora jantar quinta 20h?\"). Clique em <strong>Marcar</strong> e o seu Claude cria o evento (ou acha o que já existe) e convida os e-mails marcados; <strong>Não</strong> descarta.</p><p>O zapzero já sabe o e-mail de quem está nos Contatos do Mac, ou de quem mandou o e-mail na conversa, então na maioria das vezes não precisa perguntar.</p>"

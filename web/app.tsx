@@ -14,6 +14,7 @@ import {
 	Hourglass,
 	Loader2,
 	MessageCircleReply,
+	Newspaper,
 	RefreshCw,
 	SkipForward,
 	Sparkles,
@@ -144,6 +145,14 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 					<span className="text-xs tabular-nums text-faint">
 						{inbox?.proposals.filter((p) => p.status === "pending").length || ""}
 					</span>
+				</Link>
+				<Link
+					to="/grupos"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<Newspaper className="size-4" />
+					<span className="flex-1 truncate">Resumo dos grupos</span>
 				</Link>
 				<Areas inbox={inbox} />
 				<Link

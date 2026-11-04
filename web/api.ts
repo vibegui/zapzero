@@ -1,3 +1,4 @@
+import type { Digest } from "../server/ai.ts";
 import type { CategoryId, Item } from "../server/inbox.ts";
 import type { Week, Who } from "../server/stats.ts";
 import type { Decision, DecisionKind, Learned, Proposal, Voice } from "../server/store.ts";
@@ -93,6 +94,8 @@ export const api = {
 		call<{ text: string }>(`compose/${pk}`, b),
 	proposal: (msg: number, b: { action: "accept" | "dismiss"; emails?: string[] }) =>
 		call<{ ok: true }>(`proposal/${msg}`, b),
+	digest: () => call<{ digest: Digest | null; running: boolean }>("digest"),
+	makeDigest: () => call<{ running: boolean }>("digest", {}),
 	keepLearned: (keep: string[]) => call<Voice>("voice/learned", { keep }),
 };
 

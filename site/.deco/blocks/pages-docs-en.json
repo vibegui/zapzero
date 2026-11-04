@@ -54,6 +54,11 @@
           "body": "<p>Every chat gets a tag: who the person is or what it's about. Click a tag to see only those chats. Once a day the AI suggests new tags when it sees a recurring subject; accept one with <strong>Criar tag</strong> and it re-sorts the rest.</p>"
         },
         {
+          "id": "grupos",
+          "title": "Group digest",
+          "body": "<p>Once a week your Claude reads the ~30 busiest groups and writes, for each, what happened (topics, decisions, dates) and what involves you: who mentioned you, asked or requested something. Open <strong>Resumo dos grupos</strong> in the sidebar; the ones that need you come first. <strong>Gerar agora</strong> makes a fresh one (about 2 minutes).</p>"
+        },
+        {
           "id": "agenda",
           "title": "Calendar with your Claude",
           "body": "<p>When you reply agreeing to a day and time, the panel offers to <strong>create the event in your calendar</strong>. When you press <kbd>Y</kbd>, zapzero calls your Claude Code, which creates the event with a call link using the calendar connector it already has.</p>\n<ul>\n<li>If the other person sent their e-mail in the chat, it shows up ticked for the invite.</li>\n<li>If not, ask for it in the draft (<strong>+ pedir o e-mail</strong>). When they answer, the chat comes back to Important &amp; urgent to finish the invite.</li>\n</ul>\n<p>Needs: Claude Code with a calendar connector (Google Calendar on claude.ai, for example). It may only create and update events, and only when you reply. zapzero never sees your calendar.</p>\n<h3>Proposed meetings</h3><p>In the sidebar, <strong>Proposta de agenda</strong> gathers meetings with a day and time that came up in your chats over the last few days, yours or theirs (\"dinner Thursday 8pm?\"). Click <strong>Marcar</strong> and your Claude creates the event (or finds the one that exists) and invites the ticked e-mails; <strong>Não</strong> dismisses it.</p><p>zapzero already knows the e-mail of anyone in your Mac's Contacts, or anyone who sent it in the chat, so most of the time it doesn't need to ask.</p>"
