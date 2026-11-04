@@ -169,7 +169,7 @@ Mensagem: «${text.replace(/[«»]/g, '"').slice(0, 600)}»
 Título: «${title.replace(/[«»\n]/g, " ").slice(0, 80)}»
 Início: ${start} (fuso ${tz}) · duração: ${minutes} min
 
-1. Liste meus eventos nesse dia. Se já houver um evento nesse horário (± 1 h) que seja esse compromisso, ${emails.length ? `adicione ${emails.join(", ")} como convidado(s) nele` : "não crie outro"}.
+1. Liste meus eventos nesse dia. Se já houver um evento nesse horário (± 1 h) que seja esse compromisso, não crie outro${emails.length ? `: adicione ${emails.join(", ")} como convidado(s) nele se eu for o organizador; se o evento for de outra pessoa (não dá pra convidar), deixe como está` : ""} e responda EXISTE.
 2. Senão, crie o evento com esse título e horário, descrição "Combinado pelo WhatsApp (zapzero)"${emails.length ? `, convidados ${emails.join(", ")} e link de videochamada (Google Meet) se for call` : ", sem convidados"}.
 ${emails.length ? `Convide só ${emails.join(", ")}.` : "Não convide ninguém."} Não apague nem mude nenhum outro evento.
 Termine com uma linha só: "CRIADO: <id do evento> | <dia e hora>", "EXISTE: <id do evento> | <dia e hora>" ou "ERRO: <motivo>".`;
@@ -189,4 +189,34 @@ export async function bookProposal(
 	const m = r.last.match(/^(CRIADO|EXISTE):\s*([\w-]+)\s*\|\s*(.+)$/);
 	if (m) return { ok: true, result: `${m[1]}: ${m[3]}`, eventId: m[2]! };
 	return { ok: false, result: r.last.slice(0, 300) || r.all.slice(0, 300), eventId: null };
+}
+
+/**
+ * Meetings found in messages that are already in the calendar: one Claude run, read-only (list events
+ * only), over the days of all the proposals. Returns the ids it found, with the event id when it saw one.
+ */
+export function checkPrompt(items: { id: number; title: string; name: string; start: string }[]) {
+	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	return `Confira na minha agenda quais destes compromissos já estão marcados. Use só a ferramenta de listar eventos, nos dias deles (fuso ${tz}). Não crie nem mude nada.
+Conta como marcado um evento no mesmo dia, até 2 h antes ou depois, que seja esse compromisso (título, pessoa ou convidado batem).
+
+${items.map((i) => `- id ${i.id}: «${i.title.replace(/[«»\n]/g, " ")}» com «${i.name.replace(/[«»\n]/g, " ").slice(0, 60)}» em ${i.start}`).join("\n")}
+
+Termine com uma linha só, em JSON: {"marcados":[{"id":<id>,"evento":"<id do evento>"}]} (lista vazia se nenhum).`;
+}
+
+export async function alreadyBooked(
+	items: { id: number; title: string; name: string; start: string }[],
+): Promise<Map<number, string> | null> {
+	if (!items.length) return new Map();
+	const r = await run(checkPrompt(items), SCHEDULE_TOOLS[0]!);
+	if (r.code !== 0) return null;
+	try {
+		const j = JSON.parse(r.last.slice(r.last.indexOf("{"))) as {
+			marcados?: { id: number; evento?: string }[];
+		};
+		return new Map((j.marcados ?? []).map((m) => [Number(m.id), m.evento ?? ""]));
+	} catch {
+		return null;
+	}
 }

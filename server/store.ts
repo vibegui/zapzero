@@ -350,6 +350,9 @@ db.run(`create table if not exists proposals (
 	msg integer primary key, pk integer, at integer, mine integer, text text,
 	event integer, title text, start text, minutes integer,
 	status text, result text, event_id text, guests text)`);
+try {
+	db.run("alter table proposals add column checked integer"); // looked up in the calendar already
+} catch {}
 
 export type Proposal = {
 	msg: number;
@@ -391,6 +394,15 @@ export const proposals = () =>
 			"select * from proposals where event = 1 and status != 'dismissed' and at > ? order by start",
 		)
 		.all(Date.now() - 14 * 86_400_000);
+
+export const uncheckedProposals = () =>
+	db
+		.query<Proposal, []>(
+			"select * from proposals where event = 1 and status = 'pending' and checked is null",
+		)
+		.all();
+export const markChecked = (msg: number) =>
+	db.query("update proposals set checked = 1 where msg = ?").run(msg);
 
 export const proposal = (msg: number) =>
 	db.query<Proposal, [number]>("select * from proposals where msg = ?").get(msg);

@@ -38,6 +38,7 @@ function refresh(): Promise<void> {
 			await ai.suggest(say);
 			await ai.learn(say);
 			await ai.detectProposals(say);
+			await ai.checkProposals(say);
 		} catch (e) {
 			ok = false;
 			say(`erro: ${(e as Error).message}`);

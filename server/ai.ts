@@ -2,6 +2,7 @@
 // pass that suggests new areas. All capped per run (items and dollars), stopped when the upstream fails,
 // and only redone when a chat's last message (or the set of areas) changed.
 import { z } from "zod";
+import { alreadyBooked, CLAUDE } from "./calendar.ts";
 import { DRAFT_MODEL, OPENROUTER_API_KEY, TRIAGE_MODEL } from "./env.ts";
 import { buildInbox, REPLY_CATEGORIES } from "./inbox.ts";
 import * as llm from "./llm.ts";
@@ -445,6 +446,32 @@ Calcule a data a partir do dia em que a mensagem foi escrita (não de hoje). Fus
 		}
 	}
 	log(`proposals: ${found} meetings in ${todo.length} messages`);
+}
+
+/** Proposals the owner already booked on their own drop out of the list (their Claude reads the calendar). */
+export async function checkProposals(log = console.log) {
+	if (!CLAUDE) return;
+	const names = new Map(chats().map((c) => [c.pk, c.name]));
+	const soon = Date.now() - 3_600_000;
+	const todo = store
+		.uncheckedProposals()
+		.filter((p) => p.start && new Date(p.start).getTime() > soon);
+	if (!todo.length) return;
+	const found = await alreadyBooked(
+		todo.slice(0, 15).map((p) => ({
+			id: p.msg,
+			title: p.title ?? "",
+			name: names.get(p.pk) ?? "",
+			start: p.start!,
+		})),
+	);
+	if (!found) return log("proposals: calendar check failed, retry next refresh");
+	for (const p of todo.slice(0, 15)) {
+		if (found.has(p.msg))
+			store.setProposal(p.msg, "booked", "já estava na agenda", found.get(p.msg) || null);
+		store.markChecked(p.msg);
+	}
+	log(`proposals: ${found.size} of ${Math.min(15, todo.length)} already in the calendar`);
 }
 
 // ---- learning from the owner's edits ---------------------------------------------------------
