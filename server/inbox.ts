@@ -1,5 +1,5 @@
 // Pure: chats + triage + drafts + decisions -> ranked categories. No I/O, so it is testable.
-import type { Decision, Draft, Triage } from "./store.ts";
+import type { Decision, Draft, Proposal, Triage } from "./store.ts";
 import type { Chat } from "./wa.ts";
 
 export const CATEGORIES = [
@@ -192,4 +192,21 @@ export function findPendingInvite(
 		return agreed ? { email, agreed: agreed.text, agreedAt: agreed.at } : null;
 	}
 	return null;
+}
+
+/**
+ * Meetings to show: the latest proposal per chat only (times get negotiated), hidden once dismissed,
+ * and pending ones only while they are still ahead (an hour of slack). Soonest first.
+ */
+export function liveProposals(list: Proposal[], now: number): Proposal[] {
+	const seen = new Set<number>();
+	return [...list]
+		.sort((a, b) => b.at - a.at)
+		.filter((p) => {
+			if (seen.has(p.pk)) return false;
+			seen.add(p.pk);
+			if (!p.start || p.status === "dismissed") return false;
+			return p.status !== "pending" || new Date(p.start).getTime() > now - 3_600_000;
+		})
+		.sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""));
 }

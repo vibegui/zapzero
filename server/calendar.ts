@@ -67,6 +67,9 @@ async function run(
 		"",
 		"--allowedTools",
 		...[tool].flat(),
+		// the owner's settings may say "auto": refuse every tool not allowed above (prompts carry others' text)
+		"--permission-mode",
+		"dontAsk",
 		"--no-session-persistence",
 	];
 	if (MODEL) args.push("--model", MODEL);

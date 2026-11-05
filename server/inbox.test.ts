@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { hasTime } from "../web/slots.ts";
-import { buildInbox, findPendingInvite } from "./inbox.ts";
-import type { Decision, Triage } from "./store.ts";
+import { buildInbox, findPendingInvite, liveProposals } from "./inbox.ts";
+import type { Decision, Proposal, Triage } from "./store.ts";
 import type { Chat } from "./wa.ts";
 
 const now = Date.UTC(2026, 10, 2);
@@ -99,4 +99,33 @@ test("pending invite: e-mail after the owner agreed a time", () => {
 	});
 	expect(findPendingInvite(msgs, new Set(["ana@exemplo.com"]), hasTime)).toBeNull();
 	expect(findPendingInvite(msgs.slice(2), new Set(), hasTime)).toBeNull(); // no time agreed
+});
+
+test("liveProposals: latest per chat wins, a dismissed latest hides older ones, past pending drop out", () => {
+	const p = (msg: number, pk: number, at: number, start: string, status = "pending") =>
+		({
+			msg,
+			pk,
+			at,
+			mine: 0,
+			text: "",
+			event: 1,
+			title: "x",
+			start,
+			minutes: 60,
+			status,
+			result: null,
+			event_id: null,
+			guests: null,
+		}) as Proposal;
+	const now = new Date("2026-11-04T12:00").getTime();
+	const list = [
+		p(1, 10, 1, "2026-11-05T10:00"),
+		p(2, 10, 2, "2026-11-06T15:00", "dismissed"),
+		p(3, 20, 1, "2026-11-04T09:00"), // pending, already past
+		p(4, 30, 1, "2026-11-04T09:00", "booked"), // booked stays
+		p(5, 40, 2, "2026-11-07T10:00"),
+		p(6, 40, 1, "2026-11-05T08:00"),
+	];
+	expect(liveProposals(list, now).map((x) => x.msg)).toEqual([4, 5]);
 });

@@ -9,7 +9,13 @@ import * as ai from "./ai.ts";
 import { addGuest, bookProposal, CLAUDE, createEvent, scheduleWithGuest } from "./calendar.ts";
 import { emailsFor } from "./contacts.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
-import { buildInbox, CATEGORIES, findPendingInvite, type PendingInvite } from "./inbox.ts";
+import {
+	buildInbox,
+	CATEGORIES,
+	findPendingInvite,
+	liveProposals,
+	type PendingInvite,
+} from "./inbox.ts";
 import { cohorts, type Who, weekOf } from "./stats.ts";
 import * as store from "./store.ts";
 import * as wa from "./wa.ts";
@@ -28,21 +34,31 @@ function refresh(): Promise<void> {
 			console.log(s);
 		};
 		let ok = true;
-		try {
-			await wa.snapshot();
+		// one failing step is logged and the next ones still run; without a snapshot there is nothing to do
+		const step = async (fn: () => Promise<unknown>) => {
+			try {
+				await fn();
+				return true;
+			} catch (e) {
+				ok = false;
+				say(`erro: ${(e as Error).message}`);
+				return false;
+			}
+		};
+		if (await step(() => wa.snapshot())) {
 			say(`snapshot: ${wa.chats().length} chats`);
 			// first scan: propose who the owner is and how they write, before triage and drafts use it
-			if (store.voice().state === "empty") await ai.suggestVoice(say);
-			await ai.triage(say);
-			await ai.drafts(say);
-			await ai.suggest(say);
-			await ai.learn(say);
-			await ai.detectProposals(say);
-			await ai.checkProposals(say);
-			await ai.groupDigest(say);
-		} catch (e) {
-			ok = false;
-			say(`erro: ${(e as Error).message}`);
+			if (store.voice().state === "empty") await step(() => ai.suggestVoice(say));
+			for (const fn of [
+				ai.triage,
+				ai.drafts,
+				ai.suggest,
+				ai.learn,
+				ai.detectProposals,
+				ai.checkProposals,
+				ai.groupDigest,
+			])
+				await step(() => fn(say));
 		}
 		last = { at: Date.now(), ok, log };
 	})().finally(() => {
@@ -136,48 +152,31 @@ app.get("/api/media/:pk", (c) => {
 	return new Response(Bun.file(f), { headers: { "cache-control": "private, max-age=86400" } });
 });
 
-/** What the other person wrote in a chat, lowercased: e-mails to invite must appear here. */
-/** E-mails we may invite for a chat: the macOS contact's, and any the person wrote in the chat. */
+const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+
+/** E-mails we may invite for a chat: the macOS contact's, and any the person wrote in the chat. Lowercase. */
 function knownEmails(pk: number, phone: string | null) {
-	const said = incoming(pk).match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? [];
+	const said = wa
+		.messages(pk, 50)
+		.filter((m) => !m.mine)
+		.flatMap((m) => m.text.toLowerCase().match(EMAIL) ?? []);
 	return [...new Set([...emailsFor(phone), ...said])];
 }
+const phoneOf = (pk: number) => wa.chats().find((x) => x.pk === pk)?.phone ?? null;
 
 /** Who to invite: e-mails written in the proposal itself first, then the contact's and the chat's. */
 const proposalEmails = (p: store.Proposal, phone: string | null) => [
-	...new Set([
-		...(p.text.toLowerCase().match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? []),
-		...knownEmails(p.pk, phone),
-	]),
+	...new Set([...(p.text.toLowerCase().match(EMAIL) ?? []), ...knownEmails(p.pk, phone)]),
 ];
 
-/** Meetings found in messages: upcoming, one per chat (the latest message wins). */
+/** Meetings found in messages, see liveProposals. */
 function proposalList() {
 	const byPk = new Map(wa.chats().map((c) => [c.pk, c]));
-	const soon = Date.now() - 3_600_000;
-	const seen = new Set<string>();
-	return store
-		.proposals()
-		.sort((a, b) => b.at - a.at)
-		.filter((p) => {
-			const k = String(p.pk); // times get negotiated: the latest proposal in a chat is the live one
-			if (seen.has(k) || !p.start) return false;
-			seen.add(k);
-			return p.status !== "pending" || new Date(p.start).getTime() > soon;
-		})
-		.sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))
-		.map((p) => {
-			const c = byPk.get(p.pk);
-			return { ...p, name: c?.name ?? String(p.pk), emails: proposalEmails(p, c?.phone ?? null) };
-		});
+	return liveProposals(store.proposals(), Date.now()).map((p) => {
+		const c = byPk.get(p.pk);
+		return { ...p, name: c?.name ?? String(p.pk), emails: proposalEmails(p, c?.phone ?? null) };
+	});
 }
-
-const incoming = (pk: number) =>
-	wa
-		.messages(pk, 50)
-		.filter((m) => !m.mine)
-		.map((m) => m.text.toLowerCase())
-		.join("\n");
 
 const Decide = z.object({
 	pk: z.number().int(),
@@ -186,7 +185,7 @@ const Decide = z.object({
 	text: z.string().max(4000).optional(),
 	/** reply only: also put the time this reply agrees to in the owner's calendar */
 	event: z.boolean().optional(),
-	/** guests for that event: only addresses that appear in this chat's messages are kept */
+	/** guests for that event: only addresses we know for this person are kept (knownEmails) */
 	invite: z.array(z.string().email().max(200)).max(5).optional(),
 });
 
@@ -231,10 +230,10 @@ app.post("/api/decide", async (c) => {
 	} else if (kind === "reply" && p.data.event && text) {
 		// the owner's click is the approval; their Claude creates it in the background (~15 s)
 		event = true;
-		const said = incoming(pk);
+		const known = knownEmails(pk, chat.phone);
 		const invite = (p.data.invite ?? [])
 			.map((e) => e.toLowerCase())
-			.filter((e) => said.includes(e));
+			.filter((e) => known.includes(e));
 		store.eventStart(pk, lastPk, text, invite);
 		void createEvent(chat.name, text, invite).then((r) =>
 			store.eventDone(
@@ -289,8 +288,9 @@ app.post("/api/event/invite", async (c) => {
 	const email = p.data.email.toLowerCase();
 	const e = store.latestEvent(p.data.pk);
 	if (!e?.event_id) return c.json({ error: "event" }, 404);
-	// only an address the other person actually wrote in this chat
-	if (!incoming(p.data.pk).includes(email)) return c.json({ error: "email" }, 400);
+	// only an address we know for this person: their contact card, or one they wrote in this chat
+	if (!knownEmails(p.data.pk, phoneOf(p.data.pk)).includes(email))
+		return c.json({ error: "email" }, 400);
 	if (inviting) return c.json({ error: "busy" }, 429);
 	inviting = true;
 	try {
@@ -348,12 +348,16 @@ app.post("/api/compose/:pk", async (c) => {
 	if (!chat) return c.json({ error: "chat" }, 404);
 	const p = Compose.safeParse(await c.req.json().catch(() => null));
 	if (!p.success) return c.json({ error: "invalid" }, 400);
+	if (drafting) return c.json({ error: "busy" }, 429);
+	drafting = true;
 	try {
 		const r = await ai.compose(chat, p.data.template, p.data.picks);
 		store.spend("compose", 1, r.cost);
 		return c.json({ text: r.text });
 	} catch (e) {
 		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
+	} finally {
+		drafting = false;
 	}
 });
 
@@ -449,6 +453,7 @@ app.post("/api/voice", async (c) => {
 	);
 	return c.json(store.voice());
 });
+let suggesting = false; // one profile/learn/suggest call at a time from the panel
 // the owner keeps some of the learned rules: they go to the end of the voice guide, the rest is dropped
 app.post("/api/voice/learned", async (c) => {
 	const p = z
@@ -468,11 +473,15 @@ app.post("/api/voice/learned", async (c) => {
 	return c.json(store.voice());
 });
 app.post("/api/voice/learn", async (c) => {
+	if (suggesting) return c.json({ error: "busy" }, 429);
+	suggesting = true;
 	try {
 		await ai.learn(console.log, true);
 		return c.json({ learned: store.learned() });
 	} catch (e) {
 		return c.json({ error: (e as Error).message.slice(0, 300) }, 502);
+	} finally {
+		suggesting = false;
 	}
 });
 app.post("/api/voice/suggest", async (c) => {
@@ -488,7 +497,6 @@ app.post("/api/voice/suggest", async (c) => {
 	}
 });
 
-let suggesting = false;
 app.post("/api/suggest", async (c) => {
 	if (suggesting) return c.json({ error: "busy" }, 429);
 	suggesting = true;
@@ -575,6 +583,7 @@ app.get("/*", serveStatic({ path: "./dist/index.html" }));
 
 const cmd = process.argv[2];
 if (cmd === "serve") {
+	store.resetInterrupted();
 	if (!existsSync("dist/index.html"))
 		console.warn("dist/ missing: run `bun run build` (or `bun run dev`)");
 	Bun.serve({ hostname: "127.0.0.1", port: PORT, fetch: app.fetch, idleTimeout: 60 });

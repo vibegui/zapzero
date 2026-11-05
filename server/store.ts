@@ -387,12 +387,10 @@ export function saveProposal(p: Omit<Proposal, "status" | "result" | "event_id" 
 	).run(p.msg, p.pk, p.at, p.mine, p.text, p.event, p.title, p.start, p.minutes);
 }
 
-/** Meetings waiting on the owner, plus recent ones being booked or just booked, soonest first. */
+/** Meetings found in the last two weeks, dismissed ones too: a dismissed latest one hides older ones in its chat. */
 export const proposals = () =>
 	db
-		.query<Proposal, [number]>(
-			"select * from proposals where event = 1 and status != 'dismissed' and at > ? order by start",
-		)
+		.query<Proposal, [number]>("select * from proposals where event = 1 and at > ? order by start")
 		.all(Date.now() - 14 * 86_400_000);
 
 export const uncheckedProposals = () =>
@@ -484,3 +482,11 @@ export const invitedIn = (pk: number) =>
 			.flatMap((r) => r.guests?.split(",") ?? [])
 			.filter(Boolean),
 	);
+
+/** Background calendar work dies with the server: on start, let the owner try those again. */
+export function resetInterrupted() {
+	db.run("update proposals set status = 'pending' where status = 'booking'");
+	db.run(
+		"update events set status = 'error', result = 'interrompido: o servidor reiniciou' where status = 'pending'",
+	);
+}
