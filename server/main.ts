@@ -149,7 +149,10 @@ app.post("/api/open/:pk", (c) => {
 app.get("/api/media/:pk", (c) => {
 	const f = wa.mediaFile(Number(c.req.param("pk")));
 	if (!f) return c.json({ error: "media" }, 404);
-	return new Response(Bun.file(f), { headers: { "cache-control": "private, max-age=86400" } });
+	// a raw Response skips the CORS headers set by the middleware: without them the Studio iframe can't read it
+	return new Response(Bun.file(f), {
+		headers: { "cache-control": "private, max-age=86400", "access-control-allow-origin": "*" },
+	});
 });
 
 const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
