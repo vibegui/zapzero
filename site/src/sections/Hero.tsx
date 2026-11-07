@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Logo } from "~/components/ui";
 
 export interface Props {
@@ -32,6 +33,17 @@ export interface Props {
 	secondaryHref?: string;
 	/** @title Garantias (abaixo dos botões) */
 	promises?: string[];
+	/** @title Botão instalar: rótulo */
+	installLabel?: string;
+	/**
+	 * @title Botão instalar: o que copiar
+	 * @description vai pro clipboard; vazio esconde o botão
+	 */
+	installCopy?: string;
+	/** @title Botão instalar: rótulo depois de copiar */
+	installDone?: string;
+	/** @title Botão instalar: dica abaixo (o link copiado aparece no fim) */
+	installHint?: string;
 }
 
 export default function Hero({
@@ -49,7 +61,17 @@ export default function Hero({
 	secondaryLabel = "",
 	secondaryHref = "#como-funciona",
 	promises = [],
+	installLabel = "Instalar",
+	installCopy = "",
+	installDone = "Copiado",
+	installHint = "",
 }: Props) {
+	const [copied, setCopied] = useState(false);
+	const copy = () =>
+		navigator.clipboard.writeText(installCopy).then(() => {
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2500);
+		});
 	return (
 		<section className="hero">
 			<nav className="wrap top">
@@ -81,8 +103,13 @@ export default function Hero({
 				{subtitle ? <p className="sub">{subtitle}</p> : null}
 				{body ? <p className="lede">{body}</p> : null}
 				<div className="actions">
+					{installCopy ? (
+						<button type="button" className="btn" onClick={copy} aria-live="polite">
+							{copied ? `${installDone} ✓` : installLabel}
+						</button>
+					) : null}
 					{ctaHref ? (
-						<a className="btn" href={ctaHref}>
+						<a className={installCopy ? "btn ghost" : "btn"} href={ctaHref}>
 							{ctaLabel} <span aria-hidden="true">→</span>
 						</a>
 					) : (
@@ -94,6 +121,11 @@ export default function Hero({
 						</a>
 					) : null}
 				</div>
+				{installCopy && installHint ? (
+					<p className="install-hint">
+						{installHint} <code>{installCopy}</code>
+					</p>
+				) : null}
 				{promises.length ? (
 					<ul className="promises">
 						{promises.map((p) => (

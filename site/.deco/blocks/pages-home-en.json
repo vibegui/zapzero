@@ -31,7 +31,11 @@
       "otherLangLabel": "PT",
       "otherLangHref": "/pt?lang=pt",
       "docsLabel": "Docs",
-      "docsHref": "/en/docs"
+      "docsHref": "/en/docs",
+      "installLabel": "Install",
+      "installCopy": "https://zapzero.dev/llms.txt",
+      "installDone": "Copied",
+      "installHint": "Copy the link and paste it into your agent (Claude Code, Codex…). It reads it and installs:"
     },
     {
       "__resolveType": "site/sections/PanelMock.tsx",

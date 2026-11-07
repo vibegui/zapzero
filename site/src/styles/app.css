@@ -177,6 +177,19 @@ p {
 	transform: none;
 	filter: none;
 }
+button.btn {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.install-hint {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.install-hint code {
+  color: var(--ink);
+}
 .btn.small {
   height: 38px;
   padding: 0 16px;
