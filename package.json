@@ -11,7 +11,8 @@
 		"test": "bun test",
 		"fmt": "biome format --write .",
 		"setup": "bun scripts/setup.ts",
-		"selfcheck": "bun test server/selfcheck.test.ts"
+		"selfcheck": "bun test server/selfcheck.test.ts",
+		"desktop": "cd desktop && bun install && bun run build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.4",

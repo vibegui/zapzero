@@ -124,6 +124,10 @@ const EN: Record<string, string> = {
 	"{n} marcadas para arquivar": "{n} marked to archive",
 	"{n} resolvidas": "{n} done",
 	"Marcar todas": "Select all",
+	"Conectar ao Claude": "Connect to Claude",
+	"Comando copiado: cole no terminal": "Command copied: paste it in the terminal",
+	"Copia o comando que adiciona o zapzero ao Claude Code. Cole no terminal.":
+		"Copies the command that adds zapzero to Claude Code. Paste it in the terminal.",
 	"Desmarcar todas": "Select none",
 	marca: "selects",
 	"Arquivar {n}": "Archive {n}",

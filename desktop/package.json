@@ -1,0 +1,13 @@
+{
+	"name": "zapzero-desktop",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"server": "cd .. && bun run build && bun build --compile --minify server/main.ts --outfile desktop/src-tauri/binaries/zapzero-server-$(rustc -vV | sed -n 's/host: //p')",
+		"dev": "bun run server && tauri dev",
+		"build": "bun run server && tauri build --bundles dmg"
+	},
+	"devDependencies": {
+		"@tauri-apps/cli": "^2"
+	}
+}

@@ -15,6 +15,7 @@ import {
 	Loader2,
 	MessageCircleReply,
 	Newspaper,
+	Plug,
 	RefreshCw,
 	SkipForward,
 	Sparkles,
@@ -189,6 +190,7 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				</Link>
 			</div>
 			<div className="space-y-2 border-t border-line px-5 py-4 text-xs text-faint">
+				<ConnectClaude />
 				<div className="flex items-center justify-between">
 					<span>
 						{inbox?.refreshing
@@ -217,6 +219,29 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				</div>
 			</div>
 		</nav>
+	);
+}
+
+/** Copies the command that adds zapzero's local MCP to Claude Code (token included: it stays on this Mac). */
+function ConnectClaude() {
+	const [done, setDone] = useState(false);
+	const port = location.hostname === "127.0.0.1" ? location.port : "8810";
+	const cmd = `claude mcp add --scope user --transport http zapzero http://127.0.0.1:${port}/mcp --header "Authorization: Bearer ${TOKEN}"`;
+	return (
+		<button
+			type="button"
+			title={t("Copia o comando que adiciona o zapzero ao Claude Code. Cole no terminal.")}
+			onClick={() =>
+				navigator.clipboard.writeText(cmd).then(() => {
+					setDone(true);
+					setTimeout(() => setDone(false), 2500);
+				})
+			}
+			className="-mx-2 flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left hover:bg-panel hover:text-ink"
+		>
+			<Plug className="size-3.5" />
+			{done ? t("Comando copiado: cole no terminal") : t("Conectar ao Claude")}
+		</button>
 	);
 }
 
