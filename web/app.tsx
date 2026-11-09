@@ -1037,7 +1037,7 @@ function Focus({
 				</div>
 				<div className="mx-auto mt-2 max-w-3xl text-[11px] text-faint">
 					{cleanup
-						? t("Arquivar fica registrado; o executor que arquiva no app ainda não existe.")
+						? t("Arquivar tira daqui; no WhatsApp, arquive você mesmo.")
 						: t(
 								"Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá.",
 							)}{" "}

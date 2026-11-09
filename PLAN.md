@@ -14,8 +14,6 @@ Goal: a skill + a self-contained app anyone can plug into their own WhatsApp Des
 
 ## Next
 
-- **Archive executor.** Archive is recorded but not carried out. Drive WhatsApp Desktop through macOS Accessibility (AppleScript/JXA or a small Swift binary): find the chat without opening it (opening marks it read), archive one every 3–5 s in batches of 50, verify `ZARCHIVED=1` and an unchanged unread count in the next snapshot, undo with unarchive.
-- **Sending without the Enter.** Optional, per message: paste and send through Accessibility, verify `ZISFROMME=1` in the next snapshot, hourly limits, extra confirmation for groups and people not talked to in months.
 - **Chats without a phone number** (`@lid` contacts, groups): today Y copies the text and opens the app; find and open the chat directly.
 - **Group digests**: weekly topics per active group, alerting only when the owner is mentioned or something needs them.
 - **Local models**: Ollama for drafts and suggestions, for people who want nothing to leave the Mac.
@@ -26,3 +24,4 @@ Goal: a skill + a self-contained app anyone can plug into their own WhatsApp Des
 
 - Baileys / unofficial WhatsApp Web clients: they risk a ban.
 - Writing to the app's database: it belongs to WhatsApp; changing it desyncs and can corrupt it.
+- Driving WhatsApp Desktop through Accessibility (clicks, keystrokes, menus): it takes over the owner's mouse and keyboard and can type into the wrong window. Archiving and marking as read stay with the owner, in WhatsApp; zapzero only records the decision.

@@ -169,8 +169,8 @@ const EN: Record<string, string> = {
 	Resolvida: "Done",
 	Pular: "Skip",
 	"Ignorar sempre": "Always ignore",
-	"Arquivar fica registrado; o executor que arquiva no app ainda não existe.":
-		"Archive is recorded; nothing archives it in the app yet.",
+	"Arquivar tira daqui; no WhatsApp, arquive você mesmo.":
+		"Archive removes it here; archive it in WhatsApp yourself.",
 	"Responder abre a conversa no WhatsApp com o texto escrito. Só sai quando você aperta Enter lá.":
 		"Reply opens the chat in WhatsApp with the text typed in. It only goes out when you press Enter there.",
 	edita: "edit",
