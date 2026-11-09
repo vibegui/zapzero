@@ -163,6 +163,16 @@ export async function text(a: Ask): Promise<{ text: string; cost: number }> {
 }
 
 /** The first {...} in a reply, parsed: Claude sometimes wraps JSON in a code fence or a sentence. */
+/**
+ * The message inside <msg></msg>, or "" when the model answered with commentary instead: the small models
+ * sometimes reason out loud ("a última msg é…", "o dono…") and that must never reach the owner as a reply.
+ */
+export function onlyMessage(raw: string) {
+	const m = raw.match(/<msg>([\s\S]*?)<\/msg>/i);
+	const text = (m ? m[1]! : "").trim();
+	return /\b(o dono|do dono|ao dono|rascunho)\b/i.test(text) ? "" : text;
+}
+
 export function parseJson(s: string): unknown {
 	const a = s.indexOf("{");
 	const b = s.lastIndexOf("}");
