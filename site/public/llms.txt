@@ -15,11 +15,12 @@ There is also a Mac app (https://github.com/vibegui/zapzero/releases/latest/down
 ## How it works
 
 - WhatsApp Desktop keeps chats in SQLite under `~/Library/Group Containers/group.net.whatsapp.WhatsApp.shared/`. zapzero copies it every 15 minutes, read-only.
-- AI triage puts each chat in a category by when (Important & urgent, This week, Older than a week, You're waiting on them, Groups, Cleanup) and an area by who (Clients, Hiring, Team, Investors, Family, Friends…). Only chats whose last message changed are re-done.
-- For everyone waiting on the owner it drafts a reply in their own tone, learned from their messages ("Seu jeito" / "Your voice"). Dates, prices and yes/no are left `[in brackets]` for the owner to fill.
+- AI triage puts each chat in a category by when (Important or urgent, This week, Older than a week, You're waiting on them, Groups, Cleanup) and an area by who (Clients, Hiring, Team, Investors, Family, Friends…). A direct question from a work or personal contact, or someone who asked again a day later, goes to Important or urgent. Only chats whose last message changed are re-done.
+- For everyone waiting on the owner it drafts a reply in their own tone, learned from their messages ("Seu jeito" / "Your voice"). Dates, prices and yes/no are left `[in brackets]` for the owner to fill. Only the reply itself is kept, never the model's reasoning.
 - A local panel (React) on `http://127.0.0.1:8810`, gated by a token, and a Hono API behind it.
 - The AI is the owner's own Claude subscription through Claude Code (`claude -p`, no tools), a local model through Ollama (nothing leaves the Mac), or OpenRouter with their key. There is no zapzero cloud: state lives in `~/Library/Application Support/zap` (chmod 700).
-- Optional: when a reply names a time, the owner's Claude Code creates the calendar event with only the calendar tool allowed.
+- Optional: when a reply names a time, the owner's Claude Code creates the calendar event with only the calendar tool allowed, named after the conversation's subject. "Pendências" (Meetings) lists meetings agreed in chats that aren't on the calendar yet, including ones that were deleted, and what's missing (usually the guest's e-mail).
+- "Contatos e e-mails" (Contacts): each person's e-mail for invites, from the Mac's Contacts, what they wrote in the chat, and guests of the owner's meetings (their Claude searches the calendar; suggestions wait for the owner's ✓). The owner can mark a primary e-mail per person.
 
 ## Requirements
 
@@ -53,10 +54,10 @@ Optional: `cp .env.example .env` and put an OpenRouter key there for fast, cheap
 
 - Open `http://127.0.0.1:8810/?t=<token>` (token in `~/Library/Application Support/zap/token`).
 - First, check "Seu jeito" / "Your voice": accept or edit who the user is and how they write.
-- Then start at "Important & urgent". Keys: Y reply, E edit, R new draft, D resolved, A archive, S skip, I ignore forever, J/K move, Z undo.
+- The panel opens on "Pendências" (meetings). Then go to "Important or urgent". Keys: Y reply, E edit, R new draft, 1–9 pick a [choice], C calendar event, D resolved, A archive, S skip, I ignore forever, O open in WhatsApp, J/K move, Z undo, / search. In Cleanup, X selects chats and A archives them all in zapzero (WhatsApp itself is untouched). ⌘+ / ⌘- / ⌘0 zoom, ⌘R reload.
 - From the phone: `tailscale serve --bg --set-path=/zap http://127.0.0.1:8810` (private tailnet only, never Funnel).
 
-Connect your user's Claude to it: zapzero serves a local MCP at `http://127.0.0.1:8810/mcp` (this Mac only), tools `inbox`, `chat`, `stats`, `decide`, `undo`, `refresh`, none of which sends anything. Add it with `claude mcp add --scope user --transport http zapzero http://127.0.0.1:8810/mcp --header "Authorization: Bearer $(cat ~/Library/Application\ Support/zap/token)"`, which reads the token from its file without printing it.
+Connect your user's Claude to it: zapzero serves a local MCP at `http://127.0.0.1:8810/mcp` (this Mac only), tools `inbox`, `chat`, `emails`, `stats`, `decide`, `undo`, `refresh` and `panel` (the panel itself, for clients that show MCP Apps), none of which sends anything. Add it with `claude mcp add --scope user --transport http zapzero http://127.0.0.1:8810/mcp --header "Authorization: Bearer $(cat ~/Library/Application\ Support/zap/token)"`, which reads the token from its file without printing it.
 
 From an agent, without the panel or MCP (the skill does this):
 
