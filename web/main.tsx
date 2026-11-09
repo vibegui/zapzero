@@ -97,6 +97,14 @@ const qc = new QueryClient({
 	defaultOptions: { queries: { refetchOnWindowFocus: true, staleTime: 15_000 } },
 });
 
+// ⌘R reloads: the desktop app's window (a WKWebView) has no reload of its own
+window.addEventListener("keydown", (e) => {
+	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "r") {
+		e.preventDefault();
+		location.reload();
+	}
+});
+
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<QueryClientProvider client={qc}>
