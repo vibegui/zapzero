@@ -5,9 +5,7 @@
   "identifier": "dev.zapzero.app",
   "build": { "frontendDist": "../ui" },
   "app": {
-    "windows": [
-      { "label": "main", "title": "zapzero", "width": 1280, "height": 820, "minWidth": 900, "minHeight": 600 }
-    ],
+    "windows": [],
     "security": { "csp": null }
   },
   "bundle": {

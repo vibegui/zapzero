@@ -6,7 +6,8 @@
 use std::net::{SocketAddr, TcpStream};
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
-use tauri::{Manager, RunEvent, Url};
+use tauri::webview::NewWindowResponse;
+use tauri::{Manager, RunEvent, Url, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_shell::{process::CommandChild, ShellExt};
 
 struct Server(Mutex<Option<CommandChild>>);
@@ -25,6 +26,17 @@ fn token() -> Option<String> {
         format!("{}/Library/Application Support/zap", std::env::var("HOME").unwrap_or_default())
     });
     std::fs::read_to_string(format!("{data}/token")).ok().map(|t| t.trim().to_string())
+}
+
+/// Links leave the app: the default browser opens them (macOS `open`), in its last window, like any other app.
+/// Only the panel itself (127.0.0.1) and the loading page stay in the window.
+fn external(url: &Url) -> bool {
+    let local = matches!(url.host_str(), Some("127.0.0.1") | Some("localhost") | Some("tauri.localhost"));
+    let open = matches!(url.scheme(), "http" | "https" | "mailto") && !local;
+    if open {
+        let _ = std::process::Command::new("/usr/bin/open").arg(url.as_str()).spawn();
+    }
+    open
 }
 
 fn main() {
@@ -47,7 +59,16 @@ fn main() {
             }
             app.manage(Server(Mutex::new(child)));
 
-            let window = app.get_webview_window("main").expect("main window");
+            let window = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
+                .title("zapzero")
+                .inner_size(1280.0, 820.0)
+                .min_inner_size(900.0, 600.0)
+                .on_navigation(|url| !external(url))
+                .on_new_window(|url, _| {
+                    external(&url);
+                    NewWindowResponse::Deny
+                })
+                .build()?;
             std::thread::spawn(move || {
                 let start = Instant::now();
                 while !up(port) && start.elapsed() < Duration::from_secs(30) {
