@@ -142,7 +142,7 @@ if (!process.argv.includes("--no-launchd")) {
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
-		<key>BUN_BE_BUN</key><string>1</string>
+		<key>BUN_BE_BUN</key><string>1</string>${process.env.ZAP_PANEL_URL ? `\n\t\t<key>ZAP_PANEL_URL</key><string>${process.env.ZAP_PANEL_URL}</string>` : ""}
 	</dict>
 	<key>RunAtLoad</key><true/>
 	<key>KeepAlive</key><true/>
@@ -183,9 +183,15 @@ if (existsSync(`${homedir()}/.claude`)) {
 	ok(there ? `Claude skill already at ${dest}` : `Claude skill linked: ${dest}`);
 }
 
+const panel = `http://127.0.0.1:${PORT}/?t=${TOKEN}`;
 console.log(`
-Open the panel:  http://127.0.0.1:${PORT}/?t=${TOKEN}
+Panel:           ${panel}
 Data lives in:   ${DATA}
 
 The first scan triages your chats and reads how you write. Check "Seu jeito" in the
-sidebar: accept or edit it, and the drafts follow it.`);
+sidebar: accept or edit it, and the drafts follow it.
+
+Optional, for agents (deco Studio, Claude, any MCP client): http://127.0.0.1:${PORT}/mcp
+with the header "Authorization: Bearer <the token in ${DATA}/token>".`);
+// the panel is the default way in: open it, unless launchd was skipped and nothing serves it yet
+if (!process.argv.includes("--no-launchd")) Bun.spawnSync(["open", panel]);

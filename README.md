@@ -24,7 +24,7 @@ zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**
 - **Your voice ("Seu jeito").** After the first scan the AI reads ~150 of your own messages, your 40 busiest chats and the groups you write in most, and writes who you are, one editable field per topic (where you live, work, family, people who matter, current projects, routine, languages), plus a guide to how you write. Accept or edit each part; triage uses it to know who's who and every draft follows your tone.
 - **Performance ("Desempenho").** Week by week over the last 13: how often you answered within 24 h, how long you typically take, who never got an answer, split by saved contacts, strangers and groups. Computed from the snapshot, no AI. A "turn" is a message that arrives after you spoke and after an hour of silence, so a live back-and-forth counts once.
 - **Calendar, through your own Claude.** When a reply names a time ("14h30 fica bom"), the panel offers "create the event in my calendar" (on by default, `C` toggles). After you press Y, zapzero runs your Claude Code headless (`claude -p`) with exactly one tool allowed, your calendar connector's create-event, and the event lands in your calendar. If the other person wrote an e-mail in the chat, the panel offers to invite it (you see the address before Y; the server only accepts addresses that appear in that chat), with a Meet link. No e-mail yet? One click adds "Me passa seu e-mail que te mando o convite?" to the reply, and when they answer with it the chat shows "Adicionar <e-mail> no convite": your Claude adds them to the same event (only the update-event tool allowed). zapzero holds no calendar credentials. Settings: `ZAP_CLAUDE`, `ZAP_CALENDAR_TOOL`, `ZAP_AGENT_MODEL`.
-- **Use it from Claude.** `bun run setup` links a Claude Code skill: ask Claude "who's waiting on me?", "how fast did I answer this month?" or "I live in Rio, fix my profile", and it calls zapzero locally through `bun run zap api …`. No MCP server or token to configure.
+- **Use it from Claude.** `bun run setup` links a Claude Code skill: ask Claude "who's waiting on me?", "how fast did I answer this month?" or "I live in Rio, fix my profile", and it calls zapzero locally through `bun run zap api …`. No MCP server or token to configure (there is an optional one, below).
 - **Keyboard flow:** `Y` reply · `E` edit · `R` new draft · `D` resolved · `A` archive · `S` skip · `I` ignore this person forever · `J`/`K` move · `Z` undo · `⌘↵` reply from the editor.
 - **Runs in the background**, re-reading WhatsApp every 15 minutes and only re-doing AI work for chats that changed.
 
@@ -65,7 +65,11 @@ From your phone or another computer, put it on your private [Tailscale](https://
 tailscale serve --bg --set-path=/zap http://127.0.0.1:8810
 ```
 
-It also runs as an [MCP App](https://github.com/modelcontextprotocol/ext-apps) screen inside hosts like deco Studio: a tiny resource whose iframe points at your tailnet URL, granted with `_meta.ui.csp.frameDomains`. Chrome's Local Network Access blocks tailnet addresses inside other sites' iframes unless the host delegates `local-network-access`.
+### Optional: MCP for agents (deco Studio and others)
+
+The panel in your browser is all you need. For agents there is also an MCP server at `http://127.0.0.1:8810/mcp`, with the same token as `Authorization: Bearer <token>` (the token is in `~/Library/Application Support/zap/token`). Its tools: `inbox`, `chat`, `stats`, `decide` (done, skip, archive, ignore: only zapzero's own list), `undo`, `refresh`. None of them sends anything. The `panel` tool opens the panel as an [MCP App](https://github.com/modelcontextprotocol/ext-apps) screen in hosts like deco Studio.
+
+When the host isn't on this Mac (deco Studio in the cloud), point it at your tailnet URL, and run `ZAP_PANEL_URL=<that URL> bun run setup` so the screen loads the panel from there. Chrome's Local Network Access blocks tailnet addresses inside other sites' iframes unless the host delegates `local-network-access`.
 
 ### Commands
 

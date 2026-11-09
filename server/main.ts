@@ -16,6 +16,7 @@ import {
 	liveProposals,
 	type PendingInvite,
 } from "./inbox.ts";
+import { handleMcp } from "./mcp.ts";
 import { cohorts, type Who, weekOf } from "./stats.ts";
 import * as store from "./store.ts";
 import * as wa from "./wa.ts";
@@ -573,6 +574,36 @@ const cachedStats = () => {
 app.get("/api/stats", (c) => c.json(cachedStats()));
 
 app.all("/api/*", (c) => c.json({ error: "route" }, 404));
+
+// Optional MCP endpoint for agents (deco Studio and others). Same token, as a Bearer header, x-zap-token or ?t=.
+app.all("/mcp", async (c) => {
+	const cors = {
+		"access-control-allow-origin": "*",
+		"access-control-allow-headers":
+			"content-type, authorization, x-zap-token, mcp-protocol-version",
+		"access-control-allow-methods": "GET, POST, OPTIONS",
+	};
+	if (c.req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+	const got = Buffer.from(
+		c.req.header("authorization")?.replace(/^Bearer\s+/i, "") ??
+			c.req.header("x-zap-token") ??
+			c.req.query("t") ??
+			"",
+	);
+	const want = Buffer.from(TOKEN);
+	if (got.length !== want.length || !timingSafeEqual(got, want))
+		return c.json({ error: "token" }, 401, cors);
+	const res = await handleMcp(c.req.raw, async (route, body) => {
+		const r = await app.request(`/api/${route}`, {
+			method: body === undefined ? "GET" : "POST",
+			headers: { "x-zap-token": TOKEN, "content-type": "application/json" },
+			body: body === undefined ? undefined : JSON.stringify(body),
+		});
+		return r.json();
+	});
+	for (const [k, v] of Object.entries(cors)) res.headers.set(k, v);
+	return res;
+});
 
 // The panel's own files carry no data; inside Studio they load from origin "null" in CORS mode.
 app.use("/*", async (c, next) => {

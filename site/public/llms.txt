@@ -43,7 +43,7 @@ bun run setup
 3. builds the panel and the background server binary (`~/Library/Application Support/zap/bin/zapzero`);
 4. installs a launchd agent (`dev.zapzero.server`) so it starts at login;
 5. links a Claude Code skill (`~/.claude/skills/zapzero`);
-6. prints the panel URL with the access token.
+6. prints the panel URL with the access token and opens it in the browser.
 
 If setup says it can't read WhatsApp's database, macOS is blocking it. The user must do this themselves: System Settings → Privacy & Security → Full Disk Access, add the terminal (for setup) and `~/Library/Application Support/zap/bin/zapzero` (for the background server), then run `bun run setup` again.
 
@@ -56,7 +56,9 @@ Optional: `cp .env.example .env` and put an OpenRouter key there for fast, cheap
 - Then start at "Important & urgent". Keys: Y reply, E edit, R new draft, D resolved, A archive, S skip, I ignore forever, J/K move, Z undo.
 - From the phone: `tailscale serve --bg --set-path=/zap http://127.0.0.1:8810` (private tailnet only, never Funnel).
 
-From an agent, without the panel (the skill does this):
+Optional, for agents: an MCP server at `http://127.0.0.1:8810/mcp` with `Authorization: Bearer <token>` (tools `inbox`, `chat`, `stats`, `decide`, `undo`, `refresh`, and `panel`, the panel as an MCP App screen for hosts like deco Studio). deco Studio is not needed; offer it only if your user wants it.
+
+From an agent, without the panel or MCP (the skill does this):
 
 ```sh
 cd ~/zapzero
