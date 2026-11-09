@@ -762,15 +762,25 @@ function Focus({
 	const pendingCall = calendar && item.invite != null;
 	const offersEvent = pendingCall || (calendar && !item.group && hasTime(text));
 	// the other person shared an e-mail for the call: invite it (they see it before Y, and can untick)
+	// …or the base already knows it (Contacts, the e-mail screen, an earlier chat)
+	const known = useQuery({
+		queryKey: ["emails", item.pk],
+		queryFn: () => api.emailsOf(item.pk),
+		enabled: calendar && !item.group,
+	});
 	const emails = useMemo(
-		() =>
-			emailsIn(
-				(chat.data ?? [])
-					.filter((m) => !m.mine)
-					.slice(-15)
-					.map((m) => m.text),
-			),
-		[chat.data],
+		() => [
+			...new Set([
+				...emailsIn(
+					(chat.data ?? [])
+						.filter((m) => !m.mine)
+						.slice(-15)
+						.map((m) => m.text),
+				),
+				...(known.data ?? []),
+			]),
+		],
+		[chat.data, known.data],
 	);
 	const [inviteOn, setInviteOn] = useState(true);
 	// an event already created for this chat: when the person sends their e-mail afterwards, offer the invite

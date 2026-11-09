@@ -6,7 +6,14 @@ import { serveStatic } from "hono/bun";
 import { z } from "zod";
 import { hasTime } from "../web/slots.ts";
 import * as ai from "./ai.ts";
-import { addGuest, bookProposal, CLAUDE, createEvent, scheduleWithGuest } from "./calendar.ts";
+import {
+	addGuest,
+	bookProposal,
+	CLAUDE,
+	contextLines,
+	createEvent,
+	scheduleWithGuest,
+} from "./calendar.ts";
 import { emailsFor } from "./contacts.ts";
 import * as emails from "./emails.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
@@ -229,9 +236,13 @@ app.post("/api/decide", async (c) => {
 	if (inv) {
 		event = true;
 		store.eventStart(pk, lastPk, inv.agreed, [inv.email]);
-		void scheduleWithGuest(chat.name, inv.agreed, inv.agreedAt, inv.email).then((r) =>
-			store.eventDone(pk, lastPk, r.ok ? "ok" : "error", r.result, r.eventId),
-		);
+		void scheduleWithGuest(
+			chat.name,
+			inv.agreed,
+			inv.agreedAt,
+			inv.email,
+			contextLines(wa.messages(pk, 12)),
+		).then((r) => store.eventDone(pk, lastPk, r.ok ? "ok" : "error", r.result, r.eventId));
 	} else if (kind === "reply" && p.data.event && text) {
 		// the owner's click is the approval; their Claude creates it in the background (~15 s)
 		event = true;
@@ -240,7 +251,7 @@ app.post("/api/decide", async (c) => {
 			.map((e) => e.toLowerCase())
 			.filter((e) => known.includes(e));
 		store.eventStart(pk, lastPk, text, invite);
-		void createEvent(chat.name, text, invite).then((r) =>
+		void createEvent(chat.name, text, invite, contextLines(wa.messages(pk, 12))).then((r) =>
 			store.eventDone(
 				pk,
 				lastPk,
@@ -278,7 +289,13 @@ app.post("/api/event/schedule", async (c) => {
 	inviting = true;
 	try {
 		store.eventStart(chat.pk, chat.lastPk, inv.agreed, [inv.email]);
-		const r = await scheduleWithGuest(chat.name, inv.agreed, inv.agreedAt, inv.email);
+		const r = await scheduleWithGuest(
+			chat.name,
+			inv.agreed,
+			inv.agreedAt,
+			inv.email,
+			contextLines(wa.messages(chat.pk, 12)),
+		);
 		store.eventDone(chat.pk, chat.lastPk, r.ok ? "ok" : "error", r.result, r.eventId);
 		return c.json(r, r.ok ? 200 : 502);
 	} finally {
@@ -429,6 +446,10 @@ app.get("/api/emails", (c) =>
 		next: emails.toLookUp().length,
 	}),
 );
+app.get("/api/emails/:pk", (c) => {
+	const pk = Number(c.req.param("pk"));
+	return c.json(knownEmails(pk, phoneOf(pk)));
+});
 app.post("/api/emails/find", (c) => {
 	if (!finding) {
 		finding = new Date().toISOString();

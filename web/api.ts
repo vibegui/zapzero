@@ -111,6 +111,7 @@ export const api = {
 			next: number;
 		}>("emails"),
 	findEmails: () => call<{ running: boolean }>("emails/find", {}),
+	emailsOf: (pk: number) => call<string[]>(`emails/${pk}`),
 	setEmail: (b: { phone: string; email: string; status: "ok" | "nao" }) =>
 		call<{ ok: true }>("emails/set", b),
 };

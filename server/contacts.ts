@@ -17,7 +17,8 @@ export function phoneKeys(phone: string): string[] {
 let cache: { at: number; map: Map<string, string[]> } | null = null;
 
 export function emailsByPhone(): Map<string, string[]> {
-	if (cache && Date.now() - cache.at < 3_600_000) return cache.map;
+	// a minute: an e-mail the owner just added in Contacts shows up on the next reply
+	if (cache && Date.now() - cache.at < 60_000) return cache.map;
 	const map = new Map<string, string[]>();
 	const files = [`${AB}/AddressBook-v22.abcddb`];
 	try {
