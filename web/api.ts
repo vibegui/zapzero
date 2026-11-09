@@ -79,6 +79,9 @@ export const api = {
 		invite?: string[];
 	}) => call<{ ok: true; via: "whatsapp" | "clipboard" | null; event: boolean }>("decide", b),
 	undo: (b: { pk: number; lastPk: number }) => call<{ ok: true }>("undo", b),
+	decideMany: (b: { kind: "archive" | "done"; items: { pk: number; lastPk: number }[] }) =>
+		call<{ ok: true; n: number }>("decide/many", b),
+	undoMany: (b: { items: { pk: number; lastPk: number }[] }) => call<{ ok: true }>("undo/many", b),
 	event: (pk: number) =>
 		call<{ lastPk: number; when: string; guests: string[] } | null>(`event/${pk}`),
 	schedule: (pk: number) =>

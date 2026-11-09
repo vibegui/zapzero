@@ -377,7 +377,8 @@ function Areas({ inbox }: { inbox?: Inbox }) {
 
 // ---- category: ranked list + focus -----------------------------------------------------------
 
-type Toast = { text: string; pk: number; lastPk: number } | null;
+type Pick = { pk: number; lastPk: number };
+type Toast = { text: string; pk: number; lastPk: number; many?: Pick[] } | null;
 
 type View = { kind: "cat"; id: CategoryId } | { kind: "area"; id: string };
 /** where an area's items come from: everything that still needs the owner */
@@ -408,6 +409,48 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 	const idx = Math.max(0, pk ? items.findIndex((i) => i.pk === pk) : 0);
 	const item = items[idx];
 	const [toast, setToast] = useState<Toast>(null);
+	// Limpeza: tick several, A clears them all (only zapzero's list; lastPk 0 = a chat with no synced message)
+	const bulk = view.kind === "cat" && view.id === "limpeza";
+	const [picked, setPicked] = useState<Set<number>>(new Set());
+	// biome-ignore lint/correctness/useExhaustiveDependencies: a new view starts with nothing ticked
+	useEffect(() => setPicked(new Set()), [view.id]);
+	const toggle = (p: number) =>
+		setPicked((s) => {
+			const n = new Set(s);
+			n.has(p) ? n.delete(p) : n.add(p);
+			return n;
+		});
+	const many = useMutation({
+		mutationFn: (kind: "archive" | "done") =>
+			api.decideMany({
+				kind,
+				items: items
+					.filter((i) => picked.has(i.pk))
+					.map((i) => ({ pk: i.pk, lastPk: i.lastPk ?? 0 })),
+			}),
+		onSuccess: (r, kind) => {
+			const done = items
+				.filter((i) => picked.has(i.pk))
+				.map((i) => ({ pk: i.pk, lastPk: i.lastPk ?? 0 }));
+			setPicked(new Set());
+			setToast({
+				text: tf(kind === "archive" ? "{n} marcadas para arquivar" : "{n} resolvidas", { n: r.n }),
+				pk: 0,
+				lastPk: 0,
+				many: done,
+			});
+		},
+		onSettled: () => qc.invalidateQueries({ queryKey: ["inbox"] }),
+	});
+	const undoToast = () => {
+		if (!toast) return;
+		if (toast.many)
+			api.undoMany({ items: toast.many }).then(() => {
+				setToast(null);
+				qc.invalidateQueries({ queryKey: ["inbox"] });
+			});
+		else undo.mutate({ pk: toast.pk, lastPk: toast.lastPk });
+	};
 
 	const select = useCallback(
 		(p: number | undefined) =>
@@ -496,7 +539,11 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 		const onKey = (e: KeyboardEvent) => {
 			if (e.metaKey || e.ctrlKey || e.altKey) return;
 			const el = e.target as HTMLElement;
-			if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") return;
+			if (
+				el.tagName === "TEXTAREA" ||
+				(el.tagName === "INPUT" && (el as HTMLInputElement).type !== "checkbox")
+			)
+				return;
 			const k = e.key.toLowerCase();
 			const run: Record<string, () => void> = {
 				j: () => move(1),
@@ -510,11 +557,12 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 				"/": () => document.querySelector<HTMLInputElement>("[data-search]")?.focus(),
 				r: () => focusRef.current?.redraft(),
 				d: () => (focusRef.current ? focusRef.current.done() : act("done")),
-				a: () => act("archive"),
+				a: () => (picked.size ? many.mutate("archive") : act("archive")),
+				x: () => bulk && item && toggle(item.pk),
 				s: () => act("skip"),
 				i: () => act("ignore"),
 				o: () => item && api.open(item.pk),
-				z: () => toast && undo.mutate({ pk: toast.pk, lastPk: toast.lastPk }),
+				z: undoToast,
 			};
 			// 1–9: pick that choice in the draft's first open [slot]
 			if (/^[1-9]$/.test(k) && focusRef.current?.pick(Number(k) - 1)) {
@@ -538,14 +586,52 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 					<h1 className="text-[15px] font-semibold tracking-tight">{t(label)}</h1>
 					<span className="text-xs tabular-nums text-faint">{items.length}</span>
 				</header>
+				{bulk && items.length > 0 && (
+					<div className="flex items-center gap-2 px-5 pb-3 text-xs">
+						<button
+							type="button"
+							className="text-muted hover:text-ink"
+							onClick={() =>
+								setPicked(
+									picked.size === items.length ? new Set() : new Set(items.map((i) => i.pk)),
+								)
+							}
+						>
+							{picked.size === items.length ? t("Desmarcar todas") : t("Marcar todas")}
+						</button>
+						<span className="flex-1 text-faint">
+							<kbd>X</kbd> {t("marca")}
+						</span>
+						{picked.size > 0 && (
+							<button
+								type="button"
+								disabled={many.isPending}
+								onClick={() => many.mutate("archive")}
+								className="inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1 font-medium text-accent-ink"
+							>
+								<Archive className="size-3.5" /> {tf("Arquivar {n}", { n: picked.size })}{" "}
+								<kbd>A</kbd>
+							</button>
+						)}
+					</div>
+				)}
 				<ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
 					{items.map((i) => (
-						<li key={i.pk}>
+						<li key={i.pk} className="flex items-start gap-1">
+							{bulk && (
+								<input
+									type="checkbox"
+									aria-label={tf("Marcar {name}", { name: i.name })}
+									checked={picked.has(i.pk)}
+									onChange={() => toggle(i.pk)}
+									className="mt-3.5 ml-2 size-3.5 shrink-0 accent-[var(--accent)]"
+								/>
+							)}
 							<button
 								type="button"
 								onClick={() => select(i.pk)}
 								className={clsx(
-									"w-full rounded-xl px-3 py-2.5 text-left transition-colors",
+									"min-w-0 flex-1 rounded-xl px-3 py-2.5 text-left transition-colors",
 									i.pk === item?.pk ? "bg-accent-soft" : "hover:bg-sunken",
 								)}
 							>
@@ -605,7 +691,7 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 							<span>{toast.text}</span>
 							<button
 								type="button"
-								onClick={() => undo.mutate({ pk: toast.pk, lastPk: toast.lastPk })}
+								onClick={undoToast}
 								className="inline-flex items-center gap-1 font-medium opacity-80 hover:opacity-100"
 							>
 								<Undo2 className="size-3.5" /> {t("desfazer")} <kbd>Z</kbd>

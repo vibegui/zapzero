@@ -306,6 +306,24 @@ app.post("/api/event/invite", async (c) => {
 	}
 });
 
+// Bulk clear (Limpeza): only zapzero's own list. lastPk 0 for chats with no synced message (= the whole chat).
+const Many = z.object({
+	kind: z.enum(["archive", "done"]).optional(),
+	items: z.array(z.object({ pk: z.number().int(), lastPk: z.number().int() })).max(2000),
+});
+app.post("/api/decide/many", async (c) => {
+	const p = Many.safeParse(await c.req.json().catch(() => null));
+	if (!p.success || !p.data.kind) return c.json({ error: "invalid" }, 400);
+	for (const i of p.data.items) store.decide(i.pk, i.lastPk, p.data.kind, null);
+	return c.json({ ok: true, n: p.data.items.length });
+});
+app.post("/api/undo/many", async (c) => {
+	const p = Many.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	for (const i of p.data.items) store.undecide(i.pk, i.lastPk);
+	return c.json({ ok: true });
+});
+
 app.post("/api/undo", async (c) => {
 	const p = z
 		.object({ pk: z.number().int(), lastPk: z.number().int() })
