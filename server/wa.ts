@@ -79,6 +79,8 @@ export type Chat = {
 	lastMine: boolean;
 	preview: string;
 	lastInAt: number | null; // ms, last message from them
+	/** ms, their first message since the owner last wrote: how long they have been waiting */
+	firstInAt: number | null;
 	mine: number; // messages the owner ever sent here (synced window)
 };
 
@@ -98,6 +100,7 @@ type Row = {
 	lastKind: number | null;
 	lastSender: string | null;
 	lastInAt: number | null;
+	firstInAt: number | null;
 	mine: number;
 	push: string | null;
 	phoneJid: string | null;
@@ -125,10 +128,13 @@ export function chats(): Chat[] {
 			  m.Z_PK lastPk, m.ZMESSAGEDATE + ${COCOA} lastAt, m.ZISFROMME lastMine, m.ZTEXT lastText, m.ZMESSAGETYPE lastKind,
 			  coalesce(gm.ZCONTACTNAME, m.ZPUSHNAME) lastSender,
 			  (select max(x.ZMESSAGEDATE) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZMESSAGETYPE in (${CONTENT})) + ${COCOA} lastInAt,
+			  (select min(x.ZMESSAGEDATE) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZMESSAGETYPE in (${CONTENT})
+			     and x.ZMESSAGEDATE > coalesce(lm.at, 0)) + ${COCOA} firstInAt,
 			  (select count(*) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 1) mine,
 			  (select x.ZPUSHNAME from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZPUSHNAME > '' order by x.ZSORT desc limit 1) push,
 			  a.ZWHATSAPPID phoneJid, a.ZFULLNAME fullName
 			from ZWACHATSESSION s
+			left join (select ZCHATSESSION cs, max(ZMESSAGEDATE) at from ZWAMESSAGE where ZISFROMME = 1 group by 1) lm on lm.cs = s.Z_PK
 			left join ZWAMESSAGE m on m.Z_PK = (select x.Z_PK from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZMESSAGETYPE in (${CONTENT}) order by x.ZSORT desc limit 1)
 			left join ZWAGROUPMEMBER gm on gm.Z_PK = m.ZGROUPMEMBER
 			left join c.ZWAADDRESSBOOKCONTACT a on a.Z_PK = (select a2.Z_PK from c.ZWAADDRESSBOOKCONTACT a2 where a2.ZWHATSAPPID = s.ZCONTACTJID or a2.ZLID = s.ZCONTACTJID limit 1)
@@ -168,6 +174,7 @@ export function chats(): Chat[] {
 			lastMine: r.lastMine === 1,
 			preview: r.lastPk == null ? "" : who ? `${who}: ${text}` : text,
 			lastInAt: r.lastInAt != null ? r.lastInAt * 1000 : null,
+			firstInAt: r.firstInAt != null ? r.firstInAt * 1000 : null,
 			mine: r.mine,
 		};
 	});

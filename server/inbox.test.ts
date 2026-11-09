@@ -21,6 +21,7 @@ const chat = (pk: number, o: Partial<Chat> = {}): Chat => ({
 	lastMine: false,
 	preview: "oi?",
 	lastInAt: now - day,
+	firstInAt: now - day,
 	mine: 5,
 	...o,
 });
@@ -128,4 +129,18 @@ test("liveProposals: latest per chat wins, a dismissed latest hides older ones, 
 		p(6, 40, 1, "2026-11-05T08:00"),
 	];
 	expect(liveProposals(list, now).map((x) => x.msg)).toEqual([4, 5]);
+});
+
+test("someone who asked again, or a question left days, is urgent", () => {
+	const chats = [
+		chat(1, { firstInAt: now - 5 * day, lastInAt: now - 2 * 3_600_000 }), // asked again
+		chat(2, { firstInAt: now - 3 * day, lastInAt: now - 3 * day, lastAt: now - 3 * day }), // 3 days
+		chat(3, { firstInAt: now - day }), // 1 day, low urgency: this week
+		chat(4, { saved: false, firstInAt: now - 3 * day, lastInAt: now - 3 * day }), // not a contact
+	];
+	const t = new Map([1, 2, 3, 4].map((pk) => [pk, tri(pk, { urgencia: 1 })]));
+	const box = buildInbox(chats, t, new Map(), new Map(), now);
+	expect(box.urgente.map((i) => i.pk).sort()).toEqual([1, 2]);
+	expect(box.urgente.find((i) => i.pk === 1)?.reason).toBe("trabalho · perguntou de novo");
+	expect(box.semana.map((i) => i.pk).sort()).toEqual([3, 4]);
 });

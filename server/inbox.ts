@@ -147,8 +147,20 @@ export function buildInbox(
 				(t.resposta === "talvez" && t.acao === "responder"));
 		const label = CAT_LABEL[t.categoria];
 		if (needsReply && rel > 0) {
-			const urgent = t.urgencia >= 2 && waitAge <= 7;
-			put(urgent ? "urgente" : waitAge <= 7 ? "semana" : "antigas", score, label, true);
+			// waiting since their first unanswered message; asking again a day later = they need it
+			const waited = c.firstInAt ? (now - c.firstInAt) / DAY : waitAge;
+			const askedAgain = rel >= 2 && c.firstInAt != null && c.lastInAt! - c.firstInAt >= 0.8 * DAY;
+			const ignoredQuestion =
+				t.resposta === "sim" && rel === 3 && c.saved && waited >= 2 && waited <= 14;
+			const urgent =
+				(t.urgencia >= 2 && waitAge <= 7) || (askedAgain && waited <= 21) || ignoredQuestion;
+			const why =
+				askedAgain && waited <= 21
+					? `${label} · perguntou de novo`
+					: ignoredQuestion
+						? `${label} · esperando há ${Math.floor(waited)} dias`
+						: label;
+			put(urgent ? "urgente" : waitAge <= 7 ? "semana" : "antigas", score, why, true);
 		} else if (t.espera === "dono_espera" || t.acao === "revisar") {
 			put(
 				"acompanhar",
