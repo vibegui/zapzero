@@ -490,3 +490,36 @@ export function resetInterrupted() {
 		"update events set status = 'error', result = 'interrompido: o servidor reiniciou' where status = 'pending'",
 	);
 }
+
+// ---- phone ↔ e-mail base -------------------------------------------------------------------
+
+/** E-mails the owner's Claude found (calendario) or the owner typed (voce). Contacts and chats are read live. */
+db.run(`create table if not exists emails (
+	phone text, email text, source text, status text, note text, at integer, primary key (phone, email))`);
+
+export type EmailRow = {
+	phone: string;
+	email: string;
+	/** calendario | voce */
+	source: string;
+	/** sugerido (owner hasn't looked) | ok | nao */
+	status: string;
+	/** where it came from, e.g. the meeting it was seen in */
+	note: string | null;
+	at: number;
+};
+
+export const emailRows = () => db.query<EmailRow, []>("select * from emails").all();
+
+export function saveEmail(r: Omit<EmailRow, "at">) {
+	// a suggestion never overrides what the owner already decided
+	db.query(
+		`insert into emails (phone, email, source, status, note, at) values (?, ?, ?, ?, ?, ?)
+		on conflict (phone, email) do update set status = excluded.status, note = coalesce(excluded.note, note), at = excluded.at
+		where excluded.status != 'sugerido' or emails.status = 'sugerido'`,
+	).run(r.phone, r.email.toLowerCase(), r.source, r.status, r.note, Date.now());
+}
+
+export const emailLookedUp = (phone: string) => kvGet(`emails:looked:${phone}`) != null;
+export const markEmailLookedUp = (phone: string) =>
+	kvSet(`emails:looked:${phone}`, String(Date.now()));

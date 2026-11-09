@@ -8,6 +8,7 @@ import { hasTime } from "../web/slots.ts";
 import * as ai from "./ai.ts";
 import { addGuest, bookProposal, CLAUDE, createEvent, scheduleWithGuest } from "./calendar.ts";
 import { emailsFor } from "./contacts.ts";
+import * as emails from "./emails.ts";
 import { PORT, REFRESH_MIN, TOKEN } from "./env.ts";
 import {
 	buildInbox,
@@ -164,7 +165,7 @@ function knownEmails(pk: number, phone: string | null) {
 		.messages(pk, 50)
 		.filter((m) => !m.mine)
 		.flatMap((m) => m.text.toLowerCase().match(EMAIL) ?? []);
-	return [...new Set([...emailsFor(phone), ...said])];
+	return [...new Set([...emails.acceptedFor(phone), ...emailsFor(phone), ...said])];
 }
 const phoneOf = (pk: number) => wa.chats().find((x) => x.pk === pk)?.phone ?? null;
 
@@ -414,6 +415,47 @@ app.post("/api/proposal/:msg", async (c) => {
 	)
 		.then((r) => store.setProposal(p.msg, r.ok ? "booked" : "error", r.result, r.eventId))
 		.catch((e) => store.setProposal(p.msg, "error", String(e).slice(0, 300)));
+	return c.json({ ok: true });
+});
+
+// phone ↔ e-mail base; POST /find asks the owner's Claude about the next batch (in the background)
+let finding: string | null = null;
+let foundLast: { asked: number; found: number } | null = null;
+app.get("/api/emails", (c) =>
+	c.json({
+		people: emails.base(),
+		running: finding != null,
+		last: foundLast,
+		next: emails.toLookUp().length,
+	}),
+);
+app.post("/api/emails/find", (c) => {
+	if (!finding) {
+		finding = new Date().toISOString();
+		void emails
+			.findBatch()
+			.then((r) => {
+				foundLast = r;
+				if (!r) console.log("emails: lookup failed (Claude Code or the calendar connector)");
+			})
+			.finally(() => {
+				finding = null;
+			});
+	}
+	return c.json({ running: true });
+});
+const EmailSet = z.object({
+	phone: z.string().min(5).max(30),
+	email: z.string().email().max(200),
+	status: z.enum(["ok", "nao"]),
+});
+app.post("/api/emails/set", async (c) => {
+	const p = EmailSet.safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	const old = store
+		.emailRows()
+		.find((r) => r.phone === p.data.phone && r.email === p.data.email.toLowerCase());
+	store.saveEmail({ ...p.data, source: old?.source ?? "voce", note: old?.note ?? null });
 	return c.json({ ok: true });
 });
 

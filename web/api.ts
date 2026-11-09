@@ -1,11 +1,12 @@
 import type { Digest } from "../server/ai.ts";
+import type { Person } from "../server/emails.ts";
 import type { CategoryId, Item } from "../server/inbox.ts";
 import type { Week, Who } from "../server/stats.ts";
 import type { Decision, DecisionKind, Learned, Proposal, Voice } from "../server/store.ts";
 import type { Message } from "../server/wa.ts";
 import { t } from "./i18n.ts";
 
-export type { CategoryId, DecisionKind, Item, Message, Voice };
+export type { CategoryId, DecisionKind, Item, Message, Person, Voice };
 export type Inbox = {
 	lang: "pt" | "en";
 	snapshotAt: number | null;
@@ -102,6 +103,16 @@ export const api = {
 	digest: () => call<{ digest: Digest | null; running: boolean }>("digest"),
 	makeDigest: () => call<{ running: boolean }>("digest", {}),
 	keepLearned: (keep: string[]) => call<Voice>("voice/learned", { keep }),
+	emails: () =>
+		call<{
+			people: Person[];
+			running: boolean;
+			last: { asked: number; found: number } | null;
+			next: number;
+		}>("emails"),
+	findEmails: () => call<{ running: boolean }>("emails/find", {}),
+	setEmail: (b: { phone: string; email: string; status: "ok" | "nao" }) =>
+		call<{ ok: true }>("emails/set", b),
 };
 
 export function ago(ms: number | null) {

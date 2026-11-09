@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import {
 	Archive,
+	BookUser,
 	CalendarDays,
 	ChartLine,
 	Check,
@@ -159,6 +160,14 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 				>
 					<Newspaper className="size-4" />
 					<span className="flex-1 truncate">{t("Resumo dos grupos")}</span>
+				</Link>
+				<Link
+					to="/contatos"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<BookUser className="size-4" />
+					<span className="flex-1 truncate">{t("Contatos e e-mails")}</span>
 				</Link>
 				<Areas inbox={inbox} />
 				<Link

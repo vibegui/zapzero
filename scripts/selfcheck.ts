@@ -86,6 +86,49 @@ try {
 			.reduce((n, w) => n + w[k], 0);
 	eq([sum("recebidas"), sum("enviadas")], [7, 3], "stats: messages in and out");
 
+	// e-mail base: a suggestion never overrides the owner's "nao", and only "ok" ones go to invites
+	const store = await import("../server/store.ts");
+	const emails = await import("../server/emails.ts");
+	const ana = by(FAKE.waiting).phone!;
+	store.saveEmail({
+		phone: ana,
+		email: "ana@x.co",
+		source: "calendario",
+		status: "sugerido",
+		note: null,
+	});
+	eq(emails.acceptedFor(ana), [], "a suggestion isn't used yet");
+	store.saveEmail({
+		phone: ana,
+		email: "ana@x.co",
+		source: "calendario",
+		status: "nao",
+		note: null,
+	});
+	store.saveEmail({
+		phone: ana,
+		email: "ana@x.co",
+		source: "calendario",
+		status: "sugerido",
+		note: null,
+	});
+	eq(store.emailRows()[0]?.status, "nao", "a new suggestion doesn't undo the owner's no");
+	store.saveEmail({
+		phone: ana,
+		email: "ana@x.co",
+		source: "calendario",
+		status: "ok",
+		note: null,
+	});
+	eq(emails.acceptedFor(ana), ["ana@x.co"], "accepted e-mail is used");
+	ok(
+		emails
+			.base()
+			.find((p) => p.phone === ana)
+			?.emails.some((e) => e.email === "ana@x.co"),
+		"base lists it",
+	);
+
 	console.log(`selfcheck ok: ${chats.length} fake chats read, inbox and stats built`);
 } finally {
 	rmSync(root, { recursive: true, force: true });

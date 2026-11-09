@@ -66,6 +66,33 @@ function server(api: Api) {
 	);
 
 	s.registerTool(
+		"emails",
+		{
+			description:
+				"The owner's phone ↔ e-mail base: their closest contacts with every e-mail known (Mac Contacts, the chat, meeting guests, the owner). status sugerido = not confirmed yet.",
+			inputSchema: { query: z.string().optional() },
+			annotations: { readOnlyHint: true },
+		},
+		async ({ query }) => {
+			const r = (await api("emails")) as {
+				people: { name: string; phone: string; emails: unknown[] }[];
+			};
+			const q = query?.toLowerCase() ?? "";
+			const digits = q.replace(/\D/g, "");
+			return text(
+				r.people
+					.filter(
+						(p) =>
+							!q ||
+							p.name.toLowerCase().includes(q) ||
+							(digits.length > 3 && p.phone.includes(digits)),
+					)
+					.slice(0, 50),
+			);
+		},
+	);
+
+	s.registerTool(
 		"stats",
 		{
 			description: "How fast the owner answers, week by week.",
