@@ -3,7 +3,7 @@ import type { Decision, Draft, Proposal, Triage } from "./store.ts";
 import type { Chat } from "./wa.ts";
 
 export const CATEGORIES = [
-	{ id: "urgente", label: "Importante e urgente" },
+	{ id: "urgente", label: "Importante ou urgente" },
 	{ id: "semana", label: "Essa semana" },
 	{ id: "antigas", label: "Mais de uma semana" },
 	{ id: "acompanhar", label: "Você está esperando" },
@@ -150,15 +150,16 @@ export function buildInbox(
 			// waiting since their first unanswered message; asking again a day later = they need it
 			const waited = c.firstInAt ? (now - c.firstInAt) / DAY : waitAge;
 			const askedAgain = rel >= 2 && c.firstInAt != null && c.lastInAt! - c.firstInAt >= 0.8 * DAY;
-			const ignoredQuestion =
-				t.resposta === "sim" && rel === 3 && c.saved && waited >= 2 && waited <= 14;
+			const ignoredQuestion = t.resposta === "sim" && rel === 3 && c.saved && waited <= 14;
 			const urgent =
 				(t.urgencia >= 2 && waitAge <= 7) || (askedAgain && waited <= 21) || ignoredQuestion;
 			const why =
 				askedAgain && waited <= 21
 					? `${label} · perguntou de novo`
 					: ignoredQuestion
-						? `${label} · esperando há ${Math.floor(waited)} dias`
+						? waited >= 2
+							? `${label} · esperando há ${Math.floor(waited)} dias`
+							: `${label} · pergunta direta`
 						: label;
 			put(urgent ? "urgente" : waitAge <= 7 ? "semana" : "antigas", score, why, true);
 		} else if (t.espera === "dono_espera" || t.acao === "revisar") {

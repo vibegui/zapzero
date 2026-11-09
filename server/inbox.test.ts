@@ -42,7 +42,7 @@ const tri = (pk: number, o: Partial<Triage> = {}): Triage => ({
 test("categorizes and ranks", () => {
 	const chats = [
 		chat(1),
-		chat(2, { lastInAt: now - 20 * day, lastAt: now - 20 * day }),
+		chat(2, { firstInAt: now - 20 * day, lastInAt: now - 20 * day, lastAt: now - 20 * day }),
 		chat(3, { lastMine: true }),
 		chat(4, { group: true, unread: 30 }),
 		chat(5, { group: true, lastAt: now - 200 * day }),
@@ -131,16 +131,18 @@ test("liveProposals: latest per chat wins, a dismissed latest hides older ones, 
 	expect(liveProposals(list, now).map((x) => x.msg)).toEqual([4, 5]);
 });
 
-test("someone who asked again, or a question left days, is urgent", () => {
+test("someone who asked again, or a direct question, is important or urgent", () => {
 	const chats = [
 		chat(1, { firstInAt: now - 5 * day, lastInAt: now - 2 * 3_600_000 }), // asked again
 		chat(2, { firstInAt: now - 3 * day, lastInAt: now - 3 * day, lastAt: now - 3 * day }), // 3 days
-		chat(3, { firstInAt: now - day }), // 1 day, low urgency: this week
+		chat(3, { firstInAt: now - day }), // a direct question from a work contact
+		chat(5, { firstInAt: now - day }), // no question, just something to react to: this week
 		chat(4, { saved: false, firstInAt: now - 3 * day, lastInAt: now - 3 * day }), // not a contact
 	];
 	const t = new Map([1, 2, 3, 4].map((pk) => [pk, tri(pk, { urgencia: 1 })]));
+	t.set(5, tri(5, { urgencia: 1, espera: "ninguem", resposta: "talvez" }));
 	const box = buildInbox(chats, t, new Map(), new Map(), now);
-	expect(box.urgente.map((i) => i.pk).sort()).toEqual([1, 2]);
+	expect(box.urgente.map((i) => i.pk).sort()).toEqual([1, 2, 3]);
 	expect(box.urgente.find((i) => i.pk === 1)?.reason).toBe("trabalho · perguntou de novo");
-	expect(box.semana.map((i) => i.pk).sort()).toEqual([3, 4]);
+	expect(box.semana.map((i) => i.pk).sort()).toEqual([4, 5]);
 });

@@ -42,7 +42,7 @@
       "caption": "O painel de verdade, com conversas de mentira. Nomes e mensagens são fictícios.",
       "categories": [
         {
-          "label": "Importante e urgente",
+          "label": "Importante ou urgente",
           "count": 3,
           "kind": "urgent"
         },

@@ -21,7 +21,7 @@ zapzero reads the WhatsApp Desktop app's own database on your Mac, **read-only**
 
 ## What you get
 
-- **Categories by when:** Important & urgent · This week · Older than a week · You're waiting on them · Groups · Cleanup.
+- **Categories by when:** Important or urgent · This week · Older than a week · You're waiting on them · Groups · Cleanup.
 - **Areas by who:** Clients, Hiring, Team, Investors, Partners, Family, Friends, Home & services, Selling to you, Other. Once a day the AI suggests new areas from your pending chats ("Apartment renovation", "Events & talks"); accept one and it becomes a triage choice.
 - **Your voice ("Seu jeito").** After the first scan the AI reads ~150 of your own messages, your 40 busiest chats and the groups you write in most, and writes who you are, one editable field per topic (where you live, work, family, people who matter, current projects, routine, languages), plus a guide to how you write. Accept or edit each part; triage uses it to know who's who and every draft follows your tone.
 - **Performance ("Desempenho").** Week by week over the last 13: how often you answered within 24 h, how long you typically take, who never got an answer, split by saved contacts, strangers and groups. Computed from the snapshot, no AI. A "turn" is a message that arrives after you spoke and after an hour of silence, so a live back-and-forth counts once.
@@ -66,7 +66,7 @@ macOS blocks other apps' data until you allow it. If setup says it can't read Wh
 Open `http://127.0.0.1:8810/?t=<token>` (the token is in `$ZAP_DATA/token`). Then:
 
 1. Check **Seu jeito** in the sidebar: accept or edit who you are and how you write.
-2. Start at **Importante e urgente**: `Y`, `Y`, `Y`, `E`, `Y`.
+2. Start at **Importante ou urgente**: `Y`, `Y`, `Y`, `E`, `Y`.
 3. Press `I` on people you never want to see again.
 
 From your phone or another computer, put it on your private [Tailscale](https://tailscale.com) network (never Funnel):

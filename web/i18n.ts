@@ -33,7 +33,7 @@ export function tReason(r: string) {
 
 const EN: Record<string, string> = {
 	// server: categories (server/inbox.ts CATEGORIES)
-	"Importante e urgente": "Important & urgent",
+	"Importante ou urgente": "Important or urgent",
 	"Essa semana": "This week",
 	"Mais de uma semana": "Older than a week",
 	"Você está esperando": "Waiting on them",

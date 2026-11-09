@@ -42,7 +42,7 @@
       "caption": "The real panel, with made-up chats. Names and messages are fictional.",
       "categories": [
         {
-          "label": "Important & urgent",
+          "label": "Important or urgent",
           "count": 3,
           "kind": "urgent"
         },
