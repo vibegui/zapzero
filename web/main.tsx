@@ -97,11 +97,36 @@ const qc = new QueryClient({
 	defaultOptions: { queries: { refetchOnWindowFocus: true, staleTime: 15_000 } },
 });
 
-// ⌘R reloads: the desktop app's window (a WKWebView) has no reload of its own
+// ⌘R reloads and ⌘+ / ⌘- / ⌘0 zoom: the desktop app's window (a WKWebView) has neither of its own
+const ZOOM_KEY = "zap:zoom";
+let zoom =
+	Number(
+		(() => {
+			try {
+				return localStorage.getItem(ZOOM_KEY);
+			} catch {
+				return null; // sandboxed iframe: no storage, zoom lasts until reload
+			}
+		})(),
+	) || 1;
+const setZoom = (z: number) => {
+	zoom = Math.min(2, Math.max(0.6, Math.round(z * 10) / 10));
+	document.documentElement.style.zoom = String(zoom);
+	try {
+		localStorage.setItem(ZOOM_KEY, String(zoom));
+	} catch {}
+};
+setZoom(zoom);
 window.addEventListener("keydown", (e) => {
-	if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "r") {
+	if (!(e.metaKey || e.ctrlKey)) return;
+	const k = e.key.toLowerCase();
+	const next = k === "=" || k === "+" ? zoom + 0.1 : k === "-" ? zoom - 0.1 : k === "0" ? 1 : null;
+	if (k === "r") {
 		e.preventDefault();
 		location.reload();
+	} else if (next != null) {
+		e.preventDefault();
+		setZoom(next);
 	}
 });
 
