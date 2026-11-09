@@ -528,3 +528,9 @@ export function saveEmail(r: Omit<EmailRow, "at">) {
 export const emailLookedUp = (phone: string) => kvGet(`emails:looked:${phone}`) != null;
 export const markEmailLookedUp = (phone: string) =>
 	kvSet(`emails:looked:${phone}`, String(Date.now()));
+
+/** The e-mail the owner picked for invites when a person has several. */
+export const primaryEmail = (phone: string | null) =>
+	phone ? kvGet(`emails:primary:${phone}`) : null;
+export const setPrimaryEmail = (phone: string, email: string) =>
+	kvSet(`emails:primary:${phone}`, email);

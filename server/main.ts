@@ -175,6 +175,11 @@ function knownEmails(pk: number, phone: string | null) {
 	return [...new Set([...emails.acceptedFor(phone), ...emailsFor(phone), ...said])];
 }
 const phoneOf = (pk: number) => wa.chats().find((x) => x.pk === pk)?.phone ?? null;
+/** E-mails to invite by default: the primary one when the owner picked it, else every known one. */
+function inviteEmails(pk: number, phone: string | null) {
+	const primary = store.primaryEmail(phone);
+	return primary ? [primary] : knownEmails(pk, phone);
+}
 
 /** Who to invite: e-mails written in the proposal itself first, then the contact's and the chat's. */
 const proposalEmails = (p: store.Proposal, phone: string | null) => [
@@ -191,6 +196,7 @@ function proposalList() {
 			name: c?.name ?? String(p.pk),
 			phone: c?.phone ?? null,
 			emails: proposalEmails(p, c?.phone ?? null),
+			primary: store.primaryEmail(c?.phone ?? null),
 		};
 	});
 }
@@ -453,7 +459,7 @@ app.get("/api/emails", (c) =>
 );
 app.get("/api/emails/:pk", (c) => {
 	const pk = Number(c.req.param("pk"));
-	return c.json(knownEmails(pk, phoneOf(pk)));
+	return c.json(inviteEmails(pk, phoneOf(pk)));
 });
 // Types "what's your e-mail?" into the chat in WhatsApp Desktop. Nothing is sent: the owner presses Enter.
 app.post("/api/ask-email/:pk", async (c) => {
@@ -492,6 +498,15 @@ const EmailSet = z.object({
 	phone: z.string().min(5).max(30),
 	email: z.string().email().max(200),
 	status: z.enum(["ok", "nao"]),
+});
+app.post("/api/emails/primary", async (c) => {
+	const p = EmailSet.omit({ status: true }).safeParse(await c.req.json().catch(() => null));
+	if (!p.success) return c.json({ error: "invalid" }, 400);
+	const email = p.data.email.toLowerCase();
+	// the primary is also confirmed: a calendar suggestion stops being one
+	store.saveEmail({ phone: p.data.phone, email, source: "voce", status: "ok", note: null });
+	store.setPrimaryEmail(p.data.phone, email);
+	return c.json({ ok: true });
 });
 app.post("/api/emails/set", async (c) => {
 	const p = EmailSet.safeParse(await c.req.json().catch(() => null));

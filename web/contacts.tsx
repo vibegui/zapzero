@@ -1,7 +1,7 @@
 // Contatos: the phone ↔ e-mail base. Suggestions from the owner's calendar wait for a ✓ before invites use them.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clsx } from "clsx";
-import { Check, Loader2, Plus, Search, X } from "lucide-react";
+import { Check, Loader2, Plus, Search, Star, X } from "lucide-react";
 import { useState } from "react";
 import { api, type Person } from "./api.ts";
 import { t, tf } from "./i18n.ts";
@@ -26,6 +26,10 @@ export function ContactsScreen() {
 	});
 	const set = useMutation({
 		mutationFn: api.setEmail,
+		onSuccess: () => qc.invalidateQueries({ queryKey: ["emails"] }),
+	});
+	const primary = useMutation({
+		mutationFn: api.setPrimary,
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["emails"] }),
 	});
 	const [filter, setFilter] = useState("");
@@ -94,7 +98,7 @@ export function ContactsScreen() {
 					</h2>
 					<ul className="mt-2 grid gap-2">
 						{pending.map((p) => (
-							<Row key={p.pk} p={p} set={set.mutate} />
+							<Row key={p.pk} p={p} set={set.mutate} star={primary.mutate} />
 						))}
 					</ul>
 				</>
@@ -104,7 +108,7 @@ export function ContactsScreen() {
 			</h2>
 			<ul className="mt-2 grid gap-2">
 				{rest.map((p) => (
-					<Row key={p.pk} p={p} set={set.mutate} />
+					<Row key={p.pk} p={p} set={set.mutate} star={primary.mutate} />
 				))}
 			</ul>
 		</section>
@@ -114,9 +118,11 @@ export function ContactsScreen() {
 function Row({
 	p,
 	set,
+	star,
 }: {
 	p: Person;
 	set: (b: { phone: string; email: string; status: "ok" | "nao" }) => void;
+	star: (b: { phone: string; email: string }) => void;
 }) {
 	const [adding, setAdding] = useState(false);
 	const [value, setValue] = useState("");
@@ -137,6 +143,23 @@ function Row({
 							e.status === "sugerido" ? "bg-accent-soft text-ink" : "bg-sunken text-muted",
 						)}
 					>
+						{shown.length > 1 && (
+							<button
+								type="button"
+								title={
+									p.primary === e.email
+										? t("E-mail principal: vai nos convites")
+										: t("Marcar como principal")
+								}
+								onClick={() => star({ phone: p.phone, email: e.email })}
+								className={clsx(
+									"rounded p-0.5",
+									p.primary === e.email ? "text-accent" : "text-faint hover:text-ink",
+								)}
+							>
+								<Star className={clsx("size-3", p.primary === e.email && "fill-current")} />
+							</button>
+						)}
 						{e.email}
 						<span className="text-[11px] text-faint">· {t(SOURCE[e.source] ?? e.source)}</span>
 						{e.status === "sugerido" && (

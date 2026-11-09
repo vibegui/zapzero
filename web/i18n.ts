@@ -125,6 +125,8 @@ const EN: Record<string, string> = {
 	"{n} resolvidas": "{n} done",
 	"Marcar todas": "Select all",
 	"Conectar ao Claude": "Connect to Claude",
+	"E-mail principal: vai nos convites": "Primary e-mail: used in invites",
+	"Marcar como principal": "Make primary",
 	"Compromissos com dia e hora que apareceram nas conversas e não estão na sua agenda. Diga o que falta, aceite, e o seu Claude marca no calendário e convida quem você marcar.":
 		"Meetings with a day and time that came up in your chats and aren't in your calendar. Fill in what's missing, accept, and your Claude books it and invites who you tick.",
 	"Estava na sua agenda e saiu: marcar de novo?":

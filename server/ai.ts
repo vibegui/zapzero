@@ -484,9 +484,7 @@ export async function checkProposals(log = console.log) {
 		}
 		store.markChecked(p.msg);
 	}
-	log(
-		`proposals: ${found.size} of ${Math.min(15, todo.length)} in the calendar, ${gone} left it`,
-	);
+	log(`proposals: ${found.size} of ${Math.min(15, todo.length)} in the calendar, ${gone} left it`);
 }
 
 // ---- weekly group digest -------------------------------------------------------------------

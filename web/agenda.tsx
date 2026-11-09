@@ -143,7 +143,7 @@ function Missing({ p, add }: { p: P; add: (email: string) => void }) {
 
 function Card({ p }: { p: P }) {
 	const qc = useQueryClient();
-	const [emails, setEmails] = useState(() => new Set(p.emails));
+	const [emails, setEmails] = useState(() => new Set(p.primary ? [p.primary] : p.emails));
 	const act = useMutation({
 		mutationFn: (action: "accept" | "dismiss") =>
 			api.proposal(p.msg, { action, emails: [...emails] }),

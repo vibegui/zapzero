@@ -16,6 +16,8 @@ export type Person = {
 	/** messages the owner sent: how close this person is */
 	mine: number;
 	emails: { email: string; source: string; status: string; note: string | null }[];
+	/** the one invites use, when the owner picked it */
+	primary: string | null;
 	looked: boolean;
 };
 
@@ -46,6 +48,7 @@ export function base(limit = 300): Person[] {
 				phone,
 				mine: c.mine,
 				emails: [...out.values()],
+				primary: store.primaryEmail(phone),
 				looked: store.emailLookedUp(phone),
 			};
 		});
