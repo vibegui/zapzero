@@ -10,6 +10,8 @@ TypeScript only. Bun + Hono in `server/`, React + TanStack Router/Query + Tailwi
 
 Gate: `bun run check` and `bun test` green, `bunx biome check --write .` after changes.
 
+Gui's Mac runs it as: launchd server (`dev.zapzero.server`, the repo's `server/main.ts`) + `/Applications/zapzero.app`, which only opens a window on that server. So a server change ships with `launchctl kickstart -k gui/$(id -u)/dev.zapzero.server`, a panel change with `bun run build` (reload the window). Rebuild the app (`bun run desktop`, copy to /Applications) only when `desktop/` changes. Claude Code reaches it through the user-scope MCP `zapzero` (127.0.0.1:8810/mcp).
+
 ## Rules that are not negotiable
 
 - **Never write to WhatsApp's files.** Read through `sqlite3 mode=ro` + `.backup`, work on the copy.
