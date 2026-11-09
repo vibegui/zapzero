@@ -677,12 +677,6 @@ if (cmd === "serve") {
 	);
 	console.log(await res.text());
 	process.exit(res.ok ? 0 : 1);
-} else if (cmd === "archive") {
-	// the owner's "archive" decisions, carried out in WhatsApp Desktop (needs Accessibility for this terminal)
-	const { archive } = await import("./archive.ts");
-	const arg = (k: string) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=")[1];
-	const r = await archive(Number(arg("limit") ?? 50), process.argv.includes("--dry"));
-	console.log(JSON.stringify(r));
 } else if (cmd === "stats") {
 	console.log(JSON.stringify(cachedStats(), null, 1));
 } else if (cmd === "inbox") {
@@ -702,7 +696,7 @@ if (cmd === "serve") {
 	}
 } else {
 	console.log(
-		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | learn | digest | refresh | inbox | stats | archive [--limit=N] [--dry] | api <route> [json]",
+		"uso: bun server/main.ts serve | snapshot | triage | drafts | suggest | voice | learn | digest | refresh | inbox | stats | api <route> [json]",
 	);
 	process.exit(1);
 }
