@@ -98,7 +98,7 @@ const EN: Record<string, string> = {
 	"Sem acesso ao Mac": "Can't reach the Mac",
 	"Token inválido.": "Invalid token.",
 	"O Mac está desligado ou fora do tailnet.": "The Mac is off or outside the tailnet.",
-	"Proposta de agenda": "Proposed meetings",
+	Pendências: "Pending",
 	"Resumo dos grupos": "Group digest",
 	Desempenho: "Performance",
 	Feitas: "Done",
@@ -125,6 +125,18 @@ const EN: Record<string, string> = {
 	"{n} resolvidas": "{n} done",
 	"Marcar todas": "Select all",
 	"Conectar ao Claude": "Connect to Claude",
+	"Compromissos com dia e hora que apareceram nas conversas e não estão na sua agenda. Diga o que falta, aceite, e o seu Claude marca no calendário e convida quem você marcar.":
+		"Meetings with a day and time that came up in your chats and aren't in your calendar. Fill in what's missing, accept, and your Claude books it and invites who you tick.",
+	"Estava na sua agenda e saiu: marcar de novo?":
+		"It was in your calendar and isn't anymore: book it again?",
+	"Falta o e-mail de {name} pro convite.": "{name}'s e-mail is missing for the invite.",
+	"Me passa seu e-mail pra eu mandar o convite?": "Could you send me your e-mail for the invite?",
+	"Aberto no WhatsApp: aperte Enter lá": "Opened in WhatsApp: press Enter there",
+	"Texto copiado: cole na conversa": "Text copied: paste it in the chat",
+	"Pedir no WhatsApp": "Ask in WhatsApp",
+	ou: "or",
+	Usar: "Use",
+	"convidar {e}": "invite {e}",
 	"Contatos e e-mails": "Contacts and e-mails",
 	"O e-mail de cada pessoa, pra convidar sem perguntar. Vem dos Contatos do Mac, do que a pessoa escreveu na conversa e dos convidados das suas reuniões, que o seu Claude procura no calendário.":
 		"Each person's e-mail, to invite them without asking. It comes from the Mac's Contacts, from what they wrote in the chat and from your meetings' guests, which your Claude looks up in your calendar.",

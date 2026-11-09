@@ -18,7 +18,7 @@ export type Inbox = {
 	/** style rules learned from the owner's edits, waiting for them */
 	learned: Learned | null;
 	/** meetings found in messages, waiting on the owner (or being booked) */
-	proposals: (Proposal & { name: string; emails: string[] })[];
+	proposals: (Proposal & { name: string; phone: string | null; emails: string[] })[];
 	/** Claude Code found: replies with a time can create a calendar event */
 	calendar: boolean;
 	areas: { id: string; label: string; builtin: boolean }[];
@@ -112,6 +112,8 @@ export const api = {
 		}>("emails"),
 	findEmails: () => call<{ running: boolean }>("emails/find", {}),
 	emailsOf: (pk: number) => call<string[]>(`emails/${pk}`),
+	askEmail: (pk: number, text: string) =>
+		call<{ via: "whatsapp" | "clipboard" }>(`ask-email/${pk}`, { text }),
 	setEmail: (b: { phone: string; email: string; status: "ok" | "nao" }) =>
 		call<{ ok: true }>("emails/set", b),
 };

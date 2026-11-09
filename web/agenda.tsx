@@ -1,4 +1,4 @@
-// Proposta de agenda: meetings the owner or the other person proposed in a message (a day and a time).
+// Pendências: meetings the owner or the other person proposed in a message (a day and a time).
 // Accept and the owner's Claude books it in their calendar, inviting the e-mails ticked here; or dismiss.
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { clsx } from "clsx";
@@ -34,10 +34,10 @@ export function AgendaScreen() {
 	}, [booking, qc]);
 	return (
 		<section className="mx-auto w-full max-w-3xl overflow-y-auto px-6 py-8">
-			<h1 className="text-[22px] font-semibold tracking-tight">{t("Proposta de agenda")}</h1>
+			<h1 className="text-[22px] font-semibold tracking-tight">{t("Pendências")}</h1>
 			<p className="mt-1 text-sm text-muted">
 				{t(
-					"Compromissos com dia e hora que apareceram nas conversas, seus ou da outra pessoa. Aceite e o seu Claude marca no calendário e convida quem você marcar.",
+					"Compromissos com dia e hora que apareceram nas conversas e não estão na sua agenda. Diga o que falta, aceite, e o seu Claude marca no calendário e convida quem você marcar.",
 				)}
 			</p>
 			{!inbox.data?.calendar && (
@@ -71,6 +71,76 @@ export function AgendaScreen() {
 	);
 }
 
+/** No e-mail for this person: ask in WhatsApp (the owner presses Enter) or type it here, saved in the base. */
+function Missing({ p, add }: { p: P; add: (email: string) => void }) {
+	const qc = useQueryClient();
+	const [value, setValue] = useState("");
+	const [asked, setAsked] = useState<string | null>(null);
+	const save = useMutation({
+		mutationFn: (email: string) =>
+			p.phone
+				? api.setEmail({ phone: p.phone, email, status: "ok" })
+				: Promise.resolve({ ok: true }),
+		onSuccess: (_r, email) => {
+			add(email);
+			setValue("");
+			qc.invalidateQueries({ queryKey: ["emails"] });
+			qc.invalidateQueries({ queryKey: ["inbox"] });
+		},
+	});
+	const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim());
+	return (
+		<div className="mt-2 rounded-lg bg-sunken px-3 py-2 text-[12px]">
+			<div className="text-muted">
+				{tf("Falta o e-mail de {name} pro convite.", { name: p.name })}
+			</div>
+			<div className="mt-1.5 flex flex-wrap items-center gap-2">
+				<button
+					type="button"
+					onClick={() =>
+						api
+							.askEmail(p.pk, t("Me passa seu e-mail pra eu mandar o convite?"))
+							.then((r) =>
+								setAsked(
+									r.via === "whatsapp"
+										? t("Aberto no WhatsApp: aperte Enter lá")
+										: t("Texto copiado: cole na conversa"),
+								),
+							)
+					}
+					className="rounded-md border border-line bg-panel px-2 py-1 text-muted hover:text-ink"
+				>
+					{t("Pedir no WhatsApp")}
+				</button>
+				<span className="text-faint">{t("ou")}</span>
+				<form
+					className="flex items-center gap-1"
+					onSubmit={(e) => {
+						e.preventDefault();
+						if (valid) save.mutate(value.trim().toLowerCase());
+					}}
+				>
+					<input
+						type="email"
+						value={value}
+						onChange={(e) => setValue(e.target.value)}
+						placeholder="nome@empresa.com"
+						className="h-7 w-52 rounded-md border border-line bg-panel px-2 outline-none focus:border-accent"
+					/>
+					<button
+						type="submit"
+						disabled={!valid || save.isPending}
+						className="rounded-md px-2 py-1 font-medium text-accent disabled:opacity-40"
+					>
+						{t("Usar")}
+					</button>
+				</form>
+			</div>
+			{asked && <div className="mt-1 text-accent">{asked}</div>}
+		</div>
+	);
+}
+
 function Card({ p }: { p: P }) {
 	const qc = useQueryClient();
 	const [emails, setEmails] = useState(() => new Set(p.emails));
@@ -90,6 +160,11 @@ function Card({ p }: { p: P }) {
 						<span className="text-sm text-muted">{p.start ? when(p.start) : ""}</span>
 						<span className="text-xs text-faint">· {p.minutes} min</span>
 					</div>
+					{!done && p.result === "saiu da agenda" && (
+						<div className="mt-1 text-[12px] font-medium text-hot">
+							{t("Estava na sua agenda e saiu: marcar de novo?")}
+						</div>
+					)}
 					<div className="mt-1 text-[13px] text-muted">
 						{p.mine ? `${t("Você para")} ` : ""}
 						<span className="font-medium text-ink">{p.name}</span>:{" "}
@@ -117,8 +192,11 @@ function Card({ p }: { p: P }) {
 						</div>
 					)}
 					{!done && p.emails.length === 0 && (
-						<div className="mt-2 text-[12px] text-faint">
-							{t("Sem e-mail conhecido: o evento fica só na sua agenda.")}
+						<Missing p={p} add={(e) => setEmails((s) => new Set(s).add(e))} />
+					)}
+					{!done && [...emails].filter((e) => !p.emails.includes(e)).length > 0 && (
+						<div className="mt-2 text-[12px] text-muted">
+							{tf("convidar {e}", { e: [...emails].join(", ") })}
 						</div>
 					)}
 					{done && (

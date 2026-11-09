@@ -129,6 +129,34 @@ try {
 		"base lists it",
 	);
 
+	// meetings: a booked one is looked up again after 6 h, so a deleted event comes back
+	const base0 = {
+		pk: FAKE.waiting,
+		at: Date.now(),
+		mine: 1,
+		text: "quinta 18h",
+		event: 1,
+		title: "Demo",
+		start: "2099-01-01T18:00",
+		minutes: 30,
+	};
+	store.saveProposal({ msg: 900001, ...base0 });
+	store.saveProposal({ msg: 900002, ...base0 });
+	store.setProposal(900002, "booked");
+	store.markChecked(900002);
+	const due = (now?: number) =>
+		store
+			.uncheckedProposals(now)
+			.map((p) => p.msg)
+			.filter((m) => m >= 900001)
+			.sort();
+	eq(due(), [900001], "new meeting is looked up; one just checked isn't");
+	eq(
+		due(Date.now() + 7 * 3_600_000),
+		[900001, 900002],
+		"a booked one is looked up again after 6 h",
+	);
+
 	console.log(`selfcheck ok: ${chats.length} fake chats read, inbox and stats built`);
 } finally {
 	rmSync(root, { recursive: true, force: true });

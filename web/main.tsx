@@ -27,7 +27,7 @@ const root = createRootRoute({ component: Shell });
 const index = createRoute({
 	getParentRoute: () => root,
 	path: "/",
-	component: () => <Navigate to="/c/$cat" params={{ cat: "urgente" }} />,
+	component: () => <Navigate to="/agenda" />,
 });
 const category = createRoute({
 	getParentRoute: () => root,

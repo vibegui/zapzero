@@ -393,14 +393,19 @@ export const proposals = () =>
 		.query<Proposal, [number]>("select * from proposals where event = 1 and at > ? order by start")
 		.all(Date.now() - 14 * 86_400_000);
 
-export const uncheckedProposals = () =>
+/**
+ * Meetings to look up in the calendar: new ones, and every 6 h the ones already there, so an event the
+ * owner deleted comes back as pending. `checked` is when it was last looked up (1 = before that existed).
+ */
+export const uncheckedProposals = (now = Date.now()) =>
 	db
-		.query<Proposal, []>(
-			"select * from proposals where event = 1 and status = 'pending' and checked is null",
+		.query<Proposal, [number]>(
+			`select * from proposals where event = 1 and status in ('pending', 'booked')
+			and (checked is null or (status = 'booked' and checked < ?))`,
 		)
-		.all();
+		.all(now - 6 * 3_600_000);
 export const markChecked = (msg: number) =>
-	db.query("update proposals set checked = 1 where msg = ?").run(msg);
+	db.query("update proposals set checked = ? where msg = ?").run(Date.now(), msg);
 
 export const proposal = (msg: number) =>
 	db.query<Proposal, [number]>("select * from proposals where msg = ?").get(msg);

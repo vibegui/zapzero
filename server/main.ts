@@ -186,7 +186,12 @@ function proposalList() {
 	const byPk = new Map(wa.chats().map((c) => [c.pk, c]));
 	return liveProposals(store.proposals(), Date.now()).map((p) => {
 		const c = byPk.get(p.pk);
-		return { ...p, name: c?.name ?? String(p.pk), emails: proposalEmails(p, c?.phone ?? null) };
+		return {
+			...p,
+			name: c?.name ?? String(p.pk),
+			phone: c?.phone ?? null,
+			emails: proposalEmails(p, c?.phone ?? null),
+		};
 	});
 }
 
@@ -449,6 +454,24 @@ app.get("/api/emails", (c) =>
 app.get("/api/emails/:pk", (c) => {
 	const pk = Number(c.req.param("pk"));
 	return c.json(knownEmails(pk, phoneOf(pk)));
+});
+// Types "what's your e-mail?" into the chat in WhatsApp Desktop. Nothing is sent: the owner presses Enter.
+app.post("/api/ask-email/:pk", async (c) => {
+	const chat = wa.chats().find((x) => x.pk === Number(c.req.param("pk")));
+	const p = z
+		.object({ text: z.string().min(1).max(500) })
+		.safeParse(await c.req.json().catch(() => null));
+	if (!chat || !p.success) return c.json({ error: "invalid" }, 400);
+	if (chat.phone)
+		Bun.spawnSync([
+			"open",
+			`whatsapp://send?phone=${chat.phone}&text=${encodeURIComponent(p.data.text)}`,
+		]);
+	else {
+		Bun.spawnSync(["pbcopy"], { stdin: Buffer.from(p.data.text) });
+		Bun.spawnSync(["open", "-a", "WhatsApp"]);
+	}
+	return c.json({ via: chat.phone ? "whatsapp" : "clipboard" });
 });
 app.post("/api/emails/find", (c) => {
 	if (!finding) {

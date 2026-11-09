@@ -473,12 +473,20 @@ export async function checkProposals(log = console.log) {
 		})),
 	);
 	if (!found) return log("proposals: calendar check failed, retry next refresh");
+	let gone = 0;
 	for (const p of todo.slice(0, 15)) {
-		if (found.has(p.msg))
+		if (found.has(p.msg) && p.status !== "booked")
 			store.setProposal(p.msg, "booked", "já estava na agenda", found.get(p.msg) || null);
+		if (!found.has(p.msg) && p.status === "booked") {
+			// it was in the calendar and isn't anymore (the owner deleted it): pending again
+			store.setProposal(p.msg, "pending", "saiu da agenda");
+			gone++;
+		}
 		store.markChecked(p.msg);
 	}
-	log(`proposals: ${found.size} of ${Math.min(15, todo.length)} already in the calendar`);
+	log(
+		`proposals: ${found.size} of ${Math.min(15, todo.length)} in the calendar, ${gone} left it`,
+	);
 }
 
 // ---- weekly group digest -------------------------------------------------------------------

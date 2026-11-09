@@ -124,6 +124,17 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 			</div>
 			<div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-3">
 				<Search inbox={inbox} />
+				<Link
+					to="/agenda"
+					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+				>
+					<CalendarDays className="size-4" />
+					<span className="flex-1 truncate">{t("Pendências")}</span>
+					<span className="text-xs tabular-nums text-faint">
+						{inbox?.proposals.filter((p) => p.status === "pending").length || ""}
+					</span>
+				</Link>
 				{inbox?.categories.map((c) => {
 					const Icon = ICONS[c.id];
 					return (
@@ -142,17 +153,6 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 						</Link>
 					);
 				})}
-				<Link
-					to="/agenda"
-					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
-					activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
-				>
-					<CalendarDays className="size-4" />
-					<span className="flex-1 truncate">{t("Proposta de agenda")}</span>
-					<span className="text-xs tabular-nums text-faint">
-						{inbox?.proposals.filter((p) => p.status === "pending").length || ""}
-					</span>
-				</Link>
 				<Link
 					to="/grupos"
 					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
