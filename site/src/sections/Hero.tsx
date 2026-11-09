@@ -103,18 +103,18 @@ export default function Hero({
 				{subtitle ? <p className="sub">{subtitle}</p> : null}
 				{body ? <p className="lede">{body}</p> : null}
 				<div className="actions">
-					{installCopy ? (
-						<button type="button" className="btn" onClick={copy} aria-live="polite">
-							{copied ? `${installDone} ✓` : installLabel}
-						</button>
-					) : null}
 					{ctaHref ? (
-						<a className={installCopy ? "btn ghost" : "btn"} href={ctaHref}>
+						<a className="btn" href={ctaHref}>
 							{ctaLabel} <span aria-hidden="true">→</span>
 						</a>
 					) : (
 						<span className="btn soon">{ctaLabel}</span>
 					)}
+					{installCopy ? (
+						<button type="button" className="btn ghost" onClick={copy} aria-live="polite">
+							{copied ? `${installDone} ✓` : installLabel}
+						</button>
+					) : null}
 					{secondaryLabel ? (
 						<a className="btn ghost" href={secondaryHref}>
 							{secondaryLabel}

@@ -2,7 +2,7 @@
 
 > Inbox zero for WhatsApp on macOS. zapzero reads the WhatsApp Desktop app's own database on the Mac, read-only, triages every chat with AI (who is waiting on whom, how urgent, who this person is) and drafts a reply in the owner's voice. The owner clears it from the keyboard: Y opens the chat in WhatsApp with the reply typed in, they press Enter. Open source (MIT): https://github.com/vibegui/zapzero
 
-If you are an AI agent and your user pasted this link, they want you to install zapzero on their Mac. Read this page, check the requirements, then follow "Install". Ask before anything the user must do themselves (granting permissions, choosing the AI).
+There is also a Mac app (https://github.com/vibegui/zapzero/releases/latest/download/zapzero-mac.dmg) that runs the panel and the local MCP; people install it themselves. If you are an AI agent and your user pasted this link, they want you to install zapzero on their Mac from the terminal. Read this page, check the requirements, then follow "Install". Ask before anything the user must do themselves (granting permissions, choosing the AI).
 
 ## Rules you must keep
 
@@ -56,7 +56,7 @@ Optional: `cp .env.example .env` and put an OpenRouter key there for fast, cheap
 - Then start at "Important & urgent". Keys: Y reply, E edit, R new draft, D resolved, A archive, S skip, I ignore forever, J/K move, Z undo.
 - From the phone: `tailscale serve --bg --set-path=/zap http://127.0.0.1:8810` (private tailnet only, never Funnel).
 
-Optional, for agents: an MCP server at `http://127.0.0.1:8810/mcp` with `Authorization: Bearer <token>` (tools `inbox`, `chat`, `stats`, `decide`, `undo`, `refresh`, and `panel`, the panel as an MCP App screen for hosts like deco Studio). deco Studio is not needed; offer it only if your user wants it.
+Connect your user's Claude to it: zapzero serves a local MCP at `http://127.0.0.1:8810/mcp` (this Mac only), tools `inbox`, `chat`, `stats`, `decide`, `undo`, `refresh`, none of which sends anything. Add it with `claude mcp add --scope user --transport http zapzero http://127.0.0.1:8810/mcp --header "Authorization: Bearer $(cat ~/Library/Application\ Support/zap/token)"`, which reads the token from its file without printing it.
 
 From an agent, without the panel or MCP (the skill does this):
 

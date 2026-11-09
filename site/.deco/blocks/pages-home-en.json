@@ -14,12 +14,12 @@
     {
       "__resolveType": "site/sections/Hero.tsx",
       "domain": "zapzero.dev",
-      "eyebrow": "For WhatsApp Desktop on Mac",
+      "eyebrow": "Mac app · local MCP for Claude",
       "title": "Clear your WhatsApp.",
-      "subtitle": "Inbox zero for WhatsApp. No bot, no risk, never leaves your Mac.",
-      "body": "AI reads your chats right there on your Mac and tells you who's waiting on you. For each one, it leaves a reply written your way. Press Y, WhatsApp opens with the text ready, you hit Enter. Next.",
-      "ctaLabel": "★ Star on GitHub",
-      "ctaHref": "https://github.com/vibegui/zapzero",
+      "subtitle": "Turn your WhatsApp Desktop into a local MCP for Claude, with a dedicated UX.",
+      "body": "Download the app and it reads your chats right there on your Mac, read-only. In the panel, AI shows who's waiting on you and leaves a reply written your way: Y opens WhatsApp with the text ready and you hit Enter. In Claude, one click connects zapzero and you ask \"who's waiting on me?\".",
+      "ctaLabel": "Download for Mac",
+      "ctaHref": "https://github.com/vibegui/zapzero/releases/latest/download/zapzero-mac.dmg",
       "secondaryLabel": "How it works",
       "secondaryHref": "#como-funciona",
       "promises": [
@@ -32,10 +32,10 @@
       "otherLangHref": "/pt?lang=pt",
       "docsLabel": "Docs",
       "docsHref": "/en/docs",
-      "installLabel": "Install",
+      "installLabel": "Install with your agent",
       "installCopy": "https://zapzero.dev/llms.txt",
       "installDone": "Copied",
-      "installHint": "Copy the link and paste it into your agent (Claude Code, Codex…). It reads it and installs:"
+      "installHint": "Or copy the link and paste it into your agent (Claude Code, Codex…): it reads it and installs from the terminal:"
     },
     {
       "__resolveType": "site/sections/PanelMock.tsx",
@@ -184,7 +184,7 @@
           "linkLabel": "Get a key"
         }
       ],
-      "command": "git clone https://github.com/vibegui/zapzero && cd zapzero\nbun install && bun run setup",
+      "command": "# 1. Download zapzero.app and drag it to Applications\n# 2. Settings → Privacy → Full Disk Access → zapzero\n# 3. In the panel, \"Connect to Claude\" copies this:\nclaude mcp add --scope user --transport http zapzero \\\n  http://127.0.0.1:8810/mcp --header \"Authorization: Bearer <token>\"",
       "docsLabel": "Full guide: install, permissions and shortcuts",
       "docsHref": "/en/docs"
     },
@@ -519,7 +519,7 @@
         }
       ],
       "notes": [
-        "Runs as an app inside deco Studio, or in any browser on your private network (Tailscale).",
+        "An app on your Mac. The panel also opens in any browser on your private network (Tailscale).",
         "Open source: app + skill for any agent, so anyone can plug it into their own WhatsApp Desktop."
       ]
     },
@@ -537,6 +537,10 @@
           "a": "<p>Never. It opens the chat with the text typed in and stops there. You hit Enter. And anything that's a commitment (a date, an amount, yes or no) comes as a choice for you to decide.</p>"
         },
         {
+          "q": "How do I use it with Claude?",
+          "a": "<p>The app runs a local MCP at <code>127.0.0.1:8810/mcp</code>, on your Mac only. In the panel's footer, \"Connect to Claude\" copies the command that adds zapzero to Claude Code. Then just ask: \"who's waiting on me?\", \"what can I archive?\". Claude reads and helps you sort. Replying is still you, in WhatsApp.</p>"
+        },
+        {
           "q": "Does it work on Windows? On iPhone?",
           "a": "<p>Not yet. For now it's Mac only, with WhatsApp Desktop installed. The panel opens in any browser on your private network (Tailscale), phone included, but the Mac is what reads the chats.</p>"
         },
@@ -549,12 +553,12 @@
           "a": "<p>Nothing extra: zapzero uses the Claude Code on your machine and your Claude subscription. Optional: an OpenRouter key unlocks Jev for faster triage, US$ 0.09 per 1,600 chats.</p>"
         },
         {
-          "q": "Do I need deco Studio?",
-          "a": "<p>No. It runs as an app inside deco Studio, or on its own in the browser.</p>"
-        },
-        {
           "q": "Is the panel in English?",
           "a": "<p>Yes. Setup asks: Portuguese or English.</p>"
+        },
+        {
+          "q": "macOS says it couldn't verify the app.",
+          "a": "<p>The app isn't signed by Apple yet. Open it once, then go to Settings → Privacy & Security → \"Open Anyway\". All the code is on GitHub, and you can build it yourself with <code>bun run desktop</code>.</p>"
         }
       ]
     },
