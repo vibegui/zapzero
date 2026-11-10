@@ -2,7 +2,7 @@
 
 > Inbox zero for WhatsApp on macOS. zapzero reads the WhatsApp Desktop app's own database on the Mac, read-only, triages every chat with AI (who is waiting on whom, how urgent, who this person is) and drafts a reply in the owner's voice. The owner clears it from the keyboard: Y opens the chat in WhatsApp with the reply typed in, they press Enter. Open source (MIT): https://github.com/vibegui/zapzero
 
-There is also a Mac app (https://github.com/vibegui/zapzero/releases/latest/download/zapzero-mac.dmg) that runs the panel and the local MCP; people install it themselves. If you are an AI agent and your user pasted this link, they want you to install zapzero on their Mac from the terminal. Read this page, check the requirements, then follow "Install". Ask before anything the user must do themselves (granting permissions, choosing the AI).
+If you are an AI agent and your user pasted this link, they want zapzero on their Mac. Read this page, check the requirements, then follow "Install the app" (recommended) or, for people who prefer the terminal, "Install from the terminal". Ask before anything the user must do themselves (granting permissions, choosing the AI).
 
 ## Rules you must keep
 
@@ -25,11 +25,30 @@ There is also a Mac app (https://github.com/vibegui/zapzero/releases/latest/down
 ## Requirements
 
 - macOS with WhatsApp Desktop (https://www.whatsapp.com/download) linked to the user's phone. Linking syncs about the last 3 months of messages.
-- Bun 1.3+ (https://bun.com). Install with `curl -fsSL https://bun.com/install | bash` if missing (ask first).
-- git.
-- One AI: Claude Code logged in (https://claude.com/claude-code, recommended), or Ollama with a model pulled (https://ollama.com), or an OpenRouter key (https://openrouter.ai/keys).
+- One AI: Claude Code logged in (https://claude.com/claude-code, recommended; check with `claude --version`), or Ollama with a model pulled (https://ollama.com), or an OpenRouter key (https://openrouter.ai/keys).
+- Only for the terminal install: Bun 1.3+ (https://bun.com; `curl -fsSL https://bun.com/install | bash`, ask first) and git.
 
-## Install
+## Install the app (recommended)
+
+The Mac app (Apple Silicon) runs zapzero's server and shows the panel in a window. Quitting the app stops the server. You can do steps 1-2 for your user; 3-4 are theirs.
+
+1. Download and copy it to Applications:
+
+```sh
+curl -fL -o /tmp/zapzero-mac.dmg https://github.com/vibegui/zapzero/releases/latest/download/zapzero-mac.dmg
+MNT=$(mktemp -d) && hdiutil attach -nobrowse -quiet -mountpoint "$MNT" /tmp/zapzero-mac.dmg
+ditto "$MNT/zapzero.app" /Applications/zapzero.app && hdiutil detach -quiet "$MNT"
+```
+
+2. Open it: `open -a zapzero`. It isn't signed by Apple yet, so macOS blocks the first open. Your user clicks **Open Anyway** in System Settings → Privacy & Security (or, with their OK, run `xattr -dr com.apple.quarantine /Applications/zapzero.app`).
+3. Your user gives **zapzero** Full Disk Access: System Settings → Privacy & Security → Full Disk Access, click +, pick zapzero in Applications (`open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"` opens that pane). Then they quit and reopen the app.
+4. The window shows the panel. It uses your user's Claude Code when it is installed. The language switch (pt/en) is in the panel.
+
+Then connect their Claude (see "Connect your Claude" below). Update: download the new .dmg and copy it over the old app; check Full Disk Access is still on.
+
+## Install from the terminal
+
+Same zapzero, run by a launchd agent instead of the app, panel in the browser.
 
 ```sh
 git clone https://github.com/vibegui/zapzero ~/zapzero && cd ~/zapzero
@@ -52,12 +71,14 @@ Optional: `cp .env.example .env` and put an OpenRouter key there for fast, cheap
 
 ## After install
 
-- Open `http://127.0.0.1:8810/?t=<token>` (token in `~/Library/Application Support/zap/token`).
+- With the app, the panel is the app's window. From the terminal install, open `http://127.0.0.1:8810/?t=<token>` (token in `~/Library/Application Support/zap/token`).
 - First, check "Seu jeito" / "Your voice": accept or edit who the user is and how they write.
 - The panel opens on "Pendências" (meetings). Then go to "Important or urgent". Keys: Y reply, E edit, R new draft, 1–9 pick a [choice], C calendar event, D resolved, A archive, S skip, I ignore forever, O open in WhatsApp, J/K move, Z undo, / search. In Cleanup, X selects chats and A archives them all in zapzero (WhatsApp itself is untouched). ⌘+ / ⌘- / ⌘0 zoom, ⌘R reload.
 - From the phone: `tailscale serve --bg --set-path=/zap http://127.0.0.1:8810` (private tailnet only, never Funnel).
 
-Connect your user's Claude to it: zapzero serves a local MCP at `http://127.0.0.1:8810/mcp` (this Mac only), tools `inbox`, `chat`, `emails`, `stats`, `decide`, `undo`, `refresh` and `panel` (the panel itself, for clients that show MCP Apps), none of which sends anything. Add it with `claude mcp add --scope user --transport http zapzero http://127.0.0.1:8810/mcp --header "Authorization: Bearer $(cat ~/Library/Application\ Support/zap/token)"`, which reads the token from its file without printing it.
+### Connect your Claude
+
+Works with either install, while the app or server is running. zapzero serves a local MCP at `http://127.0.0.1:8810/mcp` (this Mac only), tools `inbox`, `chat`, `emails`, `stats`, `decide`, `undo`, `refresh` and `panel` (the panel itself, for clients that show MCP Apps), none of which sends anything. Add it with `claude mcp add --scope user --transport http zapzero http://127.0.0.1:8810/mcp --header "Authorization: Bearer $(cat ~/Library/Application\ Support/zap/token)"`, which reads the token from its file without printing it.
 
 From an agent, without the panel or MCP (the skill does this):
 
@@ -68,7 +89,7 @@ bun run zap stats          # how fast the user answers, week by week
 bun run zap refresh        # snapshot → triage → drafts now
 ```
 
-## Update and uninstall
+## Update and uninstall (terminal install)
 
 ```sh
 cd ~/zapzero && git pull && bun install && bun run build
