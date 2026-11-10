@@ -229,7 +229,7 @@ export async function bookProposal(
 export function checkPrompt(items: { id: number; title: string; name: string; start: string }[]) {
 	const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	return `Confira na minha agenda quais destes compromissos já estão marcados. Use só a ferramenta de listar eventos, nos dias deles (fuso ${tz}). Não crie nem mude nada.
-Conta como marcado um evento no mesmo dia, até 2 h antes ou depois, que seja esse compromisso (título, pessoa ou convidado batem).
+Conta como marcado um evento no mesmo dia, até 2 h antes ou depois, que seja esse compromisso: o título, a pessoa ou um convidado batem, mesmo em parte. O nome vem do contato do WhatsApp e às vezes diz o assunto: «Pedro Pilates» bate com «Aula de pilates».
 
 ${items.map((i) => `- id ${i.id}: «${i.title.replace(/[«»\n]/g, " ")}» com «${i.name.replace(/[«»\n]/g, " ").slice(0, 60)}» em ${i.start}`).join("\n")}
 

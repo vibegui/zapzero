@@ -156,6 +156,9 @@ try {
 		[900001, 900002],
 		"a booked one is looked up again after 6 h",
 	);
+	store.markChecked(900001);
+	eq(due(), [], "a pending one just checked isn't");
+	eq(due(Date.now() + 2 * 3_600_000), [900001], "a pending one is looked up again after 1 h");
 
 	console.log(`selfcheck ok: ${chats.length} fake chats read, inbox and stats built`);
 } finally {
