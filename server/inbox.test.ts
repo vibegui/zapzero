@@ -102,13 +102,13 @@ test("pending invite: e-mail after the owner agreed a time", () => {
 	expect(findPendingInvite(msgs.slice(2), new Set(), hasTime)).toBeNull(); // no time agreed
 });
 
-test("liveProposals: latest per chat wins, a dismissed latest hides older ones, past pending drop out", () => {
-	const p = (msg: number, pk: number, at: number, start: string, status = "pending") =>
+test("liveProposals: latest per chat wins, a dismissed or own latest hides older ones, past pending drop out", () => {
+	const p = (msg: number, pk: number, at: number, start: string, status = "pending", mine = 0) =>
 		({
 			msg,
 			pk,
 			at,
-			mine: 0,
+			mine,
 			text: "",
 			event: 1,
 			title: "x",
@@ -127,6 +127,8 @@ test("liveProposals: latest per chat wins, a dismissed latest hides older ones, 
 		p(4, 30, 1, "2026-11-04T09:00", "booked"), // booked stays
 		p(5, 40, 2, "2026-11-07T10:00"),
 		p(6, 40, 1, "2026-11-05T08:00"),
+		p(7, 50, 2, "2026-11-08T10:00", "pending", 1), // the owner proposed: waiting on them
+		p(8, 50, 1, "2026-11-07T10:00"),
 	];
 	expect(liveProposals(list, now).map((x) => x.msg)).toEqual([4, 5]);
 });

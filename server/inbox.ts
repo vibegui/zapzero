@@ -219,6 +219,7 @@ export function liveProposals(list: Proposal[], now: number): Proposal[] {
 			if (seen.has(p.pk)) return false;
 			seen.add(p.pk);
 			if (!p.start || p.status === "dismissed") return false;
+			if (p.status === "pending" && p.mine) return false; // the owner proposed: waiting on them, not on the owner
 			return p.status !== "pending" || new Date(p.start).getTime() > now - 3_600_000;
 		})
 		.sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""));
