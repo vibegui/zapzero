@@ -525,9 +525,11 @@ export function Category({ view, pk }: { view: View; pk?: number }) {
 					},
 			);
 			select(next?.pk);
+			// the name, read before the item leaves the list
+			return { name: items.find((i) => i.pk === b.pk)?.name ?? "" };
 		},
-		onSuccess: (r, b) => {
-			const name = items.find((i) => i.pk === b.pk)?.name ?? "";
+		onSuccess: (r, b, ctx) => {
+			const name = ctx?.name ?? "";
 			const text =
 				b.kind === "reply"
 					? r.via === "whatsapp"
