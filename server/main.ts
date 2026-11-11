@@ -113,6 +113,12 @@ app.use("/api/*", async (c, next) => {
 	await next();
 });
 
+/** a fresh copy of WhatsApp (~1 s, no AI) when the owner searches: a chat they just wrote to shows up */
+app.post("/api/snapshot", async (c) => {
+	if (!running && Date.now() - (wa.snapshotAt() ?? 0) > 30_000) await wa.snapshot();
+	return c.json({ ok: true });
+});
+
 app.get("/api/inbox", (c) => {
 	const all = wa.chats();
 	const names = new Map(all.map((x) => [x.pk, x.name]));

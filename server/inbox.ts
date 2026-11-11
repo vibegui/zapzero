@@ -9,6 +9,8 @@ export const CATEGORIES = [
 	{ id: "acompanhar", label: "Você está esperando" },
 	{ id: "grupos", label: "Grupos e lazer" },
 	{ id: "limpeza", label: "Limpeza" },
+	/** every other chat (answered, archived, decided), newest first: only for search, not in the menu */
+	{ id: "outras", label: "Fora da caixa" },
 ] as const;
 export type CategoryId = (typeof CATEGORIES)[number]["id"];
 /** categories whose items get a drafted reply */
@@ -68,14 +70,9 @@ export function buildInbox(
 		CategoryId,
 		Item[]
 	>;
-	for (const c of chats) {
-		if (c.archived) continue;
-		if (decided.has(`${c.pk}:0`)) continue; // ignored forever
-		if (c.lastPk != null && decided.has(`${c.pk}:${c.lastPk}`)) continue;
-		const age = c.lastAt ? (now - c.lastAt) / DAY : 9999;
-		const waitAge = c.lastInAt ? (now - c.lastInAt) / DAY : age;
+	const baseOf = (c: Chat) => {
 		const d = drafts.get(c.pk);
-		const base = {
+		return {
 			pk: c.pk,
 			lastPk: c.lastPk,
 			group: c.group,
@@ -91,6 +88,14 @@ export function buildInbox(
 			area: c.group ? null : (triage.get(c.pk)?.area ?? null),
 			invite: null as PendingInvite | null,
 		};
+	};
+	for (const c of chats) {
+		if (c.archived) continue;
+		if (decided.has(`${c.pk}:0`)) continue; // ignored forever
+		if (c.lastPk != null && decided.has(`${c.pk}:${c.lastPk}`)) continue;
+		const age = c.lastAt ? (now - c.lastAt) / DAY : 9999;
+		const waitAge = c.lastInAt ? (now - c.lastInAt) / DAY : age;
+		const base = baseOf(c);
 		const put = (category: CategoryId, score: number, reason: string, triaged = false) =>
 			out[category].push({ ...base, category, score, reason, triaged });
 
@@ -179,6 +184,16 @@ export function buildInbox(
 			put("limpeza", age, why, true);
 		}
 	}
+	const placed = new Set(Object.values(out).flatMap((items) => items.map((i) => i.pk)));
+	for (const c of chats)
+		if (!placed.has(c.pk))
+			out.outras.push({
+				...baseOf(c),
+				preview: c.preview.slice(0, 80), // 1000+ of these ride every inbox poll
+				category: "outras",
+				score: c.lastAt ?? 0,
+				reason: c.archived ? "arquivada" : c.lastMine ? "você respondeu" : "",
+			});
 	for (const items of Object.values(out)) items.sort((a, b) => b.score - a.score);
 	return out;
 }

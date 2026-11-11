@@ -56,6 +56,7 @@ const ICONS: Record<CategoryId, typeof Flame> = {
 	acompanhar: Hourglass,
 	grupos: Users,
 	limpeza: Archive,
+	outras: Archive, // not in the menu: only search reaches it
 };
 
 export const useInbox = () =>
@@ -135,24 +136,26 @@ function Sidebar({ inbox }: { inbox?: Inbox }) {
 						{inbox?.proposals.filter((p) => p.status === "pending").length || ""}
 					</span>
 				</Link>
-				{inbox?.categories.map((c) => {
-					const Icon = ICONS[c.id];
-					return (
-						<Link
-							key={c.id}
-							to="/c/$cat"
-							params={{ cat: c.id }}
-							className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
-							activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
-						>
-							<Icon
-								className={clsx("size-4", c.id === "urgente" && c.items.length > 0 && "text-hot")}
-							/>
-							<span className="flex-1 truncate">{t(c.label)}</span>
-							<span className="text-xs tabular-nums text-faint">{c.items.length || ""}</span>
-						</Link>
-					);
-				})}
+				{inbox?.categories
+					.filter((c) => c.id !== "outras")
+					.map((c) => {
+						const Icon = ICONS[c.id];
+						return (
+							<Link
+								key={c.id}
+								to="/c/$cat"
+								params={{ cat: c.id }}
+								className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
+								activeProps={{ className: "!bg-panel !text-ink shadow-sm" }}
+							>
+								<Icon
+									className={clsx("size-4", c.id === "urgente" && c.items.length > 0 && "text-hot")}
+								/>
+								<span className="flex-1 truncate">{t(c.label)}</span>
+								<span className="text-xs tabular-nums text-faint">{c.items.length || ""}</span>
+							</Link>
+						);
+					})}
 				<Link
 					to="/grupos"
 					className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-panel hover:text-ink"
@@ -263,6 +266,7 @@ const fold = (s: string) =>
 /** Find a chat in the inbox by name; `/` focuses it. Click opens it in its category. */
 function Search({ inbox }: { inbox?: Inbox }) {
 	const [q, setQ] = useState("");
+	const qc = useQueryClient();
 	const navigate = useNavigate();
 	const hits = useMemo(() => {
 		const f = fold(q.trim());
@@ -278,6 +282,12 @@ function Search({ inbox }: { inbox?: Inbox }) {
 			<input
 				data-search
 				value={q}
+				onFocus={() =>
+					api.snapshot().then(
+						() => qc.invalidateQueries({ queryKey: ["inbox"] }),
+						() => {},
+					)
+				}
 				onChange={(e) => setQ(e.target.value)}
 				onKeyDown={(e) => {
 					if (e.key === "Escape") {
@@ -315,7 +325,7 @@ function Search({ inbox }: { inbox?: Inbox }) {
 					))}
 					{hits.length === 0 && (
 						<div className="px-3 py-1.5 text-[12px] text-faint">
-							{t("Nada na caixa com esse nome.")}
+							{t("Nenhuma conversa com esse nome.")}
 						</div>
 					)}
 				</div>

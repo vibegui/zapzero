@@ -73,7 +73,7 @@ Optional: `cp .env.example .env` and put an OpenRouter key there for fast, cheap
 
 - With the app, the panel is the app's window. From the terminal install, open `http://127.0.0.1:8810/?t=<token>` (token in `~/Library/Application Support/zap/token`).
 - First, check "Seu jeito" / "Your voice": accept or edit who the user is and how they write.
-- The panel opens on "Pendências" (meetings). Then go to "Important or urgent". Keys: Y reply, E edit, R new draft, 1–9 pick a [choice], C calendar event, D resolved, A archive, S skip, I ignore forever, O open in WhatsApp, J/K move, Z undo, / search. In Cleanup, X selects chats and A archives them all in zapzero (WhatsApp itself is untouched). ⌘+ / ⌘- / ⌘0 zoom, ⌘R reload.
+- The panel opens on "Pendências" (meetings). Then go to "Important or urgent". Keys: Y reply, E edit, R new draft, 1–9 pick a [choice], C calendar event, D resolved, A archive, S skip, I ignore forever, O open in WhatsApp, J/K move, Z undo, / search (any chat by name, also ones answered or archived; it reads WhatsApp again first, so a chat written to a second ago shows up). In Cleanup, X selects chats and A archives them all in zapzero (WhatsApp itself is untouched). ⌘+ / ⌘- / ⌘0 zoom, ⌘R reload.
 - From the phone: `tailscale serve --bg --set-path=/zap http://127.0.0.1:8810` (private tailnet only, never Funnel).
 
 ### Connect your Claude

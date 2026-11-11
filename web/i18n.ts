@@ -38,6 +38,7 @@ const EN: Record<string, string> = {
 	"Mais de uma semana": "Older than a week",
 	"Você está esperando": "Waiting on them",
 	"Grupos e lazer": "Groups",
+	"Fora da caixa": "Not in the inbox",
 	Limpeza: "Cleanup",
 	// server: reasons (server/inbox.ts)
 	trabalho: "work",
@@ -109,7 +110,7 @@ const EN: Record<string, string> = {
 	"Ler o WhatsApp de novo": "Read WhatsApp again",
 	"IA nas últimas 24 h:": "AI in the last 24 h:",
 	"Buscar nome  /": "Search name  /",
-	"Nada na caixa com esse nome.": "Nothing in the inbox by that name.",
+	"Nenhuma conversa com esse nome.": "No chat by that name.",
 	Tags: "Tags",
 	Sugestões: "Suggestions",
 	"Sugerir tags novas agora": "Suggest new tags now",

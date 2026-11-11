@@ -96,6 +96,7 @@ export const api = {
 		call<{ ok: boolean; result: string }>("event/invite", b),
 	draft: (pk: number) => call<{ text: string }>(`draft/${pk}`, {}),
 	refresh: () => call<{ ok: true }>("refresh", {}),
+	snapshot: () => call<{ ok: true }>("snapshot", {}),
 	area: (action: "accept" | "dismiss" | "remove", id: string) =>
 		call<{ ok: true }>(`areas/${action}`, { id }),
 	suggest: () => call<{ ok: true; count: number }>("suggest", {}),

@@ -71,16 +71,20 @@ test("categorizes and ranks", () => {
 		["1:10", { pk: 1, last_pk: 10, kind: "reply", text: "ok", at: now }],
 	]);
 	expect(buildInbox(chats, t, new Map(), dec, now).urgente).toHaveLength(0);
-	// ignored forever: gone even after a new message
+	// ignored forever: out of the inbox even after a new message, still found by search ("outras")
 	const ign = new Map<string, Decision>([
 		["1:0", { pk: 1, last_pk: 0, kind: "ignore", text: null, at: now }],
 	]);
 	const later = chats.map((c) => (c.pk === 1 ? { ...c, lastPk: 99 } : c));
+	const ignored = buildInbox(later, t, new Map(), ign, now);
 	expect(
-		Object.values(buildInbox(later, t, new Map(), ign, now))
-			.flat()
-			.map((i) => i.pk),
+		Object.entries(ignored)
+			.filter(([k]) => k !== "outras")
+			.flatMap(([, items]) => items.map((i) => i.pk)),
 	).not.toContain(1);
+	expect(ignored.outras.map((i) => i.pk)).toContain(1);
+	// every chat is somewhere, so search finds anyone
+	expect(Object.values(box).flat().length).toBe(chats.length);
 	const moved = chats.map((c) => (c.pk === 1 ? { ...c, lastPk: 11 } : c));
 	expect(buildInbox(moved, t, new Map(), dec, now).semana.map((i) => i.pk)).toContain(1);
 });
