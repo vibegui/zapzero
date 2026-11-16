@@ -57,6 +57,12 @@ export function snapshotAt(): number | null {
 	}
 }
 
+/** Group sender: WhatsApp leaves ZCONTACTNAME empty and ZPUSHNAME is a token, so go member jid -> address book -> push name -> number. */
+const sender = (g: string) => `coalesce(nullif(${g}.ZCONTACTNAME, ''),
+  (select nullif(a.ZFULLNAME, '') from c.ZWAADDRESSBOOKCONTACT a where a.ZLID = ${g}.ZMEMBERJID or a.ZWHATSAPPID = ${g}.ZMEMBERJID limit 1),
+  (select nullif(p.ZPUSHNAME, '') from ZWAPROFILEPUSHNAME p where p.ZJID = ${g}.ZMEMBERJID limit 1),
+  case when ${g}.ZMEMBERJID like '%@s.whatsapp.net' then '+' || substr(${g}.ZMEMBERJID, 1, instr(${g}.ZMEMBERJID, '@') - 1) end)`;
+
 function open() {
 	const db = new Database(`${DATA}/chat.sqlite`, { readonly: true });
 	db.run(`attach database 'file:${DATA}/contacts.sqlite?mode=ro' as c`);
@@ -126,7 +132,7 @@ export function chats(): Chat[] {
 			  s.ZLASTMESSAGEDATE > 4000000000 pinned,
 			  case when s.ZLASTMESSAGEDATE < 4000000000 then s.ZLASTMESSAGEDATE + ${COCOA} end sessionAt,
 			  m.Z_PK lastPk, m.ZMESSAGEDATE + ${COCOA} lastAt, m.ZISFROMME lastMine, m.ZTEXT lastText, m.ZMESSAGETYPE lastKind,
-			  coalesce(gm.ZCONTACTNAME, m.ZPUSHNAME) lastSender,
+			  ${sender("gm")} lastSender,
 			  (select max(x.ZMESSAGEDATE) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZMESSAGETYPE in (${CONTENT})) + ${COCOA} lastInAt,
 			  (select min(x.ZMESSAGEDATE) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZMESSAGETYPE in (${CONTENT})
 			     and x.ZMESSAGEDATE > coalesce(lm.at, 0)) + ${COCOA} firstInAt,
@@ -232,7 +238,7 @@ export function messages(pk: number, n = 20): Message[] {
 			},
 			[number, number]
 		>(
-			`select m.Z_PK pk, m.ZISFROMME mine, m.ZMESSAGEDATE + ${COCOA} at, coalesce(g.ZCONTACTNAME, m.ZPUSHNAME) who,
+			`select m.Z_PK pk, m.ZISFROMME mine, m.ZMESSAGEDATE + ${COCOA} at, ${sender("g")} who,
 			  m.ZTEXT text, m.ZMESSAGETYPE kind, coalesce(i.ZMEDIALOCALPATH, i.ZXMPPTHUMBPATH) path
 			from ZWAMESSAGE m left join ZWAGROUPMEMBER g on g.Z_PK = m.ZGROUPMEMBER
 			left join ZWAMEDIAITEM i on i.Z_PK = m.ZMEDIAITEM

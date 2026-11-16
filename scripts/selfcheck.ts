@@ -58,7 +58,11 @@ try {
 		],
 		"messages oldest first",
 	);
-	eq(wa.messages(FAKE.group).length, 2, "system message skipped");
+	eq(
+		wa.messages(FAKE.group).map((m) => m.who),
+		["+5511900000008", "Fábio Melo", "Carla Dias"],
+		"group senders named (number, address book, push name), system message skipped",
+	);
 	eq(wa.messages(FAKE.image)[0]?.media, true, "image message has media");
 
 	const inbox = buildInbox(chats, new Map(), new Map(), new Map());
@@ -84,7 +88,7 @@ try {
 		Object.values(weeks)
 			.flat()
 			.reduce((n, w) => n + w[k], 0);
-	eq([sum("recebidas"), sum("enviadas")], [7, 3], "stats: messages in and out");
+	eq([sum("recebidas"), sum("enviadas")], [8, 3], "stats: messages in and out");
 
 	// e-mail base: a suggestion never overrides the owner's "nao", and only "ok" ones go to invites
 	const store = await import("../server/store.ts");

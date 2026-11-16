@@ -23,7 +23,10 @@ export function makeFakeWhatsApp(dir: string) {
 		ZPARTNERNAME text, ZUNREADCOUNT integer, ZARCHIVED integer, ZLASTMESSAGEDATE real, ZREMOVED integer, ZHIDDEN integer)`);
 	chat.run(`create table ZWAMESSAGE (Z_PK integer primary key, ZCHATSESSION integer, ZISFROMME integer,
 		ZMESSAGEDATE real, ZTEXT text, ZMESSAGETYPE integer, ZGROUPMEMBER integer, ZPUSHNAME text, ZSORT integer, ZMEDIAITEM integer)`);
-	chat.run("create table ZWAGROUPMEMBER (Z_PK integer primary key, ZCONTACTNAME text)");
+	chat.run(
+		"create table ZWAGROUPMEMBER (Z_PK integer primary key, ZCONTACTNAME text, ZMEMBERJID text)",
+	);
+	chat.run("create table ZWAPROFILEPUSHNAME (Z_PK integer primary key, ZJID text, ZPUSHNAME text)");
 	chat.run(
 		"create table ZWAMEDIAITEM (Z_PK integer primary key, ZMEDIALOCALPATH text, ZXMPPTHUMBPATH text)",
 	);
@@ -38,7 +41,11 @@ export function makeFakeWhatsApp(dir: string) {
 	session.run(FAKE.image, 0, "5511900000005@s.whatsapp.net", "Elisa Rocha", 1, ago(4));
 	session.run(FAKE.pinned, 0, "100000000000006@lid", "Fábio Melo", 0, 4_100_000_000); // pinned: far future
 
-	chat.run("insert into ZWAGROUPMEMBER values (1, 'Carla Dias')");
+	// like the real app: ZCONTACTNAME is empty, the name comes from the member jid
+	chat.run("insert into ZWAGROUPMEMBER values (1, '', '100000000000007@lid')"); // push name
+	chat.run("insert into ZWAGROUPMEMBER values (2, '', '100000000000006@lid')"); // address book
+	chat.run("insert into ZWAGROUPMEMBER values (3, '', '5511900000008@s.whatsapp.net')"); // number only
+	chat.run("insert into ZWAPROFILEPUSHNAME values (1, '100000000000007@lid', 'Carla Dias')");
 	chat.run("insert into ZWAMEDIAITEM values (1, 'Media/fake/photo.jpg', null)");
 
 	let sort = 0;
@@ -66,9 +73,13 @@ export function makeFakeWhatsApp(dir: string) {
 	add(FAKE.waiting, false, 2, "Você consegue revisar a proposta até sexta?");
 	add(FAKE.answered, false, 6, "Mandei o contrato por e-mail");
 	add(FAKE.answered, true, 5, "Recebi, obrigado!");
-	add(FAKE.group, false, 3, "Quem leva o bolo no domingo?", { member: 1 });
+	add(FAKE.group, false, 3, "Quem leva o bolo no domingo?", { member: 3 });
 	add(FAKE.group, false, 2, null, { type: 6 }); // system message: not content, must be skipped
-	add(FAKE.group, false, 1, "Eu levo!", { member: 1 });
+	add(FAKE.group, false, 1.5, "Eu faço o café", { member: 2 });
+	add(FAKE.group, false, 1, "Eu levo!", {
+		member: 1,
+		push: "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789",
+	});
 	add(FAKE.lid, false, 3, "Oi, é sobre o anúncio do apartamento", { push: "Diego" });
 	add(FAKE.image, false, 4, null, { type: 1, media: 1 });
 	add(FAKE.pinned, false, 50, "Bom dia!");
