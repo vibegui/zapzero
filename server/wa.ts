@@ -57,10 +57,11 @@ export function snapshotAt(): number | null {
 	}
 }
 
-/** Group sender: WhatsApp leaves ZCONTACTNAME empty and ZPUSHNAME is a token, so go member jid -> address book -> push name -> number. */
+/** Group sender: WhatsApp leaves ZCONTACTNAME empty and ZPUSHNAME is a token, so go member jid -> address book -> push name -> first name -> number. */
 const sender = (g: string) => `coalesce(nullif(${g}.ZCONTACTNAME, ''),
   (select nullif(a.ZFULLNAME, '') from c.ZWAADDRESSBOOKCONTACT a where a.ZLID = ${g}.ZMEMBERJID or a.ZWHATSAPPID = ${g}.ZMEMBERJID limit 1),
   (select nullif(p.ZPUSHNAME, '') from ZWAPROFILEPUSHNAME p where p.ZJID = ${g}.ZMEMBERJID limit 1),
+  nullif(${g}.ZFIRSTNAME, ''),
   case when ${g}.ZMEMBERJID like '%@s.whatsapp.net' then '+' || substr(${g}.ZMEMBERJID, 1, instr(${g}.ZMEMBERJID, '@') - 1) end)`;
 
 function open() {

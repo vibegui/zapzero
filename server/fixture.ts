@@ -24,7 +24,7 @@ export function makeFakeWhatsApp(dir: string) {
 	chat.run(`create table ZWAMESSAGE (Z_PK integer primary key, ZCHATSESSION integer, ZISFROMME integer,
 		ZMESSAGEDATE real, ZTEXT text, ZMESSAGETYPE integer, ZGROUPMEMBER integer, ZPUSHNAME text, ZSORT integer, ZMEDIAITEM integer)`);
 	chat.run(
-		"create table ZWAGROUPMEMBER (Z_PK integer primary key, ZCONTACTNAME text, ZMEMBERJID text)",
+		"create table ZWAGROUPMEMBER (Z_PK integer primary key, ZCONTACTNAME text, ZFIRSTNAME text, ZMEMBERJID text)",
 	);
 	chat.run("create table ZWAPROFILEPUSHNAME (Z_PK integer primary key, ZJID text, ZPUSHNAME text)");
 	chat.run(
@@ -42,9 +42,9 @@ export function makeFakeWhatsApp(dir: string) {
 	session.run(FAKE.pinned, 0, "100000000000006@lid", "Fábio Melo", 0, 4_100_000_000); // pinned: far future
 
 	// like the real app: ZCONTACTNAME is empty, the name comes from the member jid
-	chat.run("insert into ZWAGROUPMEMBER values (1, '', '100000000000007@lid')"); // push name
-	chat.run("insert into ZWAGROUPMEMBER values (2, '', '100000000000006@lid')"); // address book
-	chat.run("insert into ZWAGROUPMEMBER values (3, '', '5511900000008@s.whatsapp.net')"); // number only
+	chat.run("insert into ZWAGROUPMEMBER values (1, '', null, '100000000000007@lid')"); // push name
+	chat.run("insert into ZWAGROUPMEMBER values (2, '', null, '100000000000006@lid')"); // address book
+	chat.run("insert into ZWAGROUPMEMBER values (3, '', null, '5511900000008@s.whatsapp.net')"); // number only
 	chat.run("insert into ZWAPROFILEPUSHNAME values (1, '100000000000007@lid', 'Carla Dias')");
 	chat.run("insert into ZWAMEDIAITEM values (1, 'Media/fake/photo.jpg', null)");
 
