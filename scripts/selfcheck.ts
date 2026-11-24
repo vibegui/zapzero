@@ -48,7 +48,7 @@ try {
 	);
 	ok(!by(FAKE.waiting).lastMine && by(FAKE.answered).lastMine, "who spoke last");
 	eq(by(FAKE.group).preview, "Carla Dias: Eu levo!", "group preview skips system messages");
-	eq(by(FAKE.image).preview, "[imagem]", "image preview");
+	eq(by(FAKE.image).preview, "[imagem] olha isso", "image preview with caption");
 
 	eq(
 		wa.messages(FAKE.waiting).map((m) => [m.mine, m.who, m.text]),
@@ -64,6 +64,11 @@ try {
 		"group senders named (number, address book, push name), system message skipped",
 	);
 	eq(wa.messages(FAKE.image)[0]?.media, true, "image message has media");
+	eq(
+		wa.messages(FAKE.image)[0]?.text,
+		"[imagem] olha isso",
+		"image caption comes from the media item",
+	);
 
 	const inbox = buildInbox(chats, new Map(), new Map(), new Map());
 	const where = (pk: number) =>

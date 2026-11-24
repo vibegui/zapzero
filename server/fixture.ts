@@ -28,7 +28,7 @@ export function makeFakeWhatsApp(dir: string) {
 	);
 	chat.run("create table ZWAPROFILEPUSHNAME (Z_PK integer primary key, ZJID text, ZPUSHNAME text)");
 	chat.run(
-		"create table ZWAMEDIAITEM (Z_PK integer primary key, ZMEDIALOCALPATH text, ZXMPPTHUMBPATH text)",
+		"create table ZWAMEDIAITEM (Z_PK integer primary key, ZMEDIALOCALPATH text, ZXMPPTHUMBPATH text, ZTITLE text)",
 	);
 
 	const session = chat.prepare(
@@ -46,7 +46,7 @@ export function makeFakeWhatsApp(dir: string) {
 	chat.run("insert into ZWAGROUPMEMBER values (2, '', null, '100000000000006@lid')"); // address book
 	chat.run("insert into ZWAGROUPMEMBER values (3, '', null, '5511900000008@s.whatsapp.net')"); // number only
 	chat.run("insert into ZWAPROFILEPUSHNAME values (1, '100000000000007@lid', 'Carla Dias')");
-	chat.run("insert into ZWAMEDIAITEM values (1, 'Media/fake/photo.jpg', null)");
+	chat.run("insert into ZWAMEDIAITEM values (1, 'Media/fake/photo.jpg', null, 'olha  isso')");
 
 	let sort = 0;
 	const msg = chat.prepare("insert into ZWAMESSAGE values (null, ?, ?, ?, ?, ?, ?, ?, ?, ?)");

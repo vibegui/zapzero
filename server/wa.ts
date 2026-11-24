@@ -105,6 +105,7 @@ type Row = {
 	lastMine: number | null;
 	lastText: string | null;
 	lastKind: number | null;
+	lastCaption: string | null;
 	lastSender: string | null;
 	lastInAt: number | null;
 	firstInAt: number | null;
@@ -114,9 +115,17 @@ type Row = {
 	fullName: string | null;
 };
 
-const body = (text: string | null, kind: number | null) =>
-	(text ?? "").replace(/\s+/g, " ").trim() ||
-	(kind != null && KINDS[kind] ? `[${KINDS[kind]}]` : "");
+/** A photo's or video's caption lives in its media item, not in ZTEXT. */
+const caption = (m: string, i: string) =>
+	`case when ${m}.ZMESSAGETYPE in (1,2) then ${i}.ZTITLE end`;
+
+const body = (text: string | null, kind: number | null, cap?: string | null) => {
+	const t = (text ?? "").replace(/\s+/g, " ").trim();
+	if (t) return t;
+	const tag = kind != null && KINDS[kind] ? `[${KINDS[kind]}]` : "";
+	const c = (cap ?? "").replace(/\s+/g, " ").trim();
+	return c ? `${tag} ${c}`.trim() : tag;
+};
 
 let cache: { at: number; chats: Chat[] } | null = null;
 
@@ -132,7 +141,7 @@ export function chats(): Chat[] {
 			  coalesce(s.ZUNREADCOUNT,0) unread, coalesce(s.ZARCHIVED,0) archived,
 			  s.ZLASTMESSAGEDATE > 4000000000 pinned,
 			  case when s.ZLASTMESSAGEDATE < 4000000000 then s.ZLASTMESSAGEDATE + ${COCOA} end sessionAt,
-			  m.Z_PK lastPk, m.ZMESSAGEDATE + ${COCOA} lastAt, m.ZISFROMME lastMine, m.ZTEXT lastText, m.ZMESSAGETYPE lastKind,
+			  m.Z_PK lastPk, m.ZMESSAGEDATE + ${COCOA} lastAt, m.ZISFROMME lastMine, m.ZTEXT lastText, m.ZMESSAGETYPE lastKind, ${caption("m", "li")} lastCaption,
 			  ${sender("gm")} lastSender,
 			  (select max(x.ZMESSAGEDATE) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZMESSAGETYPE in (${CONTENT})) + ${COCOA} lastInAt,
 			  (select min(x.ZMESSAGEDATE) from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZISFROMME = 0 and x.ZMESSAGETYPE in (${CONTENT})
@@ -144,6 +153,7 @@ export function chats(): Chat[] {
 			left join (select ZCHATSESSION cs, max(ZMESSAGEDATE) at from ZWAMESSAGE where ZISFROMME = 1 group by 1) lm on lm.cs = s.Z_PK
 			left join ZWAMESSAGE m on m.Z_PK = (select x.Z_PK from ZWAMESSAGE x where x.ZCHATSESSION = s.Z_PK and x.ZMESSAGETYPE in (${CONTENT}) order by x.ZSORT desc limit 1)
 			left join ZWAGROUPMEMBER gm on gm.Z_PK = m.ZGROUPMEMBER
+			left join ZWAMEDIAITEM li on li.Z_PK = m.ZMEDIAITEM
 			left join c.ZWAADDRESSBOOKCONTACT a on a.Z_PK = (select a2.Z_PK from c.ZWAADDRESSBOOKCONTACT a2 where a2.ZWHATSAPPID = s.ZCONTACTJID or a2.ZLID = s.ZCONTACTJID limit 1)
 			where s.ZSESSIONTYPE in (0,1,4) and coalesce(s.ZREMOVED,0) = 0 and coalesce(s.ZHIDDEN,0) = 0`,
 		)
@@ -164,7 +174,7 @@ export function chats(): Chat[] {
 		let name = r.fullName || r.name || "";
 		if (!group && (!name || name.startsWith("+")) && r.push && !r.push.endsWith("="))
 			name = `~${r.push}${phone ? ` · +${phone}` : ""}`;
-		const text = body(r.lastText, r.lastKind);
+		const text = body(r.lastText, r.lastKind, r.lastCaption);
 		const who = r.lastMine ? "Você" : group ? (r.lastSender ?? "") : "";
 		return {
 			pk: r.pk,
@@ -235,12 +245,13 @@ export function messages(pk: number, n = 20): Message[] {
 				who: string | null;
 				text: string | null;
 				kind: number;
+				cap: string | null;
 				path: string | null;
 			},
 			[number, number]
 		>(
 			`select m.Z_PK pk, m.ZISFROMME mine, m.ZMESSAGEDATE + ${COCOA} at, ${sender("g")} who,
-			  m.ZTEXT text, m.ZMESSAGETYPE kind, coalesce(i.ZMEDIALOCALPATH, i.ZXMPPTHUMBPATH) path
+			  m.ZTEXT text, m.ZMESSAGETYPE kind, ${caption("m", "i")} cap, coalesce(i.ZMEDIALOCALPATH, i.ZXMPPTHUMBPATH) path
 			from ZWAMESSAGE m left join ZWAGROUPMEMBER g on g.Z_PK = m.ZGROUPMEMBER
 			left join ZWAMEDIAITEM i on i.Z_PK = m.ZMEDIAITEM
 			where m.ZCHATSESSION = ? and m.ZMESSAGETYPE in (${CONTENT}) order by m.ZSORT desc limit ?`,
@@ -252,7 +263,7 @@ export function messages(pk: number, n = 20): Message[] {
 		mine: r.mine === 1,
 		at: r.at * 1000,
 		who: r.mine ? "Você" : (r.who ?? ""),
-		text: body(r.text, r.kind).slice(0, 2000),
+		text: body(r.text, r.kind, r.cap).slice(0, 2000),
 		...(IMAGE.has(r.kind) && r.path ? { media: true as const } : {}),
 	}));
 }

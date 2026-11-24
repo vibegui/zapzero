@@ -97,6 +97,10 @@ export function Shell() {
 	);
 }
 
+/** Under a shown photo, drop its "[imagem]" tag and keep only the caption. */
+const bubbleText = (m: { media?: true; text: string }) =>
+	m.media ? m.text.replace(/^\[(imagem|sticker)\]\s*/, "") : m.text;
+
 function Blank({ title, children }: { title: string; children: ReactNode }) {
 	return (
 		<div className="grid h-full place-items-center p-6 text-center">
@@ -922,8 +926,8 @@ function Focus({
 									<div className="mb-0.5 text-[11px] font-medium text-accent">{m.who}</div>
 								)}
 								{m.media && <Media pk={m.pk} />}
-								{!(m.media && /^\[(imagem|sticker)\]$/.test(m.text)) && (
-									<div className="whitespace-pre-wrap break-words">{linkify(m.text)}</div>
+								{bubbleText(m) && (
+									<div className="whitespace-pre-wrap break-words">{linkify(bubbleText(m))}</div>
 								)}
 								<div className="mt-0.5 text-right text-[10px] text-faint">
 									{new Date(m.at).toLocaleTimeString(locale(), {
