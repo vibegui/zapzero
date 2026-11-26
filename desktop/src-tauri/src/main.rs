@@ -121,7 +121,7 @@ fn menu(app: &AppHandle, inbox: Option<&serde_json::Value>) -> tauri::Result<Men
         None => m.append(&MenuItem::with_id(
             app,
             "none",
-            "zapzero não está rodando",
+            "Não consegui ler o zapzero",
             false,
             None::<&str>,
         )?)?,
