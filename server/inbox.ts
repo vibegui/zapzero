@@ -189,7 +189,8 @@ export function buildInbox(
 		if (!placed.has(c.pk))
 			out.outras.push({
 				...baseOf(c),
-				preview: c.preview.slice(0, 80), // 1000+ of these ride every inbox poll
+				// 1000+ of these ride every inbox poll; never cut an emoji in half (a lone surrogate breaks strict JSON parsers)
+				preview: c.preview.slice(0, 80).replace(/[\ud800-\udbff]$/, ""),
 				category: "outras",
 				score: c.lastAt ?? 0,
 				reason: c.archived ? "arquivada" : c.lastMine ? "você respondeu" : "",

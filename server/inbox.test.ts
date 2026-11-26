@@ -152,3 +152,9 @@ test("someone who asked again, or a direct question, is important or urgent", ()
 	expect(box.urgente.find((i) => i.pk === 1)?.reason).toBe("trabalho · perguntou de novo");
 	expect(box.semana.map((i) => i.pk).sort()).toEqual([4, 5]);
 });
+
+test("a cut preview never ends in half an emoji (strict JSON parsers reject it)", () => {
+	const c = chat(1, { archived: true, lastMine: true, preview: `${"a".repeat(79)}😀 tchau` });
+	const item = buildInbox([c], new Map(), new Map(), new Map(), now).outras[0];
+	expect(item?.preview).toBe("a".repeat(79));
+});
